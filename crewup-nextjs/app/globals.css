@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand Colors */
+  --color-crewup-blue: #1E40AF;
+  --color-crewup-orange: #F97316;
+  --color-crewup-light-blue: #3B82F6;
+  --color-crewup-light-orange: #FB923C;
+
+  /* Extended Color Palette */
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #3B82F6;
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+  --gradient-secondary: linear-gradient(135deg, #F97316 0%, #FB923C 100%);
+  --gradient-hero: linear-gradient(135deg, #1E40AF 0%, #F97316 100%);
+}
+
+/* Global Styles */
+body {
+  @apply bg-gradient-to-br from-blue-50 via-white to-orange-50;
+  min-height: 100vh;
+}
+
+/* Enhanced Card Shadows */
+.card-shadow {
+  box-shadow: 0 4px 6px -1px rgba(30, 64, 175, 0.1), 0 2px 4px -1px rgba(30, 64, 175, 0.06);
+}
+
+.card-shadow-hover {
+  transition: all 0.3s ease;
+}
+
+.card-shadow-hover:hover {
+  box-shadow: 0 20px 25px -5px rgba(30, 64, 175, 0.15), 0 10px 10px -5px rgba(30, 64, 175, 0.1);
+  transform: translateY(-2px);
+}

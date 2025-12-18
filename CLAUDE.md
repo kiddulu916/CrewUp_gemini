@@ -2,7 +2,42 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project Overview
+## IMPORTANT: Development Plan
+
+**ALWAYS reference the `development_plan/` folder when working on this project.**
+
+This project is undergoing a complete rebuild from a single-file React app to a production-ready Next.js application. The `development_plan/` folder contains comprehensive implementation guides:
+
+- **00-implementation-roadmap.md** - Complete phased implementation plan (Phases 0-3)
+- **01-overview-and-tech-stack.md** - Tech stack decisions and architecture
+- **02-database-schema.md** - Complete PostgreSQL schema with all tables
+- **03-folder-structure.md** - Hybrid folder architecture
+- **04-authentication-flow.md** - Supabase Auth implementation
+- **05-api-architecture.md** - REST API design and endpoints
+- **06-realtime-messaging.md** - Real-time messaging with Supabase
+- **07-payment-subscription-system.md** - Stripe integration
+- **08-pro-features-implementation.md** - Pro subscription features
+- **09-testing-strategy.md** - Pragmatic testing approach
+- **10-deployment-strategy.md** - Deployment and operations
+- **progress-checklist.md** - Complete task checklist for tracking progress
+
+### Development Workflow
+
+When working on this project:
+
+1. **Always check `progress-checklist.md` first** to see what's been completed and what's next
+2. **Follow the phases in order** as outlined in `00-implementation-roadmap.md`
+3. **Update `progress-checklist.md`** by checking off tasks as you complete them
+4. **Reference the specific design document** for implementation details
+5. **Never skip phases** - each phase builds on the previous one
+
+### Current Status
+
+The project is in the initial planning phase. The single-file React app in `crewup.jsx` is the legacy version that will be rebuilt. Do NOT make changes to `crewup.jsx` - instead, follow the development plan to build the new Next.js application.
+
+---
+
+## Project Overview (Legacy Application)
 
 CrewUp is a mobile-first React web application connecting skilled trade workers with employers (contractors and recruiters). The entire application is contained in a single JSX file (`crewup.jsx`) designed to be embedded in different environments using global configuration variables.
 
