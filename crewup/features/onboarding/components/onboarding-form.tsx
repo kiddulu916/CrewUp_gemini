@@ -30,13 +30,21 @@ export function OnboardingForm({ initialName = '' }: Props) {
     setError('');
     setIsLoading(true);
 
-    const result = await completeOnboarding(formData);
+    try {
+      const result = await completeOnboarding(formData);
 
-    if (!result.success) {
-      setError(result.error || 'Failed to complete onboarding');
+      if (!result.success) {
+        setError(result.error || 'Failed to complete onboarding');
+        setIsLoading(false);
+        return;
+      }
+
+      // Success! Redirect to dashboard
+      window.location.href = '/dashboard/feed';
+    } catch (err: any) {
+      setError(err.message || 'An unexpected error occurred');
       setIsLoading(false);
     }
-    // If successful, user will be redirected by the action
   }
 
   // Step 1: Name

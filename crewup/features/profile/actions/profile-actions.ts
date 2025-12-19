@@ -107,5 +107,5 @@ export async function updateProfile(data: ProfileUpdateData): Promise<ProfileRes
   }
 
   revalidatePath('/dashboard/profile');
-  redirect('/dashboard/profile');
+  return { success: true };
 }

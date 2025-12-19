@@ -87,5 +87,5 @@ export async function completeOnboarding(data: OnboardingData): Promise<Onboardi
   }
 
   revalidatePath('/', 'layout');
-  redirect('/dashboard/feed');
+  return { success: true };
 }
