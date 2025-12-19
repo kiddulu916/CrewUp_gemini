@@ -6,6 +6,8 @@ import { revalidatePath } from 'next/cache';
 
 export type OnboardingData = {
   name: string;
+  phone: string;
+  email: string;
   role: 'worker' | 'employer';
   employer_type?: 'contractor' | 'recruiter';
   trade: string;
@@ -62,6 +64,8 @@ export async function completeOnboarding(data: OnboardingData): Promise<Onboardi
     // If no coords provided, do a regular update without coords
     const updateData: any = {
       name: data.name,
+      phone: data.phone,
+      email: data.email,
       role: data.role,
       trade: data.trade,
       location: location,

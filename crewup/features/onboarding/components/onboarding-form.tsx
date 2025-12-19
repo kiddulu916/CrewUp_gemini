@@ -19,6 +19,8 @@ export function OnboardingForm({ initialName = '' }: Props) {
     role: 'worker',
     trade: '',
     location: '',
+    phone: '',
+    email: '',
   });
 
   function updateFormData(updates: Partial<OnboardingData>) {
@@ -46,7 +48,7 @@ export function OnboardingForm({ initialName = '' }: Props) {
     }
   }
 
-  // Step 1: Name
+  // Step 1: Name, Phone, Email
   if (step === 1) {
     return (
       <Card className="w-full max-w-md shadow-2xl border-2 border-crewup-light-blue">
@@ -61,7 +63,7 @@ export function OnboardingForm({ initialName = '' }: Props) {
 
           <div className="space-y-4">
             <Input
-              label="What's your full name?"
+              label="Full Name"
               type="text"
               placeholder="John Doe"
               value={formData.name}
@@ -69,10 +71,28 @@ export function OnboardingForm({ initialName = '' }: Props) {
               required
             />
 
+            <Input
+              label="Phone Number"
+              type="tel"
+              placeholder="(555) 123-4567"
+              value={formData.phone}
+              onChange={(e) => updateFormData({ phone: e.target.value })}
+              required
+            />
+
+            <Input
+              label="Email"
+              type="email"
+              placeholder="john@example.com"
+              value={formData.email}
+              onChange={(e) => updateFormData({ email: e.target.value })}
+              required
+            />
+
             <Button
               className="w-full"
               onClick={() => setStep(2)}
-              disabled={!formData.name || formData.name.length < 2}
+              disabled={!formData.name || !formData.phone || !formData.email || formData.name.length < 2}
             >
               Continue
             </Button>
