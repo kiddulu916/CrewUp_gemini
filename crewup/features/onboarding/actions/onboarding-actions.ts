@@ -86,6 +86,7 @@ export async function completeOnboarding(data: OnboardingData): Promise<Onboardi
     }
   }
 
+  console.log('[onboarding-actions] Profile updated successfully, returning success');
   revalidatePath('/', 'layout');
   return { success: true };
 }
