@@ -1,6 +1,10 @@
+if (!process.env.STRIPE_PRICE_ID_PRO_MONTHLY || !process.env.STRIPE_PRICE_ID_PRO_ANNUAL) {
+  throw new Error('Missing Stripe price ID environment variables (STRIPE_PRICE_ID_PRO_MONTHLY, STRIPE_PRICE_ID_PRO_ANNUAL)');
+}
+
 export const STRIPE_PRICE_IDS = {
-  MONTHLY: process.env.STRIPE_PRICE_ID_PRO_MONTHLY!,
-  ANNUAL: process.env.STRIPE_PRICE_ID_PRO_ANNUAL!,
+  MONTHLY: process.env.STRIPE_PRICE_ID_PRO_MONTHLY,
+  ANNUAL: process.env.STRIPE_PRICE_ID_PRO_ANNUAL,
 };
 
 export const SUBSCRIPTION_PLANS = {
