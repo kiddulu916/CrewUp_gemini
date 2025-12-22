@@ -355,40 +355,37 @@ Track your progress through the complete rebuild. Check off items as you complet
 
 ---
 
-## Phase 2: Monetization
+## Phase 2: Monetization ✅
 
-### Stripe Setup & Checkout
-- [ ] Create Stripe account
-- [ ] Create CrewUp Pro Monthly product ($15/month)
-- [ ] Create CrewUp Pro Annual product ($150/year)
-- [ ] Get price IDs for both products
-- [ ] Configure Stripe webhook endpoint
-- [ ] Add Stripe environment variables
-- [ ] Create pricing-card.tsx component
-- [ ] Create subscription-manager.tsx component
-- [ ] Create pro-badge.tsx component
-- [ ] Create feature-gate.tsx component
-- [ ] Create use-subscription.ts hook
-- [ ] Create use-checkout.ts hook
-- [ ] Create use-is-pro.ts hook
-- [ ] Create use-cancel-subscription.ts hook
-- [ ] Create GET /api/subscriptions route
-- [ ] Create POST /api/subscriptions/checkout route
-- [ ] Create POST /api/subscriptions/cancel route
-- [ ] Create GET /api/subscriptions/portal route
-- [ ] Create POST /api/webhooks/stripe route
-- [ ] Create pricing page (app/(marketing)/pricing/page.tsx)
-- [ ] Create subscription management page (app/(dashboard)/subscription/page.tsx)
-- [ ] Implement webhook handler for checkout.session.completed
-- [ ] Implement webhook handler for customer.subscription.updated
-- [ ] Implement webhook handler for customer.subscription.deleted
-- [ ] Implement webhook handler for invoice.payment_failed
-- [ ] Test monthly subscription checkout
-- [ ] Test annual subscription checkout
-- [ ] Test subscription cancellation
-- [ ] Test failed payment scenario
-- [ ] Test webhook with Stripe CLI locally
-- [ ] Test full payment flow in production
+### Stripe Setup & Checkout ✅
+- [ ] Create Stripe account (manual - user setup required)
+- [ ] Create CrewUp Pro Monthly product ($15/month) (manual - user setup required)
+- [ ] Create CrewUp Pro Annual product ($150/year) (manual - user setup required)
+- [ ] Get price IDs for both products (manual - user setup required)
+- [ ] Configure Stripe webhook endpoint (manual - deploy first)
+- [x] Add Stripe environment variables (.env.example updated)
+- [x] Create pricing-card.tsx component
+- [x] Create subscription-manager.tsx component
+- [x] Create pro-badge.tsx component
+- [x] Create feature-gate.tsx component
+- [x] Create use-subscription.ts hook
+- [x] Create use-checkout.ts hook (integrated in use-checkout.ts)
+- [x] Create use-is-pro.ts hook (integrated in use-subscription.ts)
+- [x] Create subscription server actions (replaces API routes)
+- [x] Create POST /api/webhooks/stripe route
+- [x] Create pricing page (app/pricing/page.tsx)
+- [x] Create subscription management page (app/dashboard/subscription/page.tsx)
+- [x] Implement webhook handler for checkout.session.completed
+- [x] Implement webhook handler for customer.subscription.updated
+- [x] Implement webhook handler for customer.subscription.deleted
+- [x] Implement webhook handler for invoice.payment_failed
+- [x] Add subscription link to navigation
+- [ ] Test monthly subscription checkout (requires Stripe setup)
+- [ ] Test annual subscription checkout (requires Stripe setup)
+- [ ] Test subscription cancellation (requires Stripe setup)
+- [ ] Test failed payment scenario (requires Stripe setup)
+- [ ] Test webhook with Stripe CLI locally (requires Stripe CLI)
+- [ ] Test full payment flow in production (requires deployment)
 
 ### Basic Pro Features
 
