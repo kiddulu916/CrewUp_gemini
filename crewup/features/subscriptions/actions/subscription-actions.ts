@@ -16,7 +16,7 @@ export type SubscriptionResult = {
  * Get current user's subscription
  */
 export async function getMySubscription(): Promise<SubscriptionResult> {
-  const supabase = await createClient(await cookies());
+  const supabase = await createClient(cookies());
 
   const {
     data: { user },
@@ -74,7 +74,7 @@ export type CheckoutResult = {
  * Create Stripe checkout session
  */
 export async function createCheckoutSession(priceId: string): Promise<CheckoutResult> {
-  const supabase = await createClient(await cookies());
+  const supabase = await createClient(cookies());
 
   const {
     data: { user },
@@ -163,7 +163,7 @@ export async function createCheckoutSession(priceId: string): Promise<CheckoutRe
  * Create Stripe billing portal session
  */
 export async function createPortalSession(): Promise<CheckoutResult> {
-  const supabase = await createClient(await cookies());
+  const supabase = await createClient(cookies());
 
   const {
     data: { user },
