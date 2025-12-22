@@ -13,6 +13,8 @@ export function useSubscription() {
       }
       return result.subscription;
     },
+    refetchOnWindowFocus: true,  // Refetch after Stripe redirects
+    staleTime: 1000 * 60 * 10,   // 10 minutes
   });
 }
 
