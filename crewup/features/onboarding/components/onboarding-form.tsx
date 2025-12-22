@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Button, Input, Select, Card, CardContent } from '@/components/ui';
-import { LocationAutocomplete } from '@/components/common';
 import { TRADES, TRADE_SUBCATEGORIES, EMPLOYER_TYPES } from '@/lib/constants';
 import { completeOnboarding, type OnboardingData } from '../actions/onboarding-actions';
 
@@ -20,6 +19,8 @@ export function OnboardingForm({ initialName = '' }: Props) {
     role: 'worker',
     trade: '',
     location: '',
+    phone: '',
+    email: '',
   });
 
   function updateFormData(updates: Partial<OnboardingData>) {
@@ -30,16 +31,24 @@ export function OnboardingForm({ initialName = '' }: Props) {
     setError('');
     setIsLoading(true);
 
-    const result = await completeOnboarding(formData);
+    try {
+      const result = await completeOnboarding(formData);
 
-    if (!result.success) {
-      setError(result.error || 'Failed to complete onboarding');
+      if (!result.success) {
+        setError(result.error || 'Failed to complete onboarding');
+        setIsLoading(false);
+        return;
+      }
+
+      // Success! Redirect to dashboard
+      window.location.href = '/dashboard/feed';
+    } catch (err: any) {
+      setError(err.message || 'An unexpected error occurred');
       setIsLoading(false);
     }
-    // If successful, user will be redirected by the action
   }
 
-  // Step 1: Name
+  // Step 1: Name, Phone, Email
   if (step === 1) {
     return (
       <Card className="w-full max-w-md shadow-2xl border-2 border-crewup-light-blue">
@@ -54,7 +63,7 @@ export function OnboardingForm({ initialName = '' }: Props) {
 
           <div className="space-y-4">
             <Input
-              label="What's your full name?"
+              label="Full Name"
               type="text"
               placeholder="John Doe"
               value={formData.name}
@@ -62,10 +71,28 @@ export function OnboardingForm({ initialName = '' }: Props) {
               required
             />
 
+            <Input
+              label="Phone Number"
+              type="tel"
+              placeholder="(555) 123-4567"
+              value={formData.phone}
+              onChange={(e) => updateFormData({ phone: e.target.value })}
+              required
+            />
+
+            <Input
+              label="Email"
+              type="email"
+              placeholder="john@example.com"
+              value={formData.email}
+              onChange={(e) => updateFormData({ email: e.target.value })}
+              required
+            />
+
             <Button
               className="w-full"
               onClick={() => setStep(2)}
-              disabled={!formData.name || formData.name.length < 2}
+              disabled={!formData.name || !formData.phone || !formData.email || formData.name.length < 2}
             >
               Continue
             </Button>
@@ -73,7 +100,6 @@ export function OnboardingForm({ initialName = '' }: Props) {
 
           <div className="flex justify-center gap-2">
             <div className="h-2 w-2 rounded-full bg-crewup-blue" />
-            <div className="h-2 w-2 rounded-full bg-gray-300" />
             <div className="h-2 w-2 rounded-full bg-gray-300" />
             <div className="h-2 w-2 rounded-full bg-gray-300" />
           </div>
@@ -160,7 +186,6 @@ export function OnboardingForm({ initialName = '' }: Props) {
           <div className="flex justify-center gap-2">
             <div className="h-2 w-2 rounded-full bg-gray-300" />
             <div className="h-2 w-2 rounded-full bg-crewup-blue" />
-            <div className="h-2 w-2 rounded-full bg-gray-300" />
             <div className="h-2 w-2 rounded-full bg-gray-300" />
           </div>
         </CardContent>
@@ -280,20 +305,28 @@ export function OnboardingForm({ initialName = '' }: Props) {
               </>
             )}
 
+            {error && (
+              <div className="rounded-lg bg-red-50 border border-red-200 p-3">
+                <p className="text-sm text-red-800">{error}</p>
+              </div>
+            )}
+
             <div className="flex gap-3">
-              <Button variant="outline" onClick={() => setStep(2)} className="flex-1">
+              <Button variant="outline" onClick={() => setStep(2)} disabled={isLoading} className="flex-1">
                 Back
               </Button>
               <Button
-                onClick={() => setStep(4)}
+                onClick={handleSubmit}
                 disabled={
-                  formData.role === 'worker'
+                  isLoading ||
+                  (formData.role === 'worker'
                     ? !formData.trade
-                    : !formData.employer_type || !formData.trade
+                    : !formData.employer_type || !formData.trade)
                 }
+                isLoading={isLoading}
                 className="flex-1"
               >
-                Continue
+                Complete Setup
               </Button>
             </div>
           </div>
@@ -302,65 +335,9 @@ export function OnboardingForm({ initialName = '' }: Props) {
             <div className="h-2 w-2 rounded-full bg-gray-300" />
             <div className="h-2 w-2 rounded-full bg-gray-300" />
             <div className="h-2 w-2 rounded-full bg-crewup-blue" />
-            <div className="h-2 w-2 rounded-full bg-gray-300" />
           </div>
         </CardContent>
       </Card>
     );
   }
-
-  // Step 4: Location
-  return (
-    <Card className="w-full max-w-md shadow-2xl border-2 border-crewup-light-blue">
-      <CardContent className="p-6 space-y-6">
-        <div className="text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-crewup-blue to-crewup-orange shadow-lg">
-            <span className="text-3xl">📍</span>
-          </div>
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-crewup-blue to-crewup-orange bg-clip-text text-transparent">Where are you located?</h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Help us connect you with nearby opportunities
-          </p>
-        </div>
-
-        {error && (
-          <div className="rounded-lg bg-red-50 border border-red-200 p-3">
-            <p className="text-sm text-red-800">{error}</p>
-          </div>
-        )}
-
-        <div className="space-y-4">
-          <LocationAutocomplete
-            label="City, State"
-            placeholder="Chicago, IL"
-            value={formData.location}
-            onChange={(data) => updateFormData({ location: data.address, coords: data.coords })}
-            helperText="We'll use this to show you relevant local jobs"
-            required
-          />
-
-          <div className="flex gap-3">
-            <Button variant="outline" onClick={() => setStep(3)} disabled={isLoading} className="flex-1">
-              Back
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              disabled={!formData.location || isLoading}
-              isLoading={isLoading}
-              className="flex-1"
-            >
-              Complete Setup
-            </Button>
-          </div>
-        </div>
-
-        <div className="flex justify-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-gray-300" />
-          <div className="h-2 w-2 rounded-full bg-gray-300" />
-          <div className="h-2 w-2 rounded-full bg-gray-300" />
-          <div className="h-2 w-2 rounded-full bg-crewup-blue" />
-        </div>
-      </CardContent>
-    </Card>
-  );
 }

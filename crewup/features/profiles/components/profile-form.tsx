@@ -46,7 +46,13 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
   // Update coords when location is fetched
   useEffect(() => {
     if (locationState.location && !formData.coords) {
-      setFormData(prev => ({ ...prev, coords: locationState.location }));
+      const coords = locationState.location;
+      setFormData(prev => ({
+        ...prev,
+        coords: coords,
+        // If location text is empty, fill with coords as fallback
+        location: prev.location || `${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`
+      }));
     }
   }, [locationState.location, formData.coords]);
 
@@ -228,7 +234,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
         <CardContent className="space-y-4">
           <div>
             <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
-              Address / City
+              Address / City <span className="text-red-500">*</span>
             </label>
             <Input
               id="location"
@@ -237,6 +243,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
               onChange={(e) => setFormData({ ...formData, location: e.target.value })}
               placeholder="Chicago, IL"
               maxLength={200}
+              required
             />
           </div>
 

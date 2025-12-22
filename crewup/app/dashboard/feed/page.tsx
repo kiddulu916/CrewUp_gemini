@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
+import { InitialLocationCapture } from '@/features/dashboard/components/initial-location-capture';
 
 export const metadata = {
   title: 'Feed - CrewUp',
@@ -23,6 +24,9 @@ export default async function FeedPage() {
 
   return (
     <div className="space-y-6">
+      {/* Capture initial location on first visit */}
+      <InitialLocationCapture />
+
       <div>
         <h1 className="text-3xl font-bold text-gray-900">
           Welcome back, {profile?.name}! 👋

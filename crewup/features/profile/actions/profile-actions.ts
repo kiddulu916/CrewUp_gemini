@@ -107,5 +107,58 @@ export async function updateProfile(data: ProfileUpdateData): Promise<ProfileRes
   }
 
   revalidatePath('/dashboard/profile');
-  redirect('/dashboard/profile');
+  return { success: true };
+}
+
+/**
+ * Update user's location coordinates (used for initial location capture)
+ */
+export async function updateProfileLocation(data: {
+  location: string;
+  coords: { lat: number; lng: number };
+}): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient();
+
+  // Get current user
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { success: false, error: 'Not authenticated' };
+  }
+
+  // Get current profile data first
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile) {
+    return { success: false, error: 'Profile not found' };
+  }
+
+  // Use the existing update_profile_coords function
+  const { error: updateError } = await supabase.rpc('update_profile_coords', {
+    p_user_id: user.id,
+    p_name: profile.name,
+    p_role: profile.role,
+    p_trade: profile.trade,
+    p_location: data.location,
+    p_lng: data.coords.lng,
+    p_lat: data.coords.lat,
+    p_bio: profile.bio,
+    p_sub_trade: profile.sub_trade,
+    p_employer_type: profile.employer_type,
+  });
+
+  if (updateError) {
+    return { success: false, error: updateError.message };
+  }
+
+  revalidatePath('/dashboard/feed');
+  revalidatePath('/dashboard/profile');
+  return { success: true };
 }

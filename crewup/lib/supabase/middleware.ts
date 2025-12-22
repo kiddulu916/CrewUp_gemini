@@ -1,4 +1,4 @@
-import { createServerClient } from '@supabase/ssr';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 /**
@@ -37,14 +37,22 @@ import { NextResponse, type NextRequest } from 'next/server';
  * };
  * ```
  */
-export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
-  });
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
+
+
+export function createClient(request: NextRequest) {
+  // Create an unmodified response
+  let supabaseResponse = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  });
+  
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl!,
+    supabaseKey!,
     {
       cookies: {
         getAll() {
@@ -64,31 +72,38 @@ export async function updateSession(request: NextRequest) {
       },
     }
   );
-
+  
   // IMPORTANT: Avoid writing any logic between createServerClient and
   // supabase.auth.getUser(). A simple mistake could make it very hard to debug
   // issues with users being randomly logged out.
-
+  
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
+  
   // Protected routes logic
   const isProtectedRoute = request.nextUrl.pathname.startsWith('/dashboard');
   const isAuthRoute =
-    request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/signup';
-
+  request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/signup';
+  
   // Redirect unauthenticated users trying to access protected routes
   if (!user && isProtectedRoute) {
     const redirectUrl = new URL('/login', request.url);
     redirectUrl.searchParams.set('redirect', request.nextUrl.pathname);
     return NextResponse.redirect(redirectUrl);
   }
-
+  
   // Redirect authenticated users away from auth pages
   if (user && isAuthRoute) {
     return NextResponse.redirect(new URL('/dashboard/feed', request.url));
   }
+  
+  return supabaseResponse;
+}
 
+export async function updateSession(request: NextRequest) {
+  let supabaseResponse = NextResponse.next({
+    request,
+  })
   return supabaseResponse;
 }
