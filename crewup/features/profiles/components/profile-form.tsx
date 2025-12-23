@@ -260,7 +260,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
             {locationState.error && (
               <p className="text-xs text-amber-600 mt-1">{locationState.error}</p>
             )}
-            {formData.coords && (
+            {formData.coords && formData.coords.lat && formData.coords.lng && (
               <p className="text-xs text-green-600 mt-1">
                 Location coordinates saved ({formData.coords.lat.toFixed(4)}, {formData.coords.lng.toFixed(4)})
               </p>
