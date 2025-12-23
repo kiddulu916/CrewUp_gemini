@@ -35,7 +35,7 @@ WHERE email = 'your-email@gmail.com';
 - [x] Step 3: Trade/Employer details
   - [x] Trade dropdown shows all trades
   - [x] Sub-trade appears when applicable
-  - [x] Bio field (optional for workers, required for employers)
+  - [x] Bio field (needs to only be optional)
   - [x] Form submits successfully
 - [x] Redirect to `/dashboard/feed` after completion
 
@@ -87,20 +87,20 @@ WHERE email = 'your-email@gmail.com';
 - [x] Experience section shows
 
 ### Edit Profile
-- [ ] Navigate to `/dashboard/profile/edit` (Error)
-- [ ] Change name
-- [ ] Change phone (verify auto-formatting)
-- [ ] Change trade
-- [ ] Change sub-trade
+- [x] Navigate to `/dashboard/profile/edit`
+- [x] Change name
+- [ ] Change phone (No auto-formatting)
+- [x] Change trade
+- [x] Change sub-trade
 - [ ] Change location (Google Places Autocomplete)
-  - [ ] Start typing address
-  - [ ] See autocomplete dropdown
+  - [x] Start typing address
+  - [ ] See autocomplete dropdown (No autocomplete dropdown)
   - [ ] Select address
   - [ ] Address fills in
-- [ ] Change bio
-- [ ] Click "Save Changes"
-- [ ] See success toast
-- [ ] Verify changes on profile page
+- [x] Change bio
+- [x] Click "Save Changes"
+- [x] See success toast
+- [x] Verify changes on profile page
 
 **Database Verification:**
 ```sql
@@ -109,18 +109,19 @@ SELECT name, phone, trade, sub_trade, location,
 FROM profiles
 WHERE id = 'your-user-id';
 ```
+(coords_wkt didnt change with the address in location changed)
 
 ### Certifications
-- [ ] Navigate to `/dashboard/profile/certifications`
-- [ ] Click "Add Certification"
-- [ ] Fill in certification details:
-  - [ ] Name
-  - [ ] Issuing organization
-  - [ ] Issue date
-  - [ ] Expiration date
-  - [ ] Certification number (optional)
-  - [ ] Upload photo/PDF (if storage configured)
-- [ ] Save certification
+- [x] Navigate to `/dashboard/profile/certifications`
+- [x] Click "Add Certification"
+- [x] Fill in certification details:
+  - [ ] Name (No name field)
+  - [x] Issuing organization (Needs to be required for verification purposes)
+  - [x] Issue date
+  - [x] Expiration date
+  - [x] Certification number (Should be required for verification purposes)
+  - [x] Upload photo/PDF (Needs to be required for verification purposes)
+- [ ] Save certification (Save fails need more detailed error message to see what failed and how)
 - [ ] See success toast
 - [ ] Certification appears in list
 - [ ] Click delete on certification
@@ -130,15 +131,15 @@ WHERE id = 'your-user-id';
 - [ ] Certification removed from list
 
 ### Work Experience
-- [ ] Navigate to `/dashboard/profile/experience`
-- [ ] Click "Add Experience"
-- [ ] Fill in experience details:
-  - [ ] Company name
-  - [ ] Job title
-  - [ ] Start date
-  - [ ] End date (or "Currently working here")
-  - [ ] Description
-- [ ] Save experience
+- [x] Navigate to `/dashboard/profile/experience`
+- [x] Click "Add Experience"
+- [x] Fill in experience details:
+  - [x] Company name 
+  - [x] Job title
+  - [x] Start date
+  - [x] End date (or "Currently working here")
+  - [x] Description
+- [ ] Save experience (Failed to add experience needs more details for error message to determine what and how it failed)
 - [ ] See success toast
 - [ ] Experience appears in list
 - [ ] Click delete on experience
@@ -146,28 +147,29 @@ WHERE id = 'your-user-id';
 - [ ] Experience removed from list
 
 ---
+**NOTE**: Login allows people to use the same email as another user. this need to be restricted.
 
 ## ✅ Job Posting & Feed (Employer Flow)
 
 ### Post a Job (Employer Only)
-- [ ] Login as employer
-- [ ] Navigate to `/dashboard/jobs/new`
-- [ ] Fill in job details:
-  - [ ] Job title
-  - [ ] Trade
-  - [ ] Sub-trade (optional)
-  - [ ] Job type (select from dropdown)
-  - [ ] **If Hourly job type**: Hourly rate and pay period
-  - [ ] **If Contract job type**: Contract amount and payment type
-  - [ ] Location (Google Places Autocomplete)
-  - [ ] Description
-  - [ ] Required certifications (multi-select)
-- [ ] Submit job posting
+- [x] Login as employer
+- [x] Navigate to `/dashboard/jobs/new`
+- [x] Fill in job details:
+  - [x] Job title
+  - [x] Trade
+  - [x] Sub-trade (optional)
+  - [x] Job type (select from dropdown)
+  - [x] **If Hourly job type**: Hourly rate and pay period
+  - [x] **If Contract job type**: Contract amount and payment type (temporary needs to also include a "Time Length" field for how long the job is needed for)
+  - [ ] Location (Google Places Autocomplete) (no autocomplete)
+  - [x] Description
+  - [x] Required certifications (multi-select)
+- [ ] Submit job posting (**CRITICAL** Error Message: "null value in column "employer_name" of relation "jobs" violates not-null constraint" no employer name field because there was no Company name field during onboarding, company name needs to be in onboarding and saved in database as employer_name so that employer_name is automatically included in every job posting made by that employer and no employer name field is required in the "dashboard/job/new" page )
 - [ ] See success message
 - [ ] Redirect to job feed
 - [ ] Verify new job appears
 
-**Database Verification:**
+**Database Verification:** (Fix job posting)
 ```sql
 SELECT title, trade, job_type, pay_rate, location,
        ST_AsText(coords) as coords_wkt, required_certs
@@ -177,7 +179,7 @@ ORDER BY created_at DESC
 LIMIT 1;
 ```
 
-### View Job Feed (Worker)
+### View Job Feed (Worker) (Fix job posting)
 - [ ] Login as worker
 - [ ] Navigate to `/dashboard/jobs`
 - [ ] See list of available jobs
@@ -193,7 +195,7 @@ LIMIT 1;
 - [ ] Filter by job type
 - [ ] Verify filters work correctly
 
-### View Job Details
+### View Job Details (Fix job posting)
 - [ ] Click on a job card
 - [ ] Navigate to `/dashboard/jobs/[id]`
 - [ ] Verify job details show:
@@ -208,7 +210,7 @@ LIMIT 1;
 
 ## ✅ Job Applications
 
-### Apply to Job (Worker)
+### Apply to Job (Worker) (Fix job posting)
 - [ ] Navigate to job detail page
 - [ ] Click "Apply" button
 - [ ] Application modal opens
@@ -218,7 +220,7 @@ LIMIT 1;
 - [ ] "Apply" button changes to "Applied"
 - [ ] Cannot apply again to same job
 
-### View Applications (Worker)
+### View Applications (Worker) (Fix job posting)
 - [ ] Navigate to `/dashboard/applications`
 - [ ] See list of jobs you've applied to
 - [ ] Each application shows:
@@ -228,7 +230,7 @@ LIMIT 1;
   - [ ] Status (pending/viewed/hired/rejected)
   - [ ] Cover letter (if provided)
 
-### View Applications (Employer)
+### View Applications (Employer) (Fix job posting)
 - [ ] Navigate to `/dashboard/applications`
 - [ ] See jobs you've posted with application counts
 - [ ] Click on a job
@@ -245,7 +247,7 @@ LIMIT 1;
 
 ## ✅ Messaging System
 
-### Start Conversation
+### Start Conversation (Fix job posting)
 - [ ] From job detail page, click "Message Employer" (worker) or "Message" on application (employer)
 - [ ] Navigate to `/dashboard/messages`
 - [ ] Conversation appears in list
@@ -253,7 +255,7 @@ LIMIT 1;
 - [ ] Navigate to `/dashboard/messages/[id]`
 - [ ] Chat window opens
 
-### Send Messages
+### Send Messages (Fix job posting)
 - [ ] Type message in input field
 - [ ] Press Enter or click Send
 - [ ] Message appears in chat
@@ -263,13 +265,13 @@ LIMIT 1;
   - [ ] Timestamp
   - [ ] Read status
 
-### Receive Messages (Polling)
+### Receive Messages (Polling) (Fix job posting)
 - [ ] Open conversation in two different browsers/accounts
 - [ ] Send message from one account
 - [ ] Wait up to 3 seconds
 - [ ] Message appears in other account automatically
 
-### Message List
+### Message List (Fix job posting)
 - [ ] Navigate to `/dashboard/messages`
 - [ ] See list of all conversations
 - [ ] Each conversation shows:
@@ -282,19 +284,21 @@ LIMIT 1;
 
 ## ✅ Subscription System (if Stripe configured)
 
+(**NOTE**: Needs to have different features based on if the user is an employer or worker)
+
 ### View Pricing
-- [ ] Navigate to `/pricing`
-- [ ] See Free and Pro plans
-- [ ] Pro plan shows $15/month and $150/year options
-- [ ] Features listed correctly
+- [x] Navigate to `/pricing`
+- [ ] See Free and Pro plans (No free/pro comparision)
+- [x] Pro plan shows $15/month and $150/year options
+- [x] Features listed correctly (See the note above)
 
 ### Subscribe to Pro
-- [ ] Click "Upgrade to Pro" button
-- [ ] Redirect to Stripe Checkout
-- [ ] Enter payment details (use Stripe test card: 4242 4242 4242 4242)
-- [ ] Complete checkout
-- [ ] Redirect back to app
-- [ ] See success message
+- [ ] Click "Upgrade to Pro" button (No upgrade to pro button, has "subscribe monthly" and "subscribe annually" )
+- [x] Redirect to Stripe Checkout
+- [x] Enter payment details ("Save my information for faster checkout" phone number verification error saying its the wrong country areacode )
+- [x] Complete checkout
+- [x] Redirect back to app
+- [ ] See success message (No success message says current plan is still free)
 
 **Database Verification:**
 ```sql
@@ -303,42 +307,43 @@ FROM profiles
 WHERE id = 'your-user-id';
 ```
 **Expected**: subscription_status = 'pro', stripe IDs populated
+(ERROR MESSAGE: Failed to run sql query: ERROR: 42703: column "stripe_customer_id" does not exist LINE 1: SELECT subscription_status, stripe_customer_id, stripe_subscription_id ^ )
 
 ### Manage Subscription
-- [ ] Navigate to `/dashboard/subscription`
-- [ ] See current plan (Pro)
-- [ ] See billing information
-- [ ] See cancel subscription button
-- [ ] Click "Manage Billing" (opens Stripe Customer Portal)
+- [x] Navigate to `/dashboard/subscription`
+- [ ] See current plan (Pro) (still says current plan free)
+- [ ] See billing information (never asked for billing information at checkout)
+- [ ] See cancel subscription button (see above)
+- [ ] Click "Manage Billing" (see above)
 
 ---
 
 ## 🐛 Error Scenarios to Test
 
 ### Authentication Errors
-- [ ] Try signing up with existing email
-- [ ] Try signing in with wrong password
-- [ ] Try accessing protected routes without auth
-- [ ] Try accessing onboarding with complete profile
+- [x] Try signing up with existing email (Allows signing up with same email which it shouldnt)
+- [x] Try signing in with wrong password
+- [x] Try accessing protected routes without auth
+- [x] Try accessing onboarding with complete profile
 
 ### Form Validation
-- [ ] Submit forms with empty required fields
-- [ ] Submit profile with invalid phone format
-- [ ] Submit password that's too short
-- [ ] Submit passwords that don't match
+- [x] Submit forms with empty required fields
+- [x] Submit profile with invalid phone format (doesnt auto format phone number in profile editing)
+- [x] Submit password that's too short
+- [x] Submit passwords that don't match
 
-### Job Application Errors
+### Job Application Errors (see critical job posting error above )
 - [ ] Try applying to same job twice
 - [ ] Try applying to your own job (employer)
 
 ### Location Errors
-- [ ] Deny location permissions
-- [ ] Enter invalid address in autocomplete
-- [ ] Test without Google Maps API key
+- [x] Deny location permissions
+- [ ] Enter invalid address in autocomplete (no autocomplete)
+- [x] Test without Google Maps API key
 
 ---
 
-## 📱 Mobile Testing (Next Section)
+## 📱 Mobile Testing (Need to test in production)
 
 After completing functional testing, test on mobile devices:
 - [ ] Test on mobile Chrome
@@ -358,15 +363,72 @@ Mark each section as complete only when:
 - Expected behavior matches actual behavior
 
 **Notes/Issues Found:**
-```
-[Record any bugs, issues, or unexpected behavior here]
 
+Onboarding Flow:
+Bio field (needs to only be optional)
 
+Login/Logout:
+Verify redirect to `/login` (it redirects to root url should route to /login)
 
+Edit Profile:
+Change phone (No auto-formatting)
+See autocomplete dropdown (No autocomplete dropdown)
+Note: coords_wkt didnt change with the address in location changed
 
+Certification:
+[x] Fill in certification details:
+   Name (No name field)
+   Issuing organization (Needs to be required for verification purposes)
+   Certification number (Should be required for verification purposes) 
+   Upload photo/PDF (Needs to be required for verification purposes)
+Save certification (Save fails need more detailed error message to see what failed and how)
 
+Work Experience:
+Save experience (Failed to add experience needs more details for error message to determine what and how it failed)
 
-```
+Post a Job (Employer Only):
+Note: temporary needs to also include a "Time Length" field for how long the job is needed for
+Location (Google Places Autocomplete) (no autocomplete)
+Submit job posting (**CRITICAL** Error Message: "null value in column "employer_name" of relation "jobs" violates not-null constraint" no employer name field because there was no Company name field during onboarding, company name needs to be in onboarding and saved in database as employer_name so that employer_name is automatically included in every job posting made by that employer and no employer name field is required in the "dashboard/job/new" page )
+
+View Job Feed (Worker) (Fix job posting)
+
+View Job Details (Fix job posting)
+
+Apply to Job (Worker) (Fix job posting)
+
+View Applications (Worker) (Fix job posting)
+
+View Applications (Employer) (Fix job posting)
+
+Messaging System (Fix job posting)
+
+Subscription System:
+Note: Needs to have different features based on if the user is an employer or worker
+
+View Pricing:
+See Free and Pro plans (No free/pro comparision)
+Features listed correctly (See the note above)
+
+Subscribe to Pro:
+Click "Upgrade to Pro" button (No upgrade to pro button, has "subscribe monthly" and "subscribe annually" )
+Enter payment details ("Save my information for faster checkout" phone number verification error saying its the wrong country areacode )
+See success message (No success message says current plan is still free)
+Database verification - (ERROR MESSAGE: Failed to run sql query: ERROR: 42703: column "stripe_customer_id" does not exist LINE 1: SELECT subscription_status, stripe_customer_id, stripe_subscription_id ^ )
+
+Manage Subscription:
+See current plan (Pro) (still says current plan free)
+See billing information (never asked for billing information at checkout)
+See cancel subscription button (see above)
+Click "Manage Billing" (see above)
+
+Error Scenarios: 
+Try signing up with existing email (Allows signing up with same email which it shouldnt)
+Submit profile with invalid phone format (doesnt auto format phone number in profile editing)
+Enter invalid address in autocomplete (no autocomplete)
+Job Application Errors (see critical job posting error above )
+
+Mobile Testing (Need to test in production)
 
 ---
 
