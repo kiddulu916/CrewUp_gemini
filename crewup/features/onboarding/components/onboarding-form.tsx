@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Input, Select, Card, CardContent } from '@/components/ui';
 import { TRADES, TRADE_SUBCATEGORIES, EMPLOYER_TYPES } from '@/lib/constants';
 import { completeOnboarding, type OnboardingData } from '../actions/onboarding-actions';
@@ -13,6 +13,7 @@ export function OnboardingForm({ initialName = '' }: Props) {
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [locationStatus, setLocationStatus] = useState<'loading' | 'success' | 'error' | null>(null);
 
   const [formData, setFormData] = useState<OnboardingData>({
     name: initialName,
@@ -22,6 +23,86 @@ export function OnboardingForm({ initialName = '' }: Props) {
     phone: '',
     email: '',
   });
+
+  // Capture device location on component mount
+  useEffect(() => {
+    captureLocation();
+  }, []);
+
+  async function captureLocation() {
+    setLocationStatus('loading');
+
+    if (!navigator.geolocation) {
+      console.warn('Geolocation not supported');
+      setLocationStatus('error');
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+
+        try {
+          // Reverse geocode to get address
+          const address = await reverseGeocode(latitude, longitude);
+
+          updateFormData({
+            location: address,
+            coords: { lat: latitude, lng: longitude }
+          });
+
+          setLocationStatus('success');
+        } catch (err) {
+          console.error('Reverse geocoding failed:', err);
+          // Still save coords even if reverse geocoding fails
+          updateFormData({
+            location: `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`,
+            coords: { lat: latitude, lng: longitude }
+          });
+          setLocationStatus('success');
+        }
+      },
+      (error) => {
+        console.error('Geolocation error:', error);
+        setLocationStatus('error');
+        // Use fallback location (Chicago coordinates)
+        updateFormData({
+          location: 'United States',
+          coords: { lat: 41.8781, lng: -87.6298 }
+        });
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
+  }
+
+  async function reverseGeocode(lat: number, lng: number): Promise<string> {
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+    if (!apiKey) {
+      throw new Error('Google Maps API key not configured');
+    }
+
+    const response = await fetch(
+      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`
+    );
+
+    if (!response.ok) {
+      throw new Error('Geocoding request failed');
+    }
+
+    const data = await response.json();
+
+    if (data.status !== 'OK' || !data.results || data.results.length === 0) {
+      throw new Error('No address found');
+    }
+
+    // Return the formatted address
+    return data.results[0].formatted_address;
+  }
 
   function updateFormData(updates: Partial<OnboardingData>) {
     setFormData((prev) => ({ ...prev, ...updates }));
@@ -62,6 +143,34 @@ export function OnboardingForm({ initialName = '' }: Props) {
           </div>
 
           <div className="space-y-4">
+            {/* Location Status Indicator */}
+            {locationStatus && (
+              <div className={`flex items-center gap-2 rounded-lg p-3 text-sm ${
+                locationStatus === 'loading' ? 'bg-blue-50 text-blue-700' :
+                locationStatus === 'success' ? 'bg-green-50 text-green-700' :
+                'bg-yellow-50 text-yellow-700'
+              }`}>
+                {locationStatus === 'loading' && (
+                  <>
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-700 border-t-transparent"></div>
+                    <span>Capturing your location...</span>
+                  </>
+                )}
+                {locationStatus === 'success' && (
+                  <>
+                    <span>📍</span>
+                    <span>Location captured: {formData.location || 'Processing...'}</span>
+                  </>
+                )}
+                {locationStatus === 'error' && (
+                  <>
+                    <span>⚠️</span>
+                    <span>Using default location (location access denied)</span>
+                  </>
+                )}
+              </div>
+            )}
+
             <Input
               label="Full Name"
               type="text"

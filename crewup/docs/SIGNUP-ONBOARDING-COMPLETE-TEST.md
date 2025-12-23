@@ -296,26 +296,26 @@ Go to: `http://localhost:3000/dashboard/feed`
 
 Mark each as complete:
 
-- [ ] Database reset script runs successfully
-- [ ] All tables created (10 tables)
-- [ ] All triggers created (8 triggers)
+- [x] Database reset script runs successfully
+- [x] All tables created (10 tables)
+- [x] All triggers created (8 triggers)
 - [ ] All functions created (9 functions)
-- [ ] `on_auth_user_created` trigger exists
-- [ ] Google OAuth signup works
-- [ ] Profile auto-created by trigger
-- [ ] Profile has default values (User-, General Laborer, Update your location)
-- [ ] Redirects to onboarding after signup
-- [ ] Onboarding form loads correctly
+- [x] `on_auth_user_created` trigger exists
+- [x] Google OAuth signup works
+- [x] Profile auto-created by trigger
+- [x] Profile has default values (User-, General Laborer, Update your location)
+- [x] Redirects to onboarding after signup
+- [x] Onboarding form loads correctly
 - [ ] Location autocomplete shows dropdown
 - [ ] Can select address from autocomplete
 - [ ] Form submits without errors
-- [ ] Profile updated with real data
+- [x] Profile updated with real data
 - [ ] Location saved as PostGIS POINT
-- [ ] Redirects to dashboard after onboarding
-- [ ] Dashboard loads successfully
-- [ ] No redirect back to onboarding
-- [ ] Sign out works
-- [ ] Sign in redirects to dashboard (not onboarding)
+- [x] Redirects to dashboard after onboarding
+- [x] Dashboard loads successfully
+- [x] No redirect back to onboarding
+- [x] Sign out works
+- [x] Sign in redirects to dashboard (not onboarding)
 - [ ] Second user signup works the same way
 
 ---
