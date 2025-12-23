@@ -30,13 +30,19 @@ export function LoginForm() {
     setError('');
     setIsLoading(true);
 
-    const result = await signInWithGoogle();
-
-    if (!result.success) {
-      setError(result.error || 'Failed to sign in with Google');
-      setIsLoading(false);
+    try {
+      await signInWithGoogle();
+      // Redirect to Google OAuth happens automatically
+      // The redirect() call in the server action will throw, which is expected
+    } catch (error) {
+      // Next.js redirect() throws a NEXT_REDIRECT error, which is expected - ignore it
+      // Only show errors for actual failures
+      if (error instanceof Error && !error.message.includes('NEXT_REDIRECT')) {
+        setError(error.message || 'Failed to sign in with Google');
+        setIsLoading(false);
+      }
+      // If it's a NEXT_REDIRECT, let it propagate (don't set loading to false)
     }
-    // If successful, user will be redirected to Google OAuth
   }
 
   return (
