@@ -83,29 +83,76 @@ export function OnboardingForm({ initialName = '' }: Props) {
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
     if (!apiKey) {
+      console.error('[reverseGeocode] API key not configured');
       throw new Error('Google Maps API key not configured');
     }
 
-    const response = await fetch(
-      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`
-    );
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`;
+    console.log('[reverseGeocode] Requesting:', url.replace(apiKey, 'API_KEY_HIDDEN'));
+
+    const response = await fetch(url);
 
     if (!response.ok) {
-      throw new Error('Geocoding request failed');
+      console.error('[reverseGeocode] HTTP error:', response.status, response.statusText);
+      throw new Error(`Geocoding request failed: ${response.status}`);
     }
 
     const data = await response.json();
+    console.log('[reverseGeocode] API response:', {
+      status: data.status,
+      resultsCount: data.results?.length || 0,
+      errorMessage: data.error_message
+    });
 
-    if (data.status !== 'OK' || !data.results || data.results.length === 0) {
+    if (data.status !== 'OK') {
+      // Handle specific API error statuses
+      if (data.status === 'REQUEST_DENIED') {
+        throw new Error(`API access denied: ${data.error_message || 'Check API key and enabled APIs'}`);
+      } else if (data.status === 'ZERO_RESULTS') {
+        throw new Error('No address found for these coordinates');
+      } else if (data.status === 'OVER_QUERY_LIMIT') {
+        throw new Error('API quota exceeded');
+      } else {
+        throw new Error(`Geocoding failed: ${data.status} - ${data.error_message || 'Unknown error'}`);
+      }
+    }
+
+    if (!data.results || data.results.length === 0) {
       throw new Error('No address found');
     }
 
     // Return the formatted address
-    return data.results[0].formatted_address;
+    const address = data.results[0].formatted_address;
+    console.log('[reverseGeocode] Success! Address:', address);
+    return address;
   }
 
   function updateFormData(updates: Partial<OnboardingData>) {
     setFormData((prev) => ({ ...prev, ...updates }));
+  }
+
+  function formatPhoneNumber(value: string): string {
+    // Remove all non-numeric characters
+    const phoneNumber = value.replace(/\D/g, '');
+
+    // Limit to 10 digits
+    const limited = phoneNumber.slice(0, 10);
+
+    // Format as (XXX) XXX-XXXX
+    if (limited.length === 0) {
+      return '';
+    } else if (limited.length <= 3) {
+      return `(${limited}`;
+    } else if (limited.length <= 6) {
+      return `(${limited.slice(0, 3)}) ${limited.slice(3)}`;
+    } else {
+      return `(${limited.slice(0, 3)}) ${limited.slice(3, 6)}-${limited.slice(6)}`;
+    }
+  }
+
+  function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const formatted = formatPhoneNumber(e.target.value);
+    updateFormData({ phone: formatted });
   }
 
   async function handleSubmit() {
@@ -185,7 +232,7 @@ export function OnboardingForm({ initialName = '' }: Props) {
               type="tel"
               placeholder="(555) 123-4567"
               value={formData.phone}
-              onChange={(e) => updateFormData({ phone: e.target.value })}
+              onChange={handlePhoneChange}
               required
             />
 

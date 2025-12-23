@@ -48,6 +48,8 @@ export async function completeOnboarding(data: OnboardingData): Promise<Onboardi
     const { error: updateError } = await supabase.rpc('update_profile_coords', {
       p_user_id: user.id,
       p_name: data.name,
+      p_phone: data.phone,
+      p_email: data.email,
       p_role: data.role,
       p_trade: data.trade,
       p_location: location,

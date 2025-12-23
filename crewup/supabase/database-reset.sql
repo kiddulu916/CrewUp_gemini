@@ -312,6 +312,8 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION update_profile_coords(
   p_user_id UUID,
   p_name TEXT,
+  p_phone TEXT,
+  p_email TEXT,
   p_role TEXT,
   p_trade TEXT,
   p_location TEXT,
@@ -328,6 +330,8 @@ BEGIN
   UPDATE profiles
   SET
     name = p_name,
+    phone = p_phone,
+    email = p_email,
     role = p_role,
     trade = p_trade,
     sub_trade = p_sub_trade,
