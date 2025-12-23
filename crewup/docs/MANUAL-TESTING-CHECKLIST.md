@@ -9,11 +9,11 @@ Complete end-to-end testing guide for CrewUp features.
 ## ✅ Authentication & Onboarding
 
 ### Google OAuth Signup
-- [ ] Navigate to `/signup`
-- [ ] Click "Continue with Google"
-- [ ] Complete Google OAuth flow
-- [ ] Verify redirect to `/onboarding`
-- [ ] Verify profile auto-created in database
+- [x] Navigate to `/signup`
+- [x] Click "Continue with Google"
+- [x] Complete Google OAuth flow
+- [x] Verify redirect to `/onboarding`
+- [x] Verify profile auto-created in database
 
 **Database Verification:**
 ```sql
@@ -24,20 +24,20 @@ WHERE email = 'your-email@gmail.com';
 **Expected**: name starts with "User-", trade is "General Laborer", location is "Update your location"
 
 ### Onboarding Flow
-- [ ] Step 1: Name, phone, email
-  - [ ] Email is pre-filled from Google
-  - [ ] Phone auto-formats as you type: (XXX)XXX-XXXX
-  - [ ] Location indicator shows (may show error if GPS denied)
-  - [ ] All fields validate properly
-- [ ] Step 2: Role selection
-  - [ ] Can select Worker or Employer
-  - [ ] Clicking a role advances to next step
-- [ ] Step 3: Trade/Employer details
-  - [ ] Trade dropdown shows all trades
-  - [ ] Sub-trade appears when applicable
-  - [ ] Bio field (optional for workers, required for employers)
-  - [ ] Form submits successfully
-- [ ] Redirect to `/dashboard/feed` after completion
+- [x] Step 1: Name, phone, email
+  - [x] Email is pre-filled from Google
+  - [x] Phone auto-formats as you type: (XXX)XXX-XXXX
+  - [x] Location indicator shows (may show error if GPS denied)
+  - [x] All fields validate properly
+- [x] Step 2: Role selection
+  - [x] Can select Worker or Employer
+  - [x] Clicking a role advances to next step
+- [x] Step 3: Trade/Employer details
+  - [x] Trade dropdown shows all trades
+  - [x] Sub-trade appears when applicable
+  - [x] Bio field (optional for workers, required for employers)
+  - [x] Form submits successfully
+- [x] Redirect to `/dashboard/feed` after completion
 
 **Database Verification:**
 ```sql
@@ -49,45 +49,45 @@ WHERE email = 'your-email@gmail.com';
 **Expected**: All fields populated, coords in POINT format (or NULL if GPS failed)
 
 ### Email/Password Signup
-- [ ] Navigate to `/signup`
-- [ ] Fill in name, email, password, confirm password
-- [ ] Check Terms checkbox
-- [ ] Click "Create account"
-- [ ] See success message to check email
-- [ ] Check email for verification link
-- [ ] Click verification link
-- [ ] Verify redirect to app
-- [ ] Complete onboarding flow
+- [x] Navigate to `/signup`
+- [x] Fill in name, email, password, confirm password
+- [x] Check Terms checkbox
+- [x] Click "Create account"
+- [x] See success message to check email
+- [x] Check email for verification link
+- [x] Click verification link
+- [x] Verify redirect to app
+- [x] Complete onboarding flow
 
 ### Login/Logout
-- [ ] Sign out from dashboard
-- [ ] Navigate to `/login`
-- [ ] Enter credentials and sign in
-- [ ] Verify redirect to dashboard (NOT onboarding for complete profiles)
-- [ ] Verify profile data displays correctly
-- [ ] Sign out
-- [ ] Verify redirect to `/login`
+- [x] Sign out from dashboard
+- [x] Navigate to `/login`
+- [x] Enter credentials and sign in
+- [x] Verify redirect to dashboard (NOT onboarding for complete profiles)
+- [x] Verify profile data displays correctly
+- [x] Sign out
+- [ ] Verify redirect to `/login` (redirects to root url)
 
 ---
 
 ## ✅ Profile Management
 
 ### View Profile
-- [ ] Navigate to `/dashboard/profile`
-- [ ] Verify all profile data displays:
-  - [ ] Name
-  - [ ] Email
-  - [ ] Phone (formatted)
-  - [ ] Role badge (Worker/Employer)
-  - [ ] Trade
-  - [ ] Sub-trade (if applicable)
-  - [ ] Location
-  - [ ] Bio
-- [ ] Certifications section shows
-- [ ] Experience section shows
+- [x] Navigate to `/dashboard/profile`
+- [x] Verify all profile data displays:
+  - [x] Name
+  - [x] Email
+  - [x] Phone (formatted)
+  - [x] Role badge (Worker/Employer)
+  - [x] Trade
+  - [x] Sub-trade (if applicable)
+  - [x] Location
+  - [x] Bio
+- [x] Certifications section shows
+- [x] Experience section shows
 
 ### Edit Profile
-- [ ] Navigate to `/dashboard/profile/edit`
+- [ ] Navigate to `/dashboard/profile/edit` (Error)
 - [ ] Change name
 - [ ] Change phone (verify auto-formatting)
 - [ ] Change trade

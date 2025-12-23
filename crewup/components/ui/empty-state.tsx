@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import Link from 'next/link';
 import { Button } from './button';
 import { cn } from '@/lib/utils';
 
@@ -6,11 +7,17 @@ interface EmptyStateProps {
   icon?: ReactNode;
   title: string;
   description?: string;
-  action?: {
-    label: string;
-    onClick: () => void;
-    href?: string;
-  };
+  action?:
+    | {
+        label: string;
+        onClick: () => void;
+        href?: never;
+      }
+    | {
+        label: string;
+        href: string;
+        onClick?: never;
+      };
   className?: string;
 }
 
@@ -37,9 +44,9 @@ export function EmptyState({
 
       {action && (
         action.href ? (
-          <Button asChild>
-            <a href={action.href}>{action.label}</a>
-          </Button>
+          <Link href={action.href}>
+            <Button>{action.label}</Button>
+          </Link>
         ) : (
           <Button onClick={action.onClick}>{action.label}</Button>
         )
