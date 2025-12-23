@@ -37,13 +37,14 @@ export default async function OnboardingPage() {
     redirect('/dashboard/feed');
   }
 
-  // Extract name from Google OAuth or profile
+  // Extract name and email from Google OAuth or profile
   const initialName =
     user.user_metadata?.full_name || (profile?.name?.startsWith('User-') ? '' : profile?.name) || '';
+  const initialEmail = user.email || profile?.email || '';
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
-      <OnboardingForm initialName={initialName} />
+      <OnboardingForm initialName={initialName} initialEmail={initialEmail} />
     </div>
   );
 }

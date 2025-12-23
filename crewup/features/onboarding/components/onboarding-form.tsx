@@ -7,9 +7,10 @@ import { completeOnboarding, type OnboardingData } from '../actions/onboarding-a
 
 type Props = {
   initialName?: string;
+  initialEmail?: string;
 };
 
-export function OnboardingForm({ initialName = '' }: Props) {
+export function OnboardingForm({ initialName = '', initialEmail = '' }: Props) {
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -21,7 +22,7 @@ export function OnboardingForm({ initialName = '' }: Props) {
     trade: '',
     location: '',
     phone: '',
-    email: '',
+    email: initialEmail,
   });
 
   // Capture device location on component mount
