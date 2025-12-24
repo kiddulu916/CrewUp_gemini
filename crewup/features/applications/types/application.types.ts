@@ -92,7 +92,7 @@ export interface ConsentEntry {
 export interface ApplicationDraft {
   id: string;
   job_id: string;
-  worker_id: string;
+  applicant_id: string;
   form_data: Partial<ApplicationFormData>;
   resume_url?: string;
   cover_letter_url?: string;
@@ -105,7 +105,7 @@ export interface ApplicationDraft {
 export interface JobApplication {
   id: string;
   job_id: string;
-  worker_id: string;
+  applicant_id: string;
   status: 'pending' | 'viewed' | 'contacted' | 'rejected' | 'hired' | 'withdrawn';
   form_data: ApplicationFormData;
   // Responses to employer-defined screening questions

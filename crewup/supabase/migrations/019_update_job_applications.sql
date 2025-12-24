@@ -51,7 +51,7 @@ WHERE cover_message IS NOT NULL AND cover_message != '';
 
 -- Add indexes for performance
 CREATE INDEX idx_job_applications_job_status ON job_applications(job_id, status);
-CREATE INDEX idx_job_applications_worker_created ON job_applications(worker_id, created_at DESC);
+CREATE INDEX idx_job_applications_applicant_created ON job_applications(applicant_id, created_at DESC);
 
 -- Add new status value 'withdrawn' to check constraint
 ALTER TABLE job_applications DROP CONSTRAINT IF EXISTS job_applications_status_check;

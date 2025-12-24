@@ -13,7 +13,7 @@ type SaveDraftResult = {
 /**
  * Save or update an application draft
  * Automatically sets expiration to 30 days from now
- * Uses upsert to update existing drafts for the same job+worker
+ * Uses upsert to update existing drafts for the same job+applicant
  */
 export async function saveDraft(
   jobId: string,
@@ -36,7 +36,7 @@ export async function saveDraft(
 
     const draftData = {
       job_id: jobId,
-      worker_id: user.id,
+      applicant_id: user.id,
       form_data: formData,
       resume_url: resumeUrl || null,
       cover_letter_url: coverLetterUrl || null,
@@ -45,10 +45,10 @@ export async function saveDraft(
       expires_at: expiresAt.toISOString(),
     };
 
-    // Upsert will create or update based on unique constraint (job_id, worker_id)
+    // Upsert will create or update based on unique constraint (job_id, applicant_id)
     const { data, error } = await supabase
       .from('application_drafts')
-      .upsert(draftData, { onConflict: 'job_id,worker_id' })
+      .upsert(draftData, { onConflict: 'job_id,applicant_id' })
       .select()
       .single();
 
@@ -82,7 +82,7 @@ export async function loadDraft(jobId: string): Promise<SaveDraftResult> {
       .from('application_drafts')
       .select('*')
       .eq('job_id', jobId)
-      .eq('worker_id', user.id)
+      .eq('applicant_id', user.id)
       .single();
 
     if (error) {
@@ -123,7 +123,7 @@ export async function deleteDraft(jobId: string): Promise<{ success: boolean; er
       .from('application_drafts')
       .delete()
       .eq('job_id', jobId)
-      .eq('worker_id', user.id);
+      .eq('applicant_id', user.id);
 
     if (error) {
       console.error('Error deleting draft:', error);
