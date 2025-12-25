@@ -23,7 +23,7 @@ export function MessageBubble({ message, isOwnMessage }: Props) {
     >
       {/* Avatar for received messages */}
       {!isOwnMessage && message.sender && (
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-crewup-blue to-crewup-orange text-white font-bold text-sm shadow-md">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-krewup-blue to-krewup-orange text-white font-bold text-sm shadow-md">
           {message.sender.name.charAt(0).toUpperCase()}
         </div>
       )}
@@ -33,7 +33,7 @@ export function MessageBubble({ message, isOwnMessage }: Props) {
         <div
           className={`rounded-xl px-4 py-2.5 shadow-md ${
             isOwnMessage
-              ? 'bg-gradient-to-br from-crewup-blue to-crewup-light-blue text-white'
+              ? 'bg-gradient-to-br from-krewup-blue to-krewup-light-blue text-white'
               : 'bg-white border-2 border-gray-200 text-gray-900'
           }`}
         >

@@ -67,8 +67,8 @@ export default async function PublicProfilePage({ params }: Props) {
       </Link>
 
       {/* Basic Info Card */}
-      <Card className="shadow-xl border-2 border-crewup-light-blue">
-        <CardHeader className="bg-gradient-to-r from-crewup-blue to-crewup-light-blue">
+      <Card className="shadow-xl border-2 border-krewup-light-blue">
+        <CardHeader className="bg-gradient-to-r from-krewup-blue to-krewup-light-blue">
           <div className="flex items-center justify-between">
             <CardTitle className="text-white text-2xl">Profile</CardTitle>
             {profile.subscription_status === 'pro' && (
@@ -81,7 +81,7 @@ export default async function PublicProfilePage({ params }: Props) {
         <CardContent className="p-6">
           <div className="flex items-start gap-6 mb-6">
             {/* Profile Picture Placeholder */}
-            <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-crewup-blue to-crewup-orange text-4xl font-bold text-white shadow-lg">
+            <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-krewup-blue to-krewup-orange text-4xl font-bold text-white shadow-lg">
               {profile.name.charAt(0).toUpperCase()}
             </div>
 
@@ -181,7 +181,7 @@ export default async function PublicProfilePage({ params }: Props) {
           <CardContent>
             <div className="space-y-4">
               {workExperience.map((exp: any) => (
-                <div key={exp.id} className="border-l-2 border-crewup-blue pl-4">
+                <div key={exp.id} className="border-l-2 border-krewup-blue pl-4">
                   <h3 className="font-semibold text-gray-900">{exp.job_title}</h3>
                   <p className="text-sm text-gray-600">{exp.company_name}</p>
                   <p className="text-sm text-gray-500">

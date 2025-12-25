@@ -198,13 +198,13 @@ export function OnboardingForm({ initialName = '', initialEmail = '' }: Props) {
   // Step 1: Name, Phone, Email
   if (step === 1) {
     return (
-      <Card className="w-full max-w-md shadow-2xl border-2 border-crewup-light-blue">
+      <Card className="w-full max-w-md shadow-2xl border-2 border-krewup-light-blue">
         <CardContent className="p-6 space-y-6">
           <div className="text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-crewup-blue to-crewup-orange shadow-lg">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-krewup-blue to-krewup-orange shadow-lg">
               <span className="text-3xl">👋</span>
             </div>
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-crewup-blue to-crewup-orange bg-clip-text text-transparent">Welcome to CrewUp!</h2>
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-krewup-blue to-krewup-orange bg-clip-text text-transparent">Welcome to KrewUp!</h2>
             <p className="mt-2 text-sm text-gray-600">Let's set up your profile</p>
           </div>
 
@@ -285,7 +285,7 @@ export function OnboardingForm({ initialName = '', initialEmail = '' }: Props) {
           </div>
 
           <div className="flex justify-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-crewup-blue" />
+            <div className="h-2 w-2 rounded-full bg-krewup-blue" />
             <div className="h-2 w-2 rounded-full bg-gray-300" />
             <div className="h-2 w-2 rounded-full bg-gray-300" />
           </div>
@@ -297,13 +297,13 @@ export function OnboardingForm({ initialName = '', initialEmail = '' }: Props) {
   // Step 2: Role Selection
   if (step === 2) {
     return (
-      <Card className="w-full max-w-md shadow-2xl border-2 border-crewup-light-blue">
+      <Card className="w-full max-w-md shadow-2xl border-2 border-krewup-light-blue">
         <CardContent className="p-6 space-y-6">
           <div className="text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-crewup-blue to-crewup-orange shadow-lg">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-krewup-blue to-krewup-orange shadow-lg">
               <span className="text-3xl">🎯</span>
             </div>
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-crewup-blue to-crewup-orange bg-clip-text text-transparent">What brings you here?</h2>
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-krewup-blue to-krewup-orange bg-clip-text text-transparent">What brings you here?</h2>
             <p className="mt-2 text-sm text-gray-600">Choose your role</p>
           </div>
 
@@ -315,10 +315,10 @@ export function OnboardingForm({ initialName = '', initialEmail = '' }: Props) {
                 setStep(3);
               }}
               className={`flex items-start gap-4 rounded-xl border-3 p-5 text-left transition-all duration-300 hover:scale-105 hover:shadow-xl ${
-                formData.role === 'worker' ? 'border-crewup-blue bg-gradient-to-r from-blue-50 to-blue-100 shadow-lg' : 'border-gray-300 hover:border-crewup-blue'
+                formData.role === 'worker' ? 'border-krewup-blue bg-gradient-to-r from-blue-50 to-blue-100 shadow-lg' : 'border-gray-300 hover:border-krewup-blue'
               }`}
             >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-crewup-blue to-crewup-light-blue text-white shadow-lg">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-krewup-blue to-krewup-light-blue text-white shadow-lg">
                 <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -343,10 +343,10 @@ export function OnboardingForm({ initialName = '', initialEmail = '' }: Props) {
                 setStep(3);
               }}
               className={`flex items-start gap-4 rounded-xl border-3 p-5 text-left transition-all duration-300 hover:scale-105 hover:shadow-xl ${
-                formData.role === 'employer' ? 'border-crewup-orange bg-gradient-to-r from-orange-50 to-orange-100 shadow-lg' : 'border-gray-300 hover:border-crewup-orange'
+                formData.role === 'employer' ? 'border-krewup-orange bg-gradient-to-r from-orange-50 to-orange-100 shadow-lg' : 'border-gray-300 hover:border-krewup-orange'
               }`}
             >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-crewup-orange to-crewup-light-orange text-white shadow-lg">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-krewup-orange to-krewup-light-orange text-white shadow-lg">
                 <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -371,7 +371,7 @@ export function OnboardingForm({ initialName = '', initialEmail = '' }: Props) {
 
           <div className="flex justify-center gap-2">
             <div className="h-2 w-2 rounded-full bg-gray-300" />
-            <div className="h-2 w-2 rounded-full bg-crewup-blue" />
+            <div className="h-2 w-2 rounded-full bg-krewup-blue" />
             <div className="h-2 w-2 rounded-full bg-gray-300" />
           </div>
         </CardContent>
@@ -382,13 +382,13 @@ export function OnboardingForm({ initialName = '', initialEmail = '' }: Props) {
   // Step 3: Trade/Employer Type Selection
   if (step === 3) {
     return (
-      <Card className="w-full max-w-md shadow-2xl border-2 border-crewup-light-blue">
+      <Card className="w-full max-w-md shadow-2xl border-2 border-krewup-light-blue">
         <CardContent className="p-6 space-y-6">
           <div className="text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-crewup-blue to-crewup-orange shadow-lg">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-krewup-blue to-krewup-orange shadow-lg">
               <span className="text-3xl">{formData.role === 'worker' ? '🔧' : '🏢'}</span>
             </div>
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-crewup-blue to-crewup-orange bg-clip-text text-transparent">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-krewup-blue to-krewup-orange bg-clip-text text-transparent">
               {formData.role === 'worker' ? "What's your trade?" : 'Tell us about your business'}
             </h2>
             <p className="mt-2 text-sm text-gray-600">
@@ -426,7 +426,7 @@ export function OnboardingForm({ initialName = '', initialEmail = '' }: Props) {
                     Bio (Optional)
                   </label>
                   <textarea
-                    className="flex min-h-[100px] w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-crewup-blue focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex min-h-[100px] w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-krewup-blue focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
                     placeholder="Tell employers about your experience and skills..."
                     value={formData.bio || ''}
                     onChange={(e) => updateFormData({ bio: e.target.value })}
@@ -489,7 +489,7 @@ export function OnboardingForm({ initialName = '', initialEmail = '' }: Props) {
                     Bio (Optional)
                   </label>
                   <textarea
-                    className="flex min-h-[100px] w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-crewup-blue focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex min-h-[100px] w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-krewup-blue focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
                     placeholder="Tell workers about your company and what you're looking for..."
                     value={formData.bio || ''}
                     onChange={(e) => updateFormData({ bio: e.target.value })}
@@ -530,7 +530,7 @@ export function OnboardingForm({ initialName = '', initialEmail = '' }: Props) {
           <div className="flex justify-center gap-2">
             <div className="h-2 w-2 rounded-full bg-gray-300" />
             <div className="h-2 w-2 rounded-full bg-gray-300" />
-            <div className="h-2 w-2 rounded-full bg-crewup-blue" />
+            <div className="h-2 w-2 rounded-full bg-krewup-blue" />
           </div>
         </CardContent>
       </Card>

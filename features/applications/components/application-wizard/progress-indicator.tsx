@@ -32,7 +32,7 @@ export function ProgressIndicator({ currentStep, totalSteps }: Props) {
       </div>
       <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
         <div
-          className="h-full bg-crewup-blue transition-all duration-300"
+          className="h-full bg-krewup-blue transition-all duration-300"
           style={{ width: `${percentage}%` }}
         />
       </div>

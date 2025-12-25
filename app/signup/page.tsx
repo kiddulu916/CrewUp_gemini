@@ -4,8 +4,8 @@ import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 
 export const metadata = {
-  title: 'Sign Up - CrewUp',
-  description: 'Create your CrewUp account',
+  title: 'Sign Up - KrewUp',
+  description: 'Create your KrewUp account',
 };
 
 export default async function SignupPage() {

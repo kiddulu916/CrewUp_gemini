@@ -36,9 +36,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       'inline-flex items-center justify-center font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 rounded-lg';
 
     const variants = {
-      primary: 'bg-crewup-blue text-white hover:bg-blue-700 focus-visible:ring-crewup-blue',
+      primary: 'bg-krewup-blue text-white hover:bg-blue-700 focus-visible:ring-krewup-blue',
       secondary:
-        'bg-crewup-orange text-white hover:bg-orange-600 focus-visible:ring-crewup-orange',
+        'bg-krewup-orange text-white hover:bg-orange-600 focus-visible:ring-krewup-orange',
       outline:
         'border-2 border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus-visible:ring-gray-400',
       ghost: 'bg-transparent text-gray-700 hover:bg-gray-100 focus-visible:ring-gray-400',

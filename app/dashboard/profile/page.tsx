@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { cookies } from 'next/headers';
 
 export const metadata = {
-  title: 'Profile - CrewUp',
+  title: 'Profile - KrewUp',
   description: 'View and manage your profile',
 };
 
@@ -69,7 +69,7 @@ export default async function ProfilePage() {
         <CardContent>
           <div className="flex items-start gap-6">
             {/* Profile Picture Placeholder */}
-            <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-crewup-blue text-4xl font-bold text-white">
+            <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-krewup-blue text-4xl font-bold text-white">
               {profile?.name.charAt(0).toUpperCase()}
             </div>
 

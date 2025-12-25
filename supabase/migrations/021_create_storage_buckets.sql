@@ -34,4 +34,4 @@ ON CONFLICT (id) DO NOTHING;
 
 -- Note: Storage RLS policies must be created via the Supabase Dashboard
 -- Navigate to: Dashboard > Storage > [bucket name] > Policies
--- See crewup/supabase/STORAGE_POLICIES.md for policy definitions
+-- See krewup/supabase/STORAGE_POLICIES.md for policy definitions

@@ -1,10 +1,22 @@
 'use client';
 
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useApplicationWizard } from '../../hooks/use-application-wizard';
 import { ProgressIndicator } from './progress-indicator';
 import { AutoSaveIndicator } from './auto-save-indicator';
+import { Step1Documents } from './step-1-documents';
+import { Step2PersonalInfo } from './step-2-personal-info';
+import { Step3Contact } from './step-3-contact';
+import { Step4WorkAuth } from './step-4-work-auth';
+import { Step5WorkHistory } from './step-5-work-history';
+import { Step6Education } from './step-6-education';
+import { Step7Skills } from './step-7-skills';
+import { Step8References } from './step-8-references';
 import { Button } from '@/components/ui';
 import { LoadingSpinner } from '@/components/ui';
+import { submitApplication } from '../../actions/application-actions';
+import { useToast } from '@/components/providers/toast-provider';
 
 /**
  * Application Wizard Container Component
@@ -18,7 +30,7 @@ import { LoadingSpinner } from '@/components/ui';
  * - Step-by-step form navigation
  * - Fixed bottom navigation buttons
  *
- * Step Components (to be implemented):
+ * Step Components:
  * - Step 1: Documents (resume, cover letter upload)
  * - Step 2: Personal Information (name, address)
  * - Step 3: Contact & Availability (phone, start date)
@@ -38,15 +50,62 @@ type Props = {
 };
 
 export function ApplicationWizardContainer({ jobId, jobTitle }: Props) {
+  const router = useRouter();
+  const toast = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const {
     currentStep,
     form,
     isLoading,
     isSaving,
     lastSaved,
+    resumeUrl,
+    setResumeUrl,
+    coverLetterUrl,
+    setCoverLetterUrl,
+    extractedText,
+    setExtractedText,
     nextStep,
     prevStep,
   } = useApplicationWizard(jobId);
+
+  async function handleSubmit() {
+    // Validate all form data
+    const isValid = await form.trigger();
+
+    if (!isValid) {
+      toast.error('Please complete all required fields before submitting');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const formData = form.getValues();
+
+      const result = await submitApplication(
+        jobId,
+        formData as any, // Type assertion for complex nested form data
+        resumeUrl,
+        coverLetterUrl,
+        extractedText
+      );
+
+      if (result.success) {
+        toast.success('Application submitted successfully!');
+        // Redirect to applications page or success page
+        router.push('/dashboard/applications?submitted=true');
+      } else {
+        toast.error(result.error || 'Failed to submit application');
+      }
+    } catch (error) {
+      console.error('Submission error:', error);
+      toast.error('An unexpected error occurred');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   if (isLoading) {
     return (
@@ -73,110 +132,32 @@ export function ApplicationWizardContainer({ jobId, jobTitle }: Props) {
       {/* Step Content */}
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="bg-white rounded-lg shadow p-6">
-          {/* Step Components - Placeholders for now */}
           {currentStep === 1 && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-gray-900">Step 1: Documents</h2>
-              <p className="text-gray-600">
-                Upload your resume and cover letter (optional). We'll extract information to
-                help auto-fill the next steps.
-              </p>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                <p className="text-gray-500">Document upload component coming soon...</p>
-              </div>
-            </div>
+            <Step1Documents
+              form={form}
+              jobId={jobId}
+              resumeUrl={resumeUrl}
+              setResumeUrl={setResumeUrl}
+              coverLetterUrl={coverLetterUrl}
+              setCoverLetterUrl={setCoverLetterUrl}
+              extractedText={extractedText}
+              setExtractedText={setExtractedText}
+            />
           )}
 
-          {currentStep === 2 && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-gray-900">Step 2: Personal Information</h2>
-              <p className="text-gray-600">
-                Provide your full name and address. This may be auto-populated from your resume.
-              </p>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                <p className="text-gray-500">Personal info form coming soon...</p>
-              </div>
-            </div>
-          )}
+          {currentStep === 2 && <Step2PersonalInfo form={form} />}
 
-          {currentStep === 3 && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-gray-900">
-                Step 3: Contact & Availability
-              </h2>
-              <p className="text-gray-600">
-                Provide your phone number and when you can start working.
-              </p>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                <p className="text-gray-500">Contact form coming soon...</p>
-              </div>
-            </div>
-          )}
+          {currentStep === 3 && <Step3Contact form={form} />}
 
-          {currentStep === 4 && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-gray-900">Step 4: Work Authorization</h2>
-              <p className="text-gray-600">
-                Confirm your work authorization, licenses, and transportation.
-              </p>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                <p className="text-gray-500">Work authorization form coming soon...</p>
-              </div>
-            </div>
-          )}
+          {currentStep === 4 && <Step4WorkAuth form={form} />}
 
-          {currentStep === 5 && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-gray-900">Step 5: Work History</h2>
-              <p className="text-gray-600">
-                List your previous employers and experience. This may be auto-populated from your
-                resume.
-              </p>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                <p className="text-gray-500">Work history form coming soon...</p>
-              </div>
-            </div>
-          )}
+          {currentStep === 5 && <Step5WorkHistory form={form} />}
 
-          {currentStep === 6 && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-gray-900">Step 6: Education</h2>
-              <p className="text-gray-600">
-                List your education history including schools, degrees, and certifications.
-              </p>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                <p className="text-gray-500">Education form coming soon...</p>
-              </div>
-            </div>
-          )}
+          {currentStep === 6 && <Step6Education form={form} />}
 
-          {currentStep === 7 && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-gray-900">
-                Step 7: Skills & Certifications
-              </h2>
-              <p className="text-gray-600">
-                Select your trade skills and list any relevant certifications.
-              </p>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                <p className="text-gray-500">Skills & certifications form coming soon...</p>
-              </div>
-            </div>
-          )}
+          {currentStep === 7 && <Step7Skills form={form} />}
 
-          {currentStep === 8 && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-gray-900">
-                Step 8: References & Final Review
-              </h2>
-              <p className="text-gray-600">
-                Provide references and review your application before submission.
-              </p>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                <p className="text-gray-500">References & review form coming soon...</p>
-              </div>
-            </div>
-          )}
+          {currentStep === 8 && <Step8References form={form} />}
         </div>
       </div>
 
@@ -188,7 +169,7 @@ export function ApplicationWizardContainer({ jobId, jobTitle }: Props) {
               type="button"
               variant="outline"
               onClick={prevStep}
-              disabled={currentStep === 1}
+              disabled={currentStep === 1 || isSubmitting}
             >
               Back
             </Button>
@@ -197,14 +178,32 @@ export function ApplicationWizardContainer({ jobId, jobTitle }: Props) {
               {currentStep === 8 ? 'Ready to submit?' : `Step ${currentStep} of 8`}
             </div>
 
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={nextStep}
-              disabled={currentStep === 8}
-            >
-              {currentStep === 8 ? 'Review & Submit' : 'Next'}
-            </Button>
+            {currentStep === 8 ? (
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="min-w-[140px]"
+              >
+                {isSubmitting ? (
+                  <>
+                    <LoadingSpinner className="w-4 h-4 mr-2" />
+                    Submitting...
+                  </>
+                ) : (
+                  'Submit Application'
+                )}
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={nextStep}
+              >
+                Next
+              </Button>
+            )}
           </div>
         </div>
       </div>

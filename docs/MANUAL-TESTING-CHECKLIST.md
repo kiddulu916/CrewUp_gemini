@@ -1,6 +1,6 @@
 # Manual Testing Checklist
 
-Complete end-to-end testing guide for CrewUp features.
+Complete end-to-end testing guide for KrewUp features.
 
 **Testing Environment**: http://localhost:3000
 

@@ -4,7 +4,7 @@ import { InitialLocationCapture } from '@/features/dashboard/components/initial-
 import { cookies } from 'next/headers';
 
 export const metadata = {
-  title: 'Feed - CrewUp',
+  title: 'Feed - KrewUp',
   description: 'Your personalized job feed',
 };
 
@@ -60,7 +60,7 @@ export default async function FeedPage() {
                 </p>
                 <a
                   href="/dashboard/jobs"
-                  className="mt-2 inline-block text-crewup-blue hover:underline"
+                  className="mt-2 inline-block text-krewup-blue hover:underline"
                 >
                   Browse Jobs →
                 </a>
@@ -72,7 +72,7 @@ export default async function FeedPage() {
                 </p>
                 <a
                   href="/dashboard/jobs/new"
-                  className="mt-2 inline-block text-crewup-blue hover:underline"
+                  className="mt-2 inline-block text-krewup-blue hover:underline"
                 >
                   Post a Job →
                 </a>
@@ -89,17 +89,17 @@ export default async function FeedPage() {
         <CardContent>
           <div className="grid grid-cols-3 gap-4">
             <div className="rounded-lg bg-gray-50 p-4 text-center">
-              <p className="text-2xl font-bold text-crewup-blue">0</p>
+              <p className="text-2xl font-bold text-krewup-blue">0</p>
               <p className="text-sm text-gray-600">
                 {profile?.role === 'worker' ? 'Applications' : 'Job Posts'}
               </p>
             </div>
             <div className="rounded-lg bg-gray-50 p-4 text-center">
-              <p className="text-2xl font-bold text-crewup-blue">0</p>
+              <p className="text-2xl font-bold text-krewup-blue">0</p>
               <p className="text-sm text-gray-600">Messages</p>
             </div>
             <div className="rounded-lg bg-gray-50 p-4 text-center">
-              <p className="text-2xl font-bold text-crewup-blue">0</p>
+              <p className="text-2xl font-bold text-krewup-blue">0</p>
               <p className="text-sm text-gray-600">Profile Views</p>
             </div>
           </div>

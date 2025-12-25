@@ -24,8 +24,8 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
       success: 'bg-gradient-to-r from-green-400 to-emerald-500 text-white border-green-500 shadow-md',
       warning: 'bg-gradient-to-r from-yellow-400 to-orange-400 text-white border-yellow-500 shadow-md',
       danger: 'bg-gradient-to-r from-red-400 to-red-600 text-white border-red-500 shadow-md',
-      info: 'bg-gradient-to-r from-crewup-blue to-crewup-light-blue text-white border-blue-500 shadow-md',
-      pro: 'bg-gradient-to-r from-crewup-blue to-crewup-orange text-white border-transparent shadow-lg animate-pulse',
+      info: 'bg-gradient-to-r from-krewup-blue to-krewup-light-blue text-white border-blue-500 shadow-md',
+      pro: 'bg-gradient-to-r from-krewup-blue to-krewup-orange text-white border-transparent shadow-lg animate-pulse',
     };
 
     return (

@@ -2,13 +2,13 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Implement complete Stripe subscription system for CrewUp Pro ($15/month, $150/year) with checkout, webhook handling, and subscription management.
+**Goal:** Implement complete Stripe subscription system for KrewUp Pro ($15/month, $150/year) with checkout, webhook handling, and subscription management.
 
 **Architecture:** Server-side Stripe integration using Next.js server actions (not API routes). Stripe handles payment processing and webhooks update Supabase subscription records. Client components use hooks to check subscription status and initiate checkout sessions.
 
 **Tech Stack:** Stripe SDK, Next.js 14 server actions, Supabase (subscription storage), React hooks, shadcn/ui components
 
-**Working Directory:** `/home/kiddulu/Projects/crewUp_gemini/crewup-nextjs`
+**Working Directory:** `/home/kiddulu/Projects/crewUp_gemini/krewup-nextjs`
 
 ---
 
@@ -18,8 +18,8 @@ Before starting implementation, complete these manual Stripe setup steps:
 
 1. **Create Stripe Account** at https://dashboard.stripe.com
 2. **Create Products in Stripe Dashboard**:
-   - Product 1: "CrewUp Pro Monthly" - $15.00/month (recurring)
-   - Product 2: "CrewUp Pro Annual" - $150.00/year (recurring)
+   - Product 1: "KrewUp Pro Monthly" - $15.00/month (recurring)
+   - Product 2: "KrewUp Pro Annual" - $150.00/year (recurring)
 3. **Copy Price IDs** from each product (format: `price_xxxxxxxxxxxxx`)
 4. **Get API Keys** from https://dashboard.stripe.com/test/apikeys
    - Publishable key (starts with `pk_test_`)
@@ -71,13 +71,13 @@ export const SUBSCRIPTION_PLANS = {
     priceId: STRIPE_PRICE_IDS.MONTHLY,
     price: 15,
     interval: 'month' as const,
-    name: 'CrewUp Pro Monthly',
+    name: 'KrewUp Pro Monthly',
   },
   ANNUAL: {
     priceId: STRIPE_PRICE_IDS.ANNUAL,
     price: 150,
     interval: 'year' as const,
-    name: 'CrewUp Pro Annual',
+    name: 'KrewUp Pro Annual',
   },
 };
 ```
@@ -628,7 +628,7 @@ export function SubscriptionManager() {
 
       <div className="mb-6">
         <p className="text-lg mb-2">
-          Current Plan: <strong>{isPro ? 'CrewUp Pro' : 'Free'}</strong>
+          Current Plan: <strong>{isPro ? 'KrewUp Pro' : 'Free'}</strong>
         </p>
 
         {isPro && subscription?.current_period_end && (
@@ -713,7 +713,7 @@ export function FeatureGate({ children, feature, fallback }: FeatureGateProps) {
       </div>
       <h3 className="text-xl font-bold mb-2">Pro Feature</h3>
       <p className="text-gray-600 mb-4">
-        Upgrade to CrewUp Pro to access {feature}.
+        Upgrade to KrewUp Pro to access {feature}.
       </p>
       <Button onClick={() => (window.location.href = '/pricing')}>
         Upgrade to Pro
@@ -755,7 +755,7 @@ export default function PricingPage() {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">Choose Your Plan</h1>
           <p className="text-xl text-gray-600">
-            Unlock advanced features with CrewUp Pro
+            Unlock advanced features with KrewUp Pro
           </p>
         </div>
 
@@ -1134,14 +1134,14 @@ Expected: Deployment succeeds
 
 1. Go to https://dashboard.stripe.com/webhooks
 2. Click "Add endpoint"
-3. URL: `https://get-crewup.vercel.app/api/webhooks/stripe`
+3. URL: `https://get-krewup.vercel.app/api/webhooks/stripe`
 4. Select events: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`
 5. Copy webhook signing secret
 6. Update `STRIPE_WEBHOOK_SECRET` in Vercel
 
 **Step 5: Test in production**
 
-1. Navigate to: https://get-crewup.vercel.app/pricing
+1. Navigate to: https://get-krewup.vercel.app/pricing
 2. Complete test checkout
 3. Verify subscription updates in Supabase production database
 
@@ -1164,8 +1164,8 @@ When ready for real payments:
 
 Update these checkboxes:
 - [x] Create Stripe account
-- [x] Create CrewUp Pro Monthly product ($15/month)
-- [x] Create CrewUp Pro Annual product ($150/year)
+- [x] Create KrewUp Pro Monthly product ($15/month)
+- [x] Create KrewUp Pro Annual product ($150/year)
 - [x] Get price IDs for both products
 - [x] Configure Stripe webhook endpoint
 - [x] Add Stripe environment variables

@@ -12,18 +12,18 @@ export default async function Home() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-100 via-white to-orange-100 relative overflow-hidden">
       {/* Decorative elements */}
-      <div className="absolute top-20 left-10 w-72 h-72 bg-crewup-blue opacity-10 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-crewup-orange opacity-10 rounded-full blur-3xl"></div>
+      <div className="absolute top-20 left-10 w-72 h-72 bg-krewup-blue opacity-10 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-krewup-orange opacity-10 rounded-full blur-3xl"></div>
 
       <div className="text-center px-4 relative z-10">
         <div className="mb-6 flex justify-center">
-          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-crewup-blue to-crewup-orange shadow-2xl animate-bounce">
+          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-krewup-blue to-krewup-orange shadow-2xl animate-bounce">
             <span className="text-5xl">👷</span>
           </div>
         </div>
 
-        <h1 className="text-7xl font-extrabold bg-gradient-to-r from-crewup-blue via-purple-600 to-crewup-orange bg-clip-text text-transparent mb-6 animate-pulse">
-          CrewUp
+        <h1 className="text-7xl font-extrabold bg-gradient-to-r from-krewup-blue via-purple-600 to-krewup-orange bg-clip-text text-transparent mb-6 animate-pulse">
+          KrewUp
         </h1>
 
         <p className="text-2xl font-semibold text-gray-700 mb-4">
@@ -55,11 +55,11 @@ export default async function Home() {
         )}
 
         <div className="mt-12 grid grid-cols-3 gap-8 max-w-3xl mx-auto">
-          <div className="bg-white/80 backdrop-blur-sm p-4 rounded-xl shadow-lg border-2 border-crewup-blue/20 hover:scale-105 transition-transform">
+          <div className="bg-white/80 backdrop-blur-sm p-4 rounded-xl shadow-lg border-2 border-krewup-blue/20 hover:scale-105 transition-transform">
             <div className="text-3xl mb-2">💼</div>
             <div className="text-sm font-semibold text-gray-700">Find Jobs</div>
           </div>
-          <div className="bg-white/80 backdrop-blur-sm p-4 rounded-xl shadow-lg border-2 border-crewup-orange/20 hover:scale-105 transition-transform">
+          <div className="bg-white/80 backdrop-blur-sm p-4 rounded-xl shadow-lg border-2 border-krewup-orange/20 hover:scale-105 transition-transform">
             <div className="text-3xl mb-2">🤝</div>
             <div className="text-sm font-semibold text-gray-700">Connect</div>
           </div>

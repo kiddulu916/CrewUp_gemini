@@ -48,7 +48,7 @@ export function JobsPageClient({ initialJobs }: { initialJobs: Job[] }) {
       <div className="lg:col-span-3 space-y-4">
         {isLoading ? (
           <div className="text-center py-12">
-            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-crewup-blue border-r-transparent"></div>
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-krewup-blue border-r-transparent"></div>
             <p className="mt-2 text-sm text-gray-500">Loading jobs...</p>
           </div>
         ) : sortedJobs.length === 0 ? (

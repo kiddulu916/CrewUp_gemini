@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the pragmatic testing approach for CrewUp, focusing on critical paths while avoiding over-testing to maintain development velocity.
+This document outlines the pragmatic testing approach for KrewUp, focusing on critical paths while avoiding over-testing to maintain development velocity.
 
 ## Testing Philosophy
 

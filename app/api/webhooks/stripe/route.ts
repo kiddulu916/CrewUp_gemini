@@ -85,10 +85,24 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ error: 'Database operation failed' }, { status: 500 });
         }
 
-        // Update profiles.subscription_status to 'pro'
+        // Update profiles.subscription_status to 'pro' and activate profile boost
+        const { data: profile } = await supabaseAdmin
+          .from('profiles')
+          .select('role')
+          .eq('id', userId)
+          .single();
+
+        // Only set profile boost for workers
+        const profileUpdate: any = { subscription_status: 'pro' };
+        if (profile?.role === 'worker') {
+          profileUpdate.is_profile_boosted = true;
+          // Profile boost lasts 7 days and renews monthly
+          profileUpdate.boost_expires_at = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+        }
+
         const { error: profileError } = await supabaseAdmin
           .from('profiles')
-          .update({ subscription_status: 'pro' })
+          .update(profileUpdate)
           .eq('id', userId);
 
         if (profileError) {
@@ -146,6 +160,25 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ error: 'Database operation failed' }, { status: 500 });
         }
 
+        // Renew profile boost if subscription is active and for workers
+        if (subscription.status === 'active') {
+          const { data: profile } = await supabaseAdmin
+            .from('profiles')
+            .select('role')
+            .eq('id', existingSubscription.user_id)
+            .single();
+
+          if (profile?.role === 'worker') {
+            await supabaseAdmin
+              .from('profiles')
+              .update({
+                is_profile_boosted: true,
+                boost_expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+              })
+              .eq('id', existingSubscription.user_id);
+          }
+        }
+
         break;
       }
 
@@ -177,10 +210,14 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ error: 'Database operation failed' }, { status: 500 });
         }
 
-        // Update profiles.subscription_status back to 'free'
+        // Update profiles.subscription_status back to 'free' and remove profile boost
         const { error: profileError } = await supabaseAdmin
           .from('profiles')
-          .update({ subscription_status: 'free' })
+          .update({
+            subscription_status: 'free',
+            is_profile_boosted: false,
+            boost_expires_at: null,
+          })
           .eq('id', existingSubscription.user_id);
 
         if (profileError) {

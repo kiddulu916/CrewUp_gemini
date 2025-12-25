@@ -2,7 +2,7 @@
 
 ## Overview
 
-This roadmap outlines the complete implementation plan for rebuilding CrewUp from a single-file React app to a production-ready Next.js application with Supabase and Stripe integration.
+This roadmap outlines the complete implementation plan for rebuilding KrewUp from a single-file React app to a production-ready Next.js application with Supabase and Stripe integration.
 
 **Strategy**: Clean slate rebuild with phased feature rollout
 - Phase 0: Foundation (infrastructure setup)
@@ -22,8 +22,8 @@ This roadmap outlines the complete implementation plan for rebuilding CrewUp fro
 
 1. Create new Next.js project with TypeScript
    ```bash
-   npx create-next-app@latest crewup-nextjs --typescript --tailwind --app --use-npm
-   cd crewup-nextjs
+   npx create-next-app@latest krewup-nextjs --typescript --tailwind --app --use-npm
+   cd krewup-nextjs
    ```
 
 2. Install core dependencies

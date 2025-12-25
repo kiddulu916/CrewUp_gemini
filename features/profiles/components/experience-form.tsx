@@ -129,7 +129,7 @@ export function ExperienceForm() {
               onChange={(e) =>
                 setFormData({ ...formData, is_current: e.target.checked, end_date: '' })
               }
-              className="h-4 w-4 rounded border-gray-300 text-crewup-blue focus:ring-crewup-blue"
+              className="h-4 w-4 rounded border-gray-300 text-krewup-blue focus:ring-krewup-blue"
             />
             <label htmlFor="is_current" className="text-sm font-medium text-gray-700">
               I currently work here

@@ -61,8 +61,8 @@ export function ApplyButton({ jobId }: Props) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full border-2 border-crewup-light-blue">
-        <div className="bg-gradient-to-r from-crewup-blue to-crewup-light-blue p-6 rounded-t-xl">
+      <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full border-2 border-krewup-light-blue">
+        <div className="bg-gradient-to-r from-krewup-blue to-krewup-light-blue p-6 rounded-t-xl">
           <h2 className="text-2xl font-bold text-white">Apply for This Job</h2>
           <p className="text-blue-100 mt-1">Tell the employer why you're a great fit</p>
         </div>
@@ -79,7 +79,7 @@ export function ApplyButton({ jobId }: Props) {
               Cover Letter (Optional)
             </label>
             <textarea
-              className="flex min-h-[150px] w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-crewup-blue focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex min-h-[150px] w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-krewup-blue focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
               placeholder="Why are you interested in this position? What relevant experience do you have?"
               value={coverLetter}
               onChange={(e) => setCoverLetter(e.target.value)}

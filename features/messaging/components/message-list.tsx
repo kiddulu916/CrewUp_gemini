@@ -25,7 +25,7 @@ export function MessageList({ messages, currentUserId, isLoading }: Props) {
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-crewup-blue border-r-transparent"></div>
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-krewup-blue border-r-transparent"></div>
           <p className="mt-2 text-sm text-gray-500">Loading messages...</p>
         </div>
       </div>

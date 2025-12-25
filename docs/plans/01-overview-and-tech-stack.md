@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-CrewUp is being rebuilt as a production-ready full-stack application connecting skilled trade workers with employers (contractors and recruiters). This is a real business venture aiming for production deployment with revenue generation through Pro subscriptions.
+KrewUp is being rebuilt as a production-ready full-stack application connecting skilled trade workers with employers (contractors and recruiters). This is a real business venture aiming for production deployment with revenue generation through Pro subscriptions.
 
 ## Business Model
 

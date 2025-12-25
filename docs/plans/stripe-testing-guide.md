@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide covers testing the CrewUp Pro subscription system from local development through production deployment.
+This guide covers testing the KrewUp Pro subscription system from local development through production deployment.
 
 ## Prerequisites
 
@@ -20,13 +20,13 @@ Before full testing is possible, you need:
    Navigate to Products → Add Product:
 
    **Monthly Plan:**
-   - Name: "CrewUp Pro Monthly"
+   - Name: "KrewUp Pro Monthly"
    - Price: $15.00 USD
    - Billing period: Monthly
    - Copy the Price ID (starts with `price_`)
 
    **Annual Plan:**
-   - Name: "CrewUp Pro Annual"
+   - Name: "KrewUp Pro Annual"
    - Price: $150.00 USD
    - Billing period: Yearly
    - Copy the Price ID (starts with `price_`)

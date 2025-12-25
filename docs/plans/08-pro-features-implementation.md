@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document details the implementation strategy for all CrewUp Pro subscription features, including feature gating architecture, prioritization, and specific implementation guidance.
+This document details the implementation strategy for all KrewUp Pro subscription features, including feature gating architecture, prioritization, and specific implementation guidance.
 
 ## Feature Gating Architecture
 
@@ -48,7 +48,7 @@ export function FeatureGate({
         </div>
         <h3 className="font-bold text-lg mb-2">Pro Feature</h3>
         <p className="text-gray-600 mb-4">
-          Upgrade to CrewUp Pro to unlock {feature || 'this feature'}
+          Upgrade to KrewUp Pro to unlock {feature || 'this feature'}
         </p>
         <Button onClick={() => router.push('/pricing')}>
           Upgrade to Pro - $15/month

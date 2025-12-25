@@ -23,7 +23,7 @@ export default function MessagesPage() {
           activeConversationId ? 'hidden md:block' : 'block'
         }`}
       >
-        <div className="bg-gradient-to-r from-crewup-blue to-crewup-light-blue p-4 border-b-2 border-gray-200">
+        <div className="bg-gradient-to-r from-krewup-blue to-krewup-light-blue p-4 border-b-2 border-gray-200">
           <h1 className="text-xl font-bold text-white">Messages</h1>
           <p className="text-sm text-blue-100">Your conversations</p>
         </div>

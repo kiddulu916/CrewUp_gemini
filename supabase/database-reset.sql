@@ -1,5 +1,5 @@
 -- ============================================================================
--- CREWUP DATABASE COMPLETE RESET SCRIPT
+-- KREWUP DATABASE COMPLETE RESET SCRIPT
 -- ============================================================================
 -- This script completely rebuilds the database from scratch
 -- Run this in Supabase SQL Editor to reset everything

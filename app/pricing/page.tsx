@@ -8,7 +8,7 @@ export default function PricingPage() {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">Choose Your Plan</h1>
           <p className="text-xl text-gray-600">
-            Unlock advanced features with CrewUp Pro
+            Unlock advanced features with KrewUp Pro
           </p>
         </div>
 

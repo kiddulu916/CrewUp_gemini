@@ -5,7 +5,7 @@ import { formatRelativeTime } from '@/lib/utils';
 import { cookies } from 'next/headers';
 
 export const metadata = {
-  title: 'Jobs - CrewUp',
+  title: 'Jobs - KrewUp',
   description: 'Browse and manage job postings',
 };
 
@@ -57,7 +57,7 @@ export default async function JobsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-crewup-blue to-crewup-orange bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-krewup-blue to-krewup-orange bg-clip-text text-transparent">
             {isEmployer ? 'My Job Posts' : 'Browse Jobs'}
           </h1>
           <p className="mt-2 text-gray-600 text-lg">
@@ -83,7 +83,7 @@ export default async function JobsPage() {
               <input
                 type="text"
                 placeholder="Search jobs..."
-                className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-crewup-blue"
+                className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-krewup-blue"
               />
               <Button variant="outline">Filter</Button>
             </div>
@@ -96,7 +96,7 @@ export default async function JobsPage() {
         <div className="grid gap-4">
           {jobs.map((job: any) => (
             <Link key={job.id} href={`/dashboard/jobs/${job.id}`}>
-              <Card className="hover:border-crewup-blue hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] cursor-pointer border-2">
+              <Card className="hover:border-krewup-blue hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] cursor-pointer border-2">
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">

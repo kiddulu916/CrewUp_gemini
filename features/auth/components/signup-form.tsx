@@ -103,7 +103,7 @@ export function SignupForm() {
       <div className="text-center">
         <h1 className="text-3xl font-bold text-gray-900">Create your account</h1>
         <p className="mt-2 text-sm text-gray-600">
-          Join CrewUp and connect with opportunities
+          Join KrewUp and connect with opportunities
         </p>
       </div>
 
@@ -196,15 +196,15 @@ export function SignupForm() {
           <input
             type="checkbox"
             required
-            className="mt-1 h-4 w-4 rounded border-gray-300 text-crewup-blue focus:ring-crewup-blue"
+            className="mt-1 h-4 w-4 rounded border-gray-300 text-krewup-blue focus:ring-krewup-blue"
           />
           <label className="ml-2 text-sm text-gray-600">
             I agree to the{' '}
-            <a href="/terms" className="text-crewup-blue hover:underline">
+            <a href="/terms" className="text-krewup-blue hover:underline">
               Terms of Service
             </a>{' '}
             and{' '}
-            <a href="/privacy" className="text-crewup-blue hover:underline">
+            <a href="/privacy" className="text-krewup-blue hover:underline">
               Privacy Policy
             </a>
           </label>
@@ -217,7 +217,7 @@ export function SignupForm() {
 
       <p className="text-center text-sm text-gray-600">
         Already have an account?{' '}
-        <a href="/login" className="font-medium text-crewup-blue hover:underline">
+        <a href="/login" className="font-medium text-krewup-blue hover:underline">
           Sign in
         </a>
       </p>

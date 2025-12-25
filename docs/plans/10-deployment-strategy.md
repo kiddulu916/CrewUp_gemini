@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document covers the complete deployment strategy for CrewUp, including environment setup, CI/CD pipelines, monitoring, security, and operational procedures.
+This document covers the complete deployment strategy for KrewUp, including environment setup, CI/CD pipelines, monitoring, security, and operational procedures.
 
 ## Environment Architecture
 
@@ -16,14 +16,14 @@ This document covers the complete deployment strategy for CrewUp, including envi
 - Tools: Hot reload, React DevTools, verbose logging
 
 **2. Staging (Vercel Preview)**
-- URL: `crewup-staging-*.vercel.app` (auto-generated per PR)
+- URL: `krewup-staging-*.vercel.app` (auto-generated per PR)
 - Database: Staging Supabase project
 - Payments: Stripe test mode
 - Purpose: QA testing, stakeholder review
 - Deploy: Automatic on pull request
 
 **3. Production (Vercel)**
-- URL: `crewup.app` (custom domain)
+- URL: `krewup.app` (custom domain)
 - Database: Production Supabase project
 - Payments: Stripe live mode
 - Purpose: Real users, real payments
@@ -43,7 +43,7 @@ npm i -g vercel
 vercel login
 
 # Link project
-cd crewup-nextjs
+cd krewup-nextjs
 vercel link
 
 # Follow prompts:
@@ -63,8 +63,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOi...
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOi...  # Server-side only
 
 # App URL
-NEXT_PUBLIC_URL=https://crewup.app  # Production
-# NEXT_PUBLIC_URL=https://crewup-staging.vercel.app  # Staging
+NEXT_PUBLIC_URL=https://krewup.app  # Production
+# NEXT_PUBLIC_URL=https://krewup-staging.vercel.app  # Staging
 
 # Stripe
 STRIPE_SECRET_KEY=sk_live_...  # Production
@@ -92,18 +92,18 @@ SENTRY_AUTH_TOKEN=...
 
 **Vercel Dashboard** (Settings → Domains):
 
-1. Add custom domain: `crewup.app`
+1. Add custom domain: `krewup.app`
 2. Add DNS records (provided by Vercel):
    ```
    A record: @ → 76.76.21.21
    CNAME: www → cname.vercel-dns.com
    ```
 3. Wait for SSL certificate (automatic, ~5 minutes)
-4. Set `crewup.app` as production domain
+4. Set `krewup.app` as production domain
 
 **Subdomains** (optional):
-- `api.crewup.app` → API endpoints
-- `staging.crewup.app` → Staging environment
+- `api.krewup.app` → API endpoints
+- `staging.krewup.app` → Staging environment
 
 ---
 
@@ -119,7 +119,7 @@ SENTRY_AUTH_TOKEN=...
   "framework": "nextjs",
   "regions": ["iad1"],
   "env": {
-    "NEXT_PUBLIC_URL": "https://crewup.app"
+    "NEXT_PUBLIC_URL": "https://krewup.app"
   },
   "headers": [
     {
@@ -152,7 +152,7 @@ const nextConfig = {
   },
   experimental: {
     serverActions: {
-      allowedOrigins: ['crewup.app', '*.vercel.app'],
+      allowedOrigins: ['krewup.app', '*.vercel.app'],
     },
   },
   // Sentry configuration
@@ -426,12 +426,12 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 **Configure in Stripe Dashboard** (Developers → Webhooks):
 
 1. **Staging Webhook**:
-   - Endpoint URL: `https://crewup-staging.vercel.app/api/webhooks/stripe`
+   - Endpoint URL: `https://krewup-staging.vercel.app/api/webhooks/stripe`
    - Events: `checkout.session.completed`, `customer.subscription.*`, `invoice.payment_failed`
    - Get signing secret → Add to Vercel staging env vars
 
 2. **Production Webhook**:
-   - Endpoint URL: `https://crewup.app/api/webhooks/stripe`
+   - Endpoint URL: `https://krewup.app/api/webhooks/stripe`
    - Same events
    - Get signing secret → Add to Vercel production env vars
 
@@ -571,7 +571,7 @@ export async function GET() {
 ```
 
 **Monitor with UptimeRobot or similar**:
-- URL: `https://crewup.app/api/health`
+- URL: `https://krewup.app/api/health`
 - Interval: 5 minutes
 - Alert on failure
 
@@ -747,7 +747,7 @@ psql $DATABASE_URL < backup_20231215.sql
 **3. Verify System Health**:
 ```bash
 # Check health endpoint
-curl https://crewup.app/api/health
+curl https://krewup.app/api/health
 
 # Check Stripe webhook status in dashboard
 # Check error rates in Sentry

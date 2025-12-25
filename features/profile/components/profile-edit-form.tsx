@@ -126,7 +126,7 @@ export function ProfileEditForm({ profile }: Props) {
           Bio
         </label>
         <textarea
-          className="flex min-h-[120px] w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-crewup-blue focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex min-h-[120px] w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-krewup-blue focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
           placeholder="Tell employers about your experience and skills..."
           value={formData.bio}
           onChange={(e) => updateFormData({ bio: e.target.value })}

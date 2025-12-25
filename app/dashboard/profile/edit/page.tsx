@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 
 export const metadata = {
-  title: 'Edit Profile - CrewUp',
+  title: 'Edit Profile - KrewUp',
   description: 'Update your profile information',
 };
 
@@ -32,7 +32,7 @@ export default async function ProfileEditPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-crewup-blue to-crewup-orange bg-clip-text text-transparent">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-krewup-blue to-krewup-orange bg-clip-text text-transparent">
           Edit Profile
         </h1>
         <p className="mt-2 text-gray-600">

@@ -28,21 +28,21 @@ export function JobCard({ job, userCoords }: JobCardProps) {
 
   return (
     <Link href={`/dashboard/jobs/${job.id}`}>
-      <Card className="hover:shadow-xl transition-all duration-300 border-2 border-gray-200 hover:border-crewup-blue cursor-pointer">
+      <Card className="hover:shadow-xl transition-all duration-300 border-2 border-gray-200 hover:border-krewup-blue cursor-pointer">
         <CardContent className="p-6">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 space-y-3">
               {/* Title & Trade */}
               <div>
-                <h3 className="text-xl font-bold text-gray-900 group-hover:text-crewup-blue transition-colors mb-1">
+                <h3 className="text-xl font-bold text-gray-900 group-hover:text-krewup-blue transition-colors mb-1">
                   {job.title}
                 </h3>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Badge variant="default" className="bg-crewup-blue text-white">
+                  <Badge variant="default" className="bg-krewup-blue text-white">
                     {job.trade}
                   </Badge>
                   {job.sub_trade && (
-                    <Badge variant="info" className="border-crewup-blue text-crewup-blue">
+                    <Badge variant="info" className="border-krewup-blue text-krewup-blue">
                       {job.sub_trade}
                     </Badge>
                   )}
@@ -56,13 +56,13 @@ export function JobCard({ job, userCoords }: JobCardProps) {
                   <p className="text-sm text-gray-500">Location</p>
                   <p className="text-base font-medium text-gray-900">{job.location}</p>
                   {distance !== null && (
-                    <p className="text-sm text-crewup-orange font-semibold">{distanceText}</p>
+                    <p className="text-sm text-krewup-orange font-semibold">{distanceText}</p>
                   )}
                 </div>
 
                 <div>
                   <p className="text-sm text-gray-500">Pay Rate</p>
-                  <p className="text-lg font-bold text-crewup-orange">{job.pay_rate}</p>
+                  <p className="text-lg font-bold text-krewup-orange">{job.pay_rate}</p>
                 </div>
 
                 <div>

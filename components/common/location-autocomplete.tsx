@@ -213,7 +213,7 @@ export function LocationAutocomplete({
         type="button"
         onClick={handleGetCurrentLocation}
         disabled={isLoading}
-        className="text-sm text-crewup-blue hover:text-crewup-orange font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="text-sm text-krewup-blue hover:text-krewup-orange font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isLoading ? '📍 Getting location...' : '📍 Use my current location'}
       </button>

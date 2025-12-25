@@ -50,7 +50,7 @@ The Next.js rebuild is well underway with most core features implemented:
 - Google Places Autocomplete integration
 - PostGIS coordinate storage and queries
 - Complete database reset script for development
-- Deployed to production at https://get-crewup.vercel.app
+- Deployed to production at https://get-krewup.vercel.app
 
 **🔧 In Progress:**
 - Manual testing of all features
@@ -62,13 +62,13 @@ The Next.js rebuild is well underway with most core features implemented:
 - Beta user invitations
 - Stripe integration for Pro subscriptions (Phase 2)
 
-**Legacy Note**: The single-file React app in `crewup.jsx` is the legacy version and should NOT be modified. All new work happens in the Next.js app following the development plan.
+**Legacy Note**: The single-file React app in `krewup.jsx` is the legacy version and should NOT be modified. All new work happens in the Next.js app following the development plan.
 
 ---
 
 ## Project Overview
 
-CrewUp is a mobile-first Next.js web application connecting skilled trade workers with employers (contractors and recruiters). Built with Next.js 15, TypeScript, Supabase (PostgreSQL + PostGIS), and Stripe.
+KrewUp is a mobile-first Next.js web application connecting skilled trade workers with employers (contractors and recruiters). Built with Next.js 15, TypeScript, Supabase (PostgreSQL + PostGIS), and Stripe.
 
 **Business Model**: Free job posting and messaging for all users. Pro subscription ($15/month or $150/year) offers advanced features like real-time proximity alerts, profile boosts, certification filtering, and analytics dashboards.
 
@@ -76,7 +76,7 @@ CrewUp is a mobile-first Next.js web application connecting skilled trade worker
 
 ### Single-File Application Structure
 
-The application is organized as a monolithic React component in `crewup.jsx` with the following architectural layers:
+The application is organized as a monolithic React component in `krewup.jsx` with the following architectural layers:
 
 1. **Configuration Layer** (lines 8-12): Reads global variables injected at runtime:
    - `__app_id`: Application identifier for multi-tenancy
@@ -185,7 +185,7 @@ This is a **zero-configuration** application with no build tooling. It assumes:
 To run locally, you would need to create an HTML file that:
 1. Loads React, Firebase, and Tailwind from CDN
 2. Sets global configuration variables (`__app_id`, `__firebase_config`)
-3. Imports and renders the CrewUp component
+3. Imports and renders the KrewUp component
 
 ### Firebase Configuration
 
@@ -200,8 +200,8 @@ match /artifacts/{appId}/public/data/{collection}/{document=**} {
 ### Styling System
 
 Uses Tailwind CSS utility classes with custom brand colors:
-- `crewup-blue`: Primary brand color (used for header, buttons)
-- `crewup-orange`: Accent color for CTAs and active states
+- `krewup-blue`: Primary brand color (used for header, buttons)
+- `krewup-orange`: Accent color for CTAs and active states
 - Mobile-first responsive design with `max-w-xl` containers
 - Fixed header with `z-10`, content must account for header height
 
@@ -218,7 +218,7 @@ View switching is handled by tabs in the `Header` component. The PostJob tab onl
 
 ### Pro Subscription Features
 
-The application references a Pro subscription tier but the implementation appears incomplete. According to `CrewUp Pro Subscription Details.md`, Pro features include:
+The application references a Pro subscription tier but the implementation appears incomplete. According to `KrewUp Pro Subscription Details.md`, Pro features include:
 
 **Worker Pro ($15/month or $150/year)**:
 - Real-time proximity alerts for nearby jobs
@@ -236,7 +236,7 @@ The application references a Pro subscription tier but the implementation appear
 
 ### Known Limitations
 
-1. **Incomplete Implementation**: The `crewup.jsx` file is truncated at line 515. The `JobPostingForm` component is incomplete and missing its closing tags/logic.
+1. **Incomplete Implementation**: The `krewup.jsx` file is truncated at line 515. The `JobPostingForm` component is incomplete and missing its closing tags/logic.
 
 2. **No Build System**: This is a single JSX file with no package.json, bundler, or development server configuration.
 
@@ -252,7 +252,7 @@ The application references a Pro subscription tier but the implementation appear
 
 Since this is a single-file application with no build tooling:
 
-1. **All changes happen in `crewup.jsx`**
+1. **All changes happen in `krewup.jsx`**
 2. **Test changes by refreshing in browser** (assuming proper HTML wrapper)
 3. **Firebase changes require Firestore rules update**
 4. **New constants should be added near lines 16-65**

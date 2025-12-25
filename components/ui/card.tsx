@@ -28,7 +28,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
     const variants = {
       default: 'bg-white border border-gray-200 shadow-md hover:shadow-xl transition-shadow duration-300',
       elevated: 'bg-white shadow-xl hover:shadow-2xl transition-shadow duration-300',
-      outlined: 'bg-white border-2 border-crewup-light-blue shadow-lg hover:shadow-xl transition-all duration-300 hover:border-crewup-blue',
+      outlined: 'bg-white border-2 border-krewup-light-blue shadow-lg hover:shadow-xl transition-all duration-300 hover:border-krewup-blue',
     };
 
     return (
@@ -55,7 +55,7 @@ export const CardTitle = forwardRef<HTMLHeadingElement, HTMLAttributes<HTMLHeadi
   ({ className, ...props }, ref) => (
     <h3
       ref={ref}
-      className={cn('text-2xl font-bold leading-none tracking-tight bg-gradient-to-r from-crewup-blue to-crewup-orange bg-clip-text text-transparent', className)}
+      className={cn('text-2xl font-bold leading-none tracking-tight bg-gradient-to-r from-krewup-blue to-krewup-orange bg-clip-text text-transparent', className)}
       {...props}
     />
   )

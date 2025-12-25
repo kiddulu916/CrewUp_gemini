@@ -45,7 +45,7 @@ export function ExperienceItem({ exp }: ExperienceItemProps) {
 
   return (
     <>
-      <div className="border-l-2 border-crewup-blue pl-4 relative group">
+      <div className="border-l-2 border-krewup-blue pl-4 relative group">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <h3 className="font-semibold text-gray-900">{exp.job_title}</h3>

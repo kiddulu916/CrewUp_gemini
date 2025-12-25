@@ -43,7 +43,7 @@ export function CertificationItem({ cert }: CertificationItemProps) {
 
   return (
     <>
-      <div className="flex items-center justify-between rounded-lg border border-gray-200 p-4 hover:border-crewup-blue transition-colors">
+      <div className="flex items-center justify-between rounded-lg border border-gray-200 p-4 hover:border-krewup-blue transition-colors">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
             <span className="text-lg">📜</span>

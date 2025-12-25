@@ -204,7 +204,7 @@ export function JobForm() {
 
               {/* Sub-Trades for this trade */}
               {selection.trade && TRADE_SUBCATEGORIES[selection.trade] && (
-                <div className="ml-4 space-y-2 border-l-2 border-crewup-blue pl-4">
+                <div className="ml-4 space-y-2 border-l-2 border-krewup-blue pl-4">
                   <div className="flex items-center gap-2 mb-2">
                     <label className="text-sm font-medium text-gray-600">Specialties</label>
                     <Button
@@ -290,7 +290,7 @@ export function JobForm() {
           Job Description
         </label>
         <textarea
-          className="flex min-h-[160px] w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-crewup-blue focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex min-h-[160px] w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-krewup-blue focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
           placeholder="Describe the job responsibilities, requirements, and any other relevant details..."
           value={formData.description}
           onChange={(e) => updateFormData({ description: e.target.value })}
@@ -413,7 +413,7 @@ export function JobForm() {
                 checked={selectedCerts.includes(cert)}
                 onChange={() => toggleCert(cert)}
                 disabled={isLoading}
-                className="h-4 w-4 rounded border-gray-300 text-crewup-blue focus:ring-crewup-blue"
+                className="h-4 w-4 rounded border-gray-300 text-krewup-blue focus:ring-krewup-blue"
               />
               <span className="text-sm text-gray-700">{cert}</span>
             </label>

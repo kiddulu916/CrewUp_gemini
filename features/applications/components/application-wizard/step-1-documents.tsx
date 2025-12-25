@@ -291,13 +291,13 @@ export function Step1Documents({
             onDrop={handleResumeDrop}
             className={`
               border-2 border-dashed rounded-lg p-8 text-center transition-colors
-              ${isDraggingResume ? 'border-crewup-blue bg-blue-50' : 'border-gray-300 bg-gray-50'}
-              ${isUploadingResume ? 'opacity-50 pointer-events-none' : 'hover:border-crewup-blue hover:bg-blue-50'}
+              ${isDraggingResume ? 'border-krewup-blue bg-blue-50' : 'border-gray-300 bg-gray-50'}
+              ${isUploadingResume ? 'opacity-50 pointer-events-none' : 'hover:border-krewup-blue hover:bg-blue-50'}
             `}
           >
             {isUploadingResume ? (
               <div className="space-y-3">
-                <Loader2Icon className="h-12 w-12 mx-auto text-crewup-blue animate-spin" />
+                <Loader2Icon className="h-12 w-12 mx-auto text-krewup-blue animate-spin" />
                 <p className="text-gray-600">Uploading and extracting text...</p>
               </div>
             ) : (
@@ -394,7 +394,7 @@ export function Step1Documents({
             <button
               type="button"
               onClick={() => selectCoverLetterMode('upload')}
-              className="border-2 border-gray-300 rounded-lg p-6 hover:border-crewup-blue hover:bg-blue-50 transition-colors text-center"
+              className="border-2 border-gray-300 rounded-lg p-6 hover:border-krewup-blue hover:bg-blue-50 transition-colors text-center"
             >
               <UploadIcon className="h-8 w-8 mx-auto text-gray-400 mb-2" />
               <p className="font-medium text-gray-900">Upload File</p>
@@ -403,7 +403,7 @@ export function Step1Documents({
             <button
               type="button"
               onClick={() => selectCoverLetterMode('write')}
-              className="border-2 border-gray-300 rounded-lg p-6 hover:border-crewup-blue hover:bg-blue-50 transition-colors text-center"
+              className="border-2 border-gray-300 rounded-lg p-6 hover:border-krewup-blue hover:bg-blue-50 transition-colors text-center"
             >
               <FileTextIcon className="h-8 w-8 mx-auto text-gray-400 mb-2" />
               <p className="font-medium text-gray-900">Write Below</p>
@@ -456,13 +456,13 @@ export function Step1Documents({
                 onDrop={handleCoverLetterDrop}
                 className={`
                   border-2 border-dashed rounded-lg p-8 text-center transition-colors
-                  ${isDraggingCoverLetter ? 'border-crewup-blue bg-blue-50' : 'border-gray-300 bg-gray-50'}
-                  ${isUploadingCoverLetter ? 'opacity-50 pointer-events-none' : 'hover:border-crewup-blue hover:bg-blue-50'}
+                  ${isDraggingCoverLetter ? 'border-krewup-blue bg-blue-50' : 'border-gray-300 bg-gray-50'}
+                  ${isUploadingCoverLetter ? 'opacity-50 pointer-events-none' : 'hover:border-krewup-blue hover:bg-blue-50'}
                 `}
               >
                 {isUploadingCoverLetter ? (
                   <div className="space-y-3">
-                    <Loader2Icon className="h-12 w-12 mx-auto text-crewup-blue animate-spin" />
+                    <Loader2Icon className="h-12 w-12 mx-auto text-krewup-blue animate-spin" />
                     <p className="text-gray-600">Uploading cover letter...</p>
                   </div>
                 ) : (

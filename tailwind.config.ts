@@ -10,8 +10,8 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        'crewup-blue': '#1E40AF',
-        'crewup-orange': '#F97316',
+        'krewup-blue': '#1E40AF',
+        'krewup-orange': '#F97316',
       },
     },
   },

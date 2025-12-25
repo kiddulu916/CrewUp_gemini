@@ -1,6 +1,6 @@
 # Mobile Responsiveness Review
 
-Guide for testing and improving mobile responsiveness across all CrewUp features.
+Guide for testing and improving mobile responsiveness across all KrewUp features.
 
 **Target Devices:**
 - Mobile: 375px - 768px (iPhone SE to tablets)
@@ -331,7 +331,7 @@ body {
 
 ## 🎨 Tailwind Responsive Classes Used
 
-CrewUp uses Tailwind CSS. Check for these responsive patterns:
+KrewUp uses Tailwind CSS. Check for these responsive patterns:
 
 ```tsx
 // Stack on mobile, row on desktop

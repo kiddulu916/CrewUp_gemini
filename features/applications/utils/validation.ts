@@ -97,9 +97,15 @@ export const step8Schema = z.object({
     phone: z.string().regex(/^\(\d{3}\) \d{3}-\d{4}$/, 'Phone must be (XXX) XXX-XXXX format'),
   }),
   consents: z.object({
-    physicalRequirements: z.literal(true, { errorMap: () => ({ message: 'You must acknowledge physical requirements' }) }),
-    backgroundCheck: z.literal(true, { errorMap: () => ({ message: 'You must consent to background check' }) }),
-    drugTest: z.literal(true, { errorMap: () => ({ message: 'You must consent to drug test' }) }),
+    physicalRequirements: z.boolean().refine((val) => val === true, {
+      message: 'You must acknowledge physical requirements',
+    }),
+    backgroundCheck: z.boolean().refine((val) => val === true, {
+      message: 'You must consent to background check',
+    }),
+    drugTest: z.boolean().refine((val) => val === true, {
+      message: 'You must consent to drug test',
+    }),
   }),
 });
 

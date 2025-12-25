@@ -39,10 +39,10 @@ export default async function DashboardLayout({
       <aside className="w-40 bg-white border-r border-gray-200 shadow-lg">
         <div className="flex h-full flex-col">
           {/* Logo with gradient */}
-          <div className="flex h-16 items-center justify-center bg-gradient-to-r from-crewup-blue to-crewup-light-blue px-2">
+          <div className="flex h-16 items-center justify-center bg-gradient-to-r from-krewup-blue to-krewup-light-blue px-2">
             <Link href="/dashboard/feed" className="text-xl font-bold text-white flex items-center gap-1">
               <span className="text-2xl">👷</span>
-              <span className="hidden sm:inline">CrewUp</span>
+              <span className="hidden sm:inline">KrewUp</span>
             </Link>
           </div>
 
@@ -92,9 +92,9 @@ export default async function DashboardLayout({
           </nav>
 
           {/* User Info */}
-          <div className="border-t-2 border-crewup-light-blue p-2 bg-gradient-to-r from-blue-50 to-orange-50">
+          <div className="border-t-2 border-krewup-light-blue p-2 bg-gradient-to-r from-blue-50 to-orange-50">
             <div className="flex flex-col items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-crewup-blue to-crewup-orange text-white font-bold text-sm shadow-lg">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-krewup-blue to-krewup-orange text-white font-bold text-sm shadow-lg">
                 {profile.name.charAt(0).toUpperCase()}
               </div>
               <div className="w-full text-center">

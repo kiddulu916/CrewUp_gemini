@@ -698,7 +698,7 @@ Job: [Job Title]
 [View Application Details]
 
 ---
-CrewUp Team
+KrewUp Team
 ```
 
 ### Employer Notifications
@@ -734,7 +734,7 @@ You received 5 new applications:
 [View All Applications]
 
 ---
-CrewUp Team
+KrewUp Team
 ```
 
 ### Pro Feature: Push Notifications

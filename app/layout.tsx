@@ -4,7 +4,7 @@ import { QueryProvider } from "@/providers/query-provider";
 import { ToastProvider } from "@/components/providers/toast-provider";
 
 export const metadata: Metadata = {
-  title: "CrewUp - Connecting Skilled Trade Workers with Employers",
+  title: "KrewUp - Connecting Skilled Trade Workers with Employers",
   description: "The premier job marketplace for skilled trade workers and contractors",
 };
 

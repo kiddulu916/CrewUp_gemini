@@ -15,7 +15,7 @@
 ### Task 1: Create Application Drafts Table
 
 **Files:**
-- Create: `crewup/supabase/migrations/018_create_application_drafts.sql`
+- Create: `krewup/supabase/migrations/018_create_application_drafts.sql`
 
 **Step 1: Write migration for application_drafts table**
 
@@ -64,7 +64,7 @@ CREATE POLICY "Workers can delete own drafts"
 
 **Step 2: Apply migration**
 
-Run: `cd crewup && npx supabase db reset`
+Run: `cd krewup && npx supabase db reset`
 Expected: Migration applies successfully, table created
 
 **Step 3: Verify table exists**
@@ -87,7 +87,7 @@ git commit -m "feat: create application_drafts table with RLS policies"
 ### Task 2: Update Job Applications Table
 
 **Files:**
-- Create: `crewup/supabase/migrations/019_update_job_applications.sql`
+- Create: `krewup/supabase/migrations/019_update_job_applications.sql`
 
 **Step 1: Write migration to add new columns**
 
@@ -116,7 +116,7 @@ ALTER TABLE job_applications ADD CONSTRAINT job_applications_status_check
 
 **Step 2: Apply migration**
 
-Run: `cd crewup && npx supabase db reset`
+Run: `cd krewup && npx supabase db reset`
 Expected: Migration applies, columns added
 
 **Step 3: Verify columns exist**
@@ -136,7 +136,7 @@ git commit -m "feat: add form_data and file fields to job_applications table"
 ### Task 3: Create Notification Preferences Table
 
 **Files:**
-- Create: `crewup/supabase/migrations/020_create_notification_preferences.sql`
+- Create: `krewup/supabase/migrations/020_create_notification_preferences.sql`
 
 **Step 1: Write migration for notification_preferences table**
 
@@ -184,7 +184,7 @@ CREATE TRIGGER on_profile_created_create_notification_preferences
 
 **Step 2: Apply migration**
 
-Run: `cd crewup && npx supabase db reset`
+Run: `cd krewup && npx supabase db reset`
 Expected: Migration applies, table and trigger created
 
 **Step 3: Test trigger by creating a test profile**
@@ -204,7 +204,7 @@ git commit -m "feat: create notification_preferences table with auto-creation tr
 ### Task 4: Create Supabase Storage Buckets
 
 **Files:**
-- Create: `crewup/supabase/migrations/021_create_storage_buckets.sql`
+- Create: `krewup/supabase/migrations/021_create_storage_buckets.sql`
 
 **Step 1: Write migration for storage buckets**
 
@@ -284,7 +284,7 @@ CREATE POLICY "Worker or employer views application files"
 
 **Step 2: Apply migration**
 
-Run: `cd crewup && npx supabase db reset`
+Run: `cd krewup && npx supabase db reset`
 Expected: Buckets created with policies
 
 **Step 3: Verify buckets in Supabase dashboard**
@@ -306,7 +306,7 @@ git commit -m "feat: create storage buckets for application drafts and submissio
 ### Task 5: Create Application Type Definitions
 
 **Files:**
-- Create: `crewup/features/applications/types/application.types.ts`
+- Create: `krewup/features/applications/types/application.types.ts`
 
 **Step 1: Write TypeScript interfaces**
 
@@ -454,7 +454,7 @@ git commit -m "feat: add TypeScript types for application system"
 ### Task 6: Create Zod Validation Schemas
 
 **Files:**
-- Create: `crewup/features/applications/utils/validation.ts`
+- Create: `krewup/features/applications/utils/validation.ts`
 
 **Step 1: Write Zod schemas for each step**
 
@@ -593,18 +593,18 @@ git commit -m "feat: add Zod validation schemas for application wizard"
 ### Task 7: Create Resume Parser Utilities
 
 **Files:**
-- Create: `crewup/lib/resume-parser/pdf-parser.ts`
-- Create: `crewup/lib/resume-parser/docx-parser.ts`
-- Create: `crewup/lib/resume-parser/text-extractor.ts`
+- Create: `krewup/lib/resume-parser/pdf-parser.ts`
+- Create: `krewup/lib/resume-parser/docx-parser.ts`
+- Create: `krewup/lib/resume-parser/text-extractor.ts`
 
 **Step 1: Install dependencies**
 
-Run: `cd crewup && npm install pdf-parse mammoth`
+Run: `cd krewup && npm install pdf-parse mammoth`
 Expected: Packages installed
 
 **Step 2: Write PDF parser**
 
-File: `crewup/lib/resume-parser/pdf-parser.ts`
+File: `krewup/lib/resume-parser/pdf-parser.ts`
 
 ```typescript
 import pdf from 'pdf-parse';
@@ -622,7 +622,7 @@ export async function extractTextFromPDF(buffer: ArrayBuffer): Promise<string> {
 
 **Step 3: Write DOCX parser**
 
-File: `crewup/lib/resume-parser/docx-parser.ts`
+File: `krewup/lib/resume-parser/docx-parser.ts`
 
 ```typescript
 import mammoth from 'mammoth';
@@ -640,7 +640,7 @@ export async function extractTextFromDOCX(buffer: ArrayBuffer): Promise<string> 
 
 **Step 4: Write unified text extractor**
 
-File: `crewup/lib/resume-parser/text-extractor.ts`
+File: `krewup/lib/resume-parser/text-extractor.ts`
 
 ```typescript
 import { extractTextFromPDF } from './pdf-parser';
@@ -710,7 +710,7 @@ git commit -m "feat: add resume text extraction for PDF, DOCX, and TXT"
 ### Task 8: Create Draft Server Actions
 
 **Files:**
-- Create: `crewup/features/applications/actions/draft-actions.ts`
+- Create: `krewup/features/applications/actions/draft-actions.ts`
 
 **Step 1: Write draft save action**
 
@@ -851,7 +851,7 @@ git commit -m "feat: add server actions for draft management"
 ### Task 9: Create File Upload Actions
 
 **Files:**
-- Create: `crewup/features/applications/actions/file-upload-actions.ts`
+- Create: `krewup/features/applications/actions/file-upload-actions.ts`
 
 **Step 1: Write file upload server action**
 
@@ -1049,12 +1049,12 @@ git commit -m "feat: add file upload and move actions for application files"
 ### Task 10: Create Wizard Container Component
 
 **Files:**
-- Create: `crewup/features/applications/components/application-wizard/wizard-container.tsx`
-- Create: `crewup/features/applications/hooks/use-application-wizard.ts`
+- Create: `krewup/features/applications/components/application-wizard/wizard-container.tsx`
+- Create: `krewup/features/applications/hooks/use-application-wizard.ts`
 
 **Step 1: Write wizard hook for state management**
 
-File: `crewup/features/applications/hooks/use-application-wizard.ts`
+File: `krewup/features/applications/hooks/use-application-wizard.ts`
 
 ```typescript
 'use client';
@@ -1171,7 +1171,7 @@ export function useApplicationWizard(jobId: string) {
 
 **Step 2: Write wizard container component**
 
-File: `crewup/features/applications/components/application-wizard/wizard-container.tsx`
+File: `krewup/features/applications/components/application-wizard/wizard-container.tsx`
 
 ```typescript
 'use client';

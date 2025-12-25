@@ -7,7 +7,7 @@ Hybrid architecture combining Next.js App Router conventions with feature-based 
 ## Complete Structure
 
 ```
-crewup-nextjs/
+krewup-nextjs/
 ├── .env.local                    # Environment variables (gitignored)
 ├── .env.example                  # Example env vars for setup
 ├── next.config.js                # Next.js configuration

@@ -37,13 +37,13 @@ export function ConversationItem({ conversation, isActive = false }: Props) {
     <Link
       href={`/dashboard/messages/${conversation.id}`}
       className={`block border-b border-gray-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-orange-50 transition-all duration-200 ${
-        isActive ? 'bg-gradient-to-r from-blue-50 to-orange-50 border-l-4 border-l-crewup-blue' : ''
+        isActive ? 'bg-gradient-to-r from-blue-50 to-orange-50 border-l-4 border-l-krewup-blue' : ''
       }`}
     >
       <div className="p-4">
         <div className="flex items-start gap-3">
           {/* Avatar */}
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-crewup-blue to-crewup-orange text-white font-bold shadow-md">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-krewup-blue to-krewup-orange text-white font-bold shadow-md">
             {conversation.otherParticipant.name.charAt(0).toUpperCase()}
           </div>
 

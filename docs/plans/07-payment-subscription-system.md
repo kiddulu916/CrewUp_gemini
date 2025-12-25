@@ -2,7 +2,7 @@
 
 ## Overview
 
-Stripe powers all payment processing and subscription management. Users can subscribe to CrewUp Pro ($15/month or $150/year) to unlock premium features.
+Stripe powers all payment processing and subscription management. Users can subscribe to KrewUp Pro ($15/month or $150/year) to unlock premium features.
 
 ## Stripe Setup
 
@@ -11,7 +11,7 @@ Stripe powers all payment processing and subscription management. Users can subs
 Create in Stripe Dashboard:
 
 ```
-Product: CrewUp Pro
+Product: KrewUp Pro
 
 Price 1 (Monthly):
 - Amount: $15.00 USD

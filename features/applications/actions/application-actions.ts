@@ -3,6 +3,9 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
+import { moveFileToApplication } from './file-upload-actions';
+import { deleteDraft } from './draft-actions';
+import type { ApplicationFormData } from '../types/application.types';
 
 type ApplicationResult = {
   success: boolean;
@@ -202,7 +205,9 @@ export async function getJobApplications(jobId: string) {
           trade,
           sub_trade,
           location,
-          bio
+          bio,
+          is_profile_boosted,
+          boost_expires_at
         )
       `
       )
@@ -214,9 +219,154 @@ export async function getJobApplications(jobId: string) {
       return { success: false, error: 'Failed to fetch applications', data: null };
     }
 
-    return { success: true, data: applications };
+    // Sort applications: boosted profiles first, then by creation date
+    const sortedApplications = applications?.sort((a, b) => {
+      // Check if boosts are active (not expired)
+      const aIsBoosted = a.worker?.is_profile_boosted &&
+        a.worker?.boost_expires_at &&
+        new Date(a.worker.boost_expires_at) > new Date();
+      const bIsBoosted = b.worker?.is_profile_boosted &&
+        b.worker?.boost_expires_at &&
+        new Date(b.worker.boost_expires_at) > new Date();
+
+      // Boosted profiles come first
+      if (aIsBoosted && !bIsBoosted) return -1;
+      if (!aIsBoosted && bIsBoosted) return 1;
+
+      // If both have same boost status, sort by created_at (newest first)
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+
+    return { success: true, data: sortedApplications };
   } catch (error) {
     console.error('Error in getJobApplications:', error);
     return { success: false, error: 'An unexpected error occurred', data: null };
+  }
+}
+
+/**
+ * Submit comprehensive job application from wizard
+ * Moves files from draft to application storage and creates final application
+ */
+export async function submitApplication(
+  jobId: string,
+  formData: ApplicationFormData,
+  resumeUrl?: string,
+  coverLetterUrl?: string,
+  resumeExtractedText?: string
+): Promise<{ success: boolean; error?: string; applicationId?: string }> {
+  try {
+    const supabase = await createClient(await cookies());
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return { success: false, error: 'Not authenticated' };
+    }
+
+    // Check if user is a worker
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile || profile.role !== 'worker') {
+      return { success: false, error: 'Only workers can apply to jobs' };
+    }
+
+    // Check if already applied
+    const { data: existingApp } = await supabase
+      .from('job_applications')
+      .select('id')
+      .eq('job_id', jobId)
+      .eq('worker_id', user.id)
+      .single();
+
+    if (existingApp) {
+      return { success: false, error: 'You have already applied to this job' };
+    }
+
+    // Create the application
+    const { data: application, error: createError } = await supabase
+      .from('job_applications')
+      .insert({
+        job_id: jobId,
+        worker_id: user.id,
+        status: 'pending',
+        form_data: formData,
+        resume_extracted_text: resumeExtractedText || null,
+        contact_shared: false,
+      })
+      .select('id')
+      .single();
+
+    if (createError || !application) {
+      console.error('Error creating application:', createError);
+      return { success: false, error: 'Failed to submit application' };
+    }
+
+    const applicationId = application.id;
+
+    // Move files from draft storage to application storage
+    let finalResumeUrl = resumeUrl;
+    let finalCoverLetterUrl = coverLetterUrl;
+
+    if (resumeUrl && resumeUrl.includes('application-drafts')) {
+      // Extract the file path from the URL
+      const urlParts = resumeUrl.split('/application-drafts/');
+      if (urlParts.length > 1) {
+        const filePath = urlParts[1];
+        const moveResult = await moveFileToApplication(
+          filePath,
+          applicationId,
+          'resume.' + filePath.split('.').pop()
+        );
+        if (moveResult.success && moveResult.url) {
+          finalResumeUrl = moveResult.url;
+        }
+      }
+    }
+
+    if (coverLetterUrl && coverLetterUrl.includes('application-drafts')) {
+      const urlParts = coverLetterUrl.split('/application-drafts/');
+      if (urlParts.length > 1) {
+        const filePath = urlParts[1];
+        const moveResult = await moveFileToApplication(
+          filePath,
+          applicationId,
+          'cover-letter.' + filePath.split('.').pop()
+        );
+        if (moveResult.success && moveResult.url) {
+          finalCoverLetterUrl = moveResult.url;
+        }
+      }
+    }
+
+    // Update application with final file URLs
+    if (finalResumeUrl || finalCoverLetterUrl) {
+      await supabase
+        .from('job_applications')
+        .update({
+          resume_url: finalResumeUrl || null,
+          cover_letter_url: finalCoverLetterUrl || null,
+        })
+        .eq('id', applicationId);
+    }
+
+    // Delete the draft
+    await deleteDraft(jobId);
+
+    // Revalidate paths
+    revalidatePath('/dashboard/applications');
+    revalidatePath('/dashboard/jobs');
+    revalidatePath(`/dashboard/jobs/${jobId}`);
+
+    return { success: true, applicationId };
+  } catch (error) {
+    console.error('Error in submitApplication:', error);
+    return { success: false, error: 'An unexpected error occurred' };
   }
 }

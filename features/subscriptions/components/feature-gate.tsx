@@ -61,7 +61,7 @@ export function FeatureGate({ children, feature, fallback }: FeatureGateProps) {
       </div>
       <h3 className="text-xl font-bold mb-2">Pro Feature</h3>
       <p className="text-gray-600 mb-4">
-        Upgrade to CrewUp Pro to access {feature}.
+        Upgrade to KrewUp Pro to access {feature}.
       </p>
       <Button onClick={() => router.push('/pricing')}>
         Upgrade to Pro

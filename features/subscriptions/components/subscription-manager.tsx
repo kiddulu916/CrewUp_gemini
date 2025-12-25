@@ -58,7 +58,7 @@ export function SubscriptionManager() {
 
       <div className="mb-6">
         <p className="text-lg mb-2">
-          Current Plan: <strong>{isPro ? 'CrewUp Pro' : 'Free'}</strong>
+          Current Plan: <strong>{isPro ? 'KrewUp Pro' : 'Free'}</strong>
         </p>
 
         {isPro && subscription?.current_period_end && (

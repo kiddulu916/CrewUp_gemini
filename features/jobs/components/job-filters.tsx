@@ -41,7 +41,7 @@ export function JobFilters({ filters, onFilterChange }: JobFiltersProps) {
           {hasActiveFilters && (
             <button
               onClick={handleClearFilters}
-              className="text-sm text-crewup-blue hover:text-crewup-orange font-medium transition-colors"
+              className="text-sm text-krewup-blue hover:text-krewup-orange font-medium transition-colors"
             >
               Clear All
             </button>

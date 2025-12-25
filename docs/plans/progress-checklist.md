@@ -1,4 +1,4 @@
-# CrewUp Development Progress Checklist
+# KrewUp Development Progress Checklist
 
 Track your progress through the complete rebuild. Check off items as you complete them.
 
@@ -321,8 +321,8 @@ Track your progress through the complete rebuild. Check off items as you complet
   - [x] SUPABASE_SERVICE_ROLE_KEY (encrypted)
   - [x] NEXT_PUBLIC_APP_URL
   - [x] NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
-- [x] Deploy to production (get-crewup.vercel.app)
-- [x] Update production URL to get-crewup.vercel.app
+- [x] Deploy to production (get-krewup.vercel.app)
+- [x] Update production URL to get-krewup.vercel.app
 - [ ] Test authentication in production
 - [ ] Test job posting in production (with conditional pay rates)
 - [ ] Test Google Places autocomplete in production
@@ -333,8 +333,8 @@ Track your progress through the complete rebuild. Check off items as you complet
 - [ ] Gather initial feedback
 
 **Production URLs**:
-- 🌐 **Live Application**: https://get-crewup.vercel.app
-- 📊 **Vercel Dashboard**: https://vercel.com/corey-hilsenbecks-projects/crewup-nextjs
+- 🌐 **Live Application**: https://get-krewup.vercel.app
+- 📊 **Vercel Dashboard**: https://vercel.com/corey-hilsenbecks-projects/krewup-nextjs
 
 **Deployment Info**:
 - ✅ Build successful (all routes compiled)
@@ -372,8 +372,8 @@ Track your progress through the complete rebuild. Check off items as you complet
 
 ### Stripe Setup & Checkout ✅
 - [ ] Create Stripe account (manual - user setup required)
-- [ ] Create CrewUp Pro Monthly product ($15/month) (manual - user setup required)
-- [ ] Create CrewUp Pro Annual product ($150/year) (manual - user setup required)
+- [ ] Create KrewUp Pro Monthly product ($15/month) (manual - user setup required)
+- [ ] Create KrewUp Pro Annual product ($150/year) (manual - user setup required)
 - [ ] Get price IDs for both products (manual - user setup required)
 - [ ] Configure Stripe webhook endpoint (manual - deploy first)
 - [x] Add Stripe environment variables (.env.example updated)

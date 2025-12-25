@@ -49,7 +49,7 @@ export function LoginForm() {
     <div className="w-full max-w-md space-y-6">
       <div className="text-center">
         <h1 className="text-3xl font-bold text-gray-900">Welcome back</h1>
-        <p className="mt-2 text-sm text-gray-600">Sign in to your CrewUp account</p>
+        <p className="mt-2 text-sm text-gray-600">Sign in to your KrewUp account</p>
       </div>
 
       {error && (
@@ -120,13 +120,13 @@ export function LoginForm() {
           <label className="flex items-center">
             <input
               type="checkbox"
-              className="h-4 w-4 rounded border-gray-300 text-crewup-blue focus:ring-crewup-blue"
+              className="h-4 w-4 rounded border-gray-300 text-krewup-blue focus:ring-krewup-blue"
             />
             <span className="ml-2 text-sm text-gray-600">Remember me</span>
           </label>
           <a
             href="/auth/forgot-password"
-            className="text-sm text-crewup-blue hover:underline"
+            className="text-sm text-krewup-blue hover:underline"
           >
             Forgot password?
           </a>
@@ -139,7 +139,7 @@ export function LoginForm() {
 
       <p className="text-center text-sm text-gray-600">
         Don't have an account?{' '}
-        <a href="/signup" className="font-medium text-crewup-blue hover:underline">
+        <a href="/signup" className="font-medium text-krewup-blue hover:underline">
           Sign up
         </a>
       </p>

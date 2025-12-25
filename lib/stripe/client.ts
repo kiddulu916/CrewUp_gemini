@@ -12,12 +12,12 @@ export const SUBSCRIPTION_PLANS = {
     priceId: STRIPE_PRICE_IDS.MONTHLY,
     price: 15,
     interval: 'month' as const,
-    name: 'CrewUp Pro Monthly',
+    name: 'KrewUp Pro Monthly',
   },
   ANNUAL: {
     priceId: STRIPE_PRICE_IDS.ANNUAL,
     price: 150,
     interval: 'year' as const,
-    name: 'CrewUp Pro Annual',
+    name: 'KrewUp Pro Annual',
   },
 };

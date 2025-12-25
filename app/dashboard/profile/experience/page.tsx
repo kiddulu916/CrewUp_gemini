@@ -4,7 +4,7 @@ import { ExperienceForm } from '@/features/profiles/components/experience-form';
 import { cookies } from 'next/headers';
 
 export const metadata = {
-  title: 'Add Work Experience - CrewUp',
+  title: 'Add Work Experience - KrewUp',
   description: 'Add work experience to your profile',
 };
 
@@ -33,7 +33,7 @@ export default async function AddExperiencePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-crewup-blue to-crewup-orange bg-clip-text text-transparent">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-krewup-blue to-krewup-orange bg-clip-text text-transparent">
           Add Work Experience
         </h1>
         <p className="mt-2 text-gray-600">

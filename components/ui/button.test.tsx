@@ -12,12 +12,12 @@ describe('Button', () => {
   it('applies primary variant by default', () => {
     render(<Button>Click me</Button>);
     const button = screen.getByRole('button');
-    expect(button).toHaveClass('bg-crewup-blue');
+    expect(button).toHaveClass('bg-krewup-blue');
   });
 
   it('applies different variants correctly', () => {
     const { rerender } = render(<Button variant="secondary">Secondary</Button>);
-    expect(screen.getByRole('button')).toHaveClass('bg-crewup-orange');
+    expect(screen.getByRole('button')).toHaveClass('bg-krewup-orange');
 
     rerender(<Button variant="outline">Outline</Button>);
     expect(screen.getByRole('button')).toHaveClass('border-2');

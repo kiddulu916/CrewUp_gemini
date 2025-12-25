@@ -63,7 +63,7 @@ export default async function ConversationPage({ params }: Props) {
   return (
     <div className="h-[calc(100vh-64px)] flex flex-col">
       {/* Mobile Back Button */}
-      <div className="md:hidden bg-gradient-to-r from-crewup-blue to-crewup-light-blue border-b-2 border-gray-200 p-3 flex items-center gap-3">
+      <div className="md:hidden bg-gradient-to-r from-krewup-blue to-krewup-light-blue border-b-2 border-gray-200 p-3 flex items-center gap-3">
         <Link
           href="/dashboard/messages"
           className="flex items-center justify-center h-8 w-8 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
@@ -83,7 +83,7 @@ export default async function ConversationPage({ params }: Props) {
           </svg>
         </Link>
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-crewup-blue font-bold shadow-md text-sm">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-krewup-blue font-bold shadow-md text-sm">
             {otherProfile.name.charAt(0).toUpperCase()}
           </div>
           <h1 className="text-lg font-bold text-white">{otherProfile.name}</h1>

@@ -50,9 +50,9 @@ export function ChatWindow({ conversationId, otherParticipant }: Props) {
     <div className="flex flex-col h-full">
       {/* Header */}
       {otherParticipant && (
-        <div className="border-b-2 border-gray-200 bg-gradient-to-r from-crewup-blue to-crewup-light-blue p-4">
+        <div className="border-b-2 border-gray-200 bg-gradient-to-r from-krewup-blue to-krewup-light-blue p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-crewup-blue font-bold shadow-md">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-krewup-blue font-bold shadow-md">
               {otherParticipant.name.charAt(0).toUpperCase()}
             </div>
             <div>
