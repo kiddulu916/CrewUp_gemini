@@ -293,7 +293,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             <CardTitle>Job Analytics</CardTitle>
           </CardHeader>
           <CardContent>
-            <JobAnalyticsDashboard jobId={job.id} />
+            <JobAnalyticsDashboard jobId={job.id} jobTitle={job.title} />
           </CardContent>
         </Card>
       )}
