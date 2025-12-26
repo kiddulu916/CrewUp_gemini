@@ -195,10 +195,3 @@ export async function getJobAnalytics(
     return { success: false, error: 'Unexpected error occurred' };
   }
 }
-
-/**
- * Generate a unique session ID for view tracking
- */
-export function generateSessionId(): string {
-  return `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
-}
