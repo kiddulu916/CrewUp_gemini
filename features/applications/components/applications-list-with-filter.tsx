@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { CertificationFilter } from './certification-filter';
+import { getFilteredApplications } from '../actions/certification-filter-actions';
 import { Badge } from '@/components/ui/badge';
 import { MessageButton } from '@/features/messaging/components/message-button';
 
@@ -32,6 +33,26 @@ export function ApplicationsListWithFilter({
   initialApplications,
 }: ApplicationsListWithFilterProps) {
   const [filteredApplications, setFilteredApplications] = useState<Application[] | null>(null);
+  const [isFiltering, setIsFiltering] = useState(false);
+
+  // Handle certification filter changes
+  const handleFilterChange = async (certifications: string[], verifiedOnly: boolean) => {
+    setIsFiltering(true);
+    try {
+      const result = await getFilteredApplications(jobId, {
+        certificationNames: certifications,
+        verifiedOnly,
+      });
+
+      if (result.success && result.data) {
+        setFilteredApplications(result.data as Application[]);
+      }
+    } catch (error) {
+      console.error('Error filtering applications:', error);
+    } finally {
+      setIsFiltering(false);
+    }
+  };
 
   // Use filtered applications if available, otherwise use initial applications
   const applicationsToShow = filteredApplications || initialApplications;
@@ -56,9 +77,15 @@ export function ApplicationsListWithFilter({
     <div className="space-y-6">
       {/* Certification Filter */}
       <CertificationFilter
-        jobId={jobId}
-        onFilterChange={(filtered) => setFilteredApplications(filtered)}
+        onFilterChange={handleFilterChange}
       />
+
+      {/* Loading state */}
+      {isFiltering && (
+        <div className="text-center py-4">
+          <p className="text-gray-600">Filtering applications...</p>
+        </div>
+      )}
 
       {/* Applications List */}
       {sortedApplications.length === 0 ? (
