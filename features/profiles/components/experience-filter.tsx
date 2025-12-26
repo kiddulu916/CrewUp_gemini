@@ -62,7 +62,7 @@ export function ExperienceFilter({
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value, 10);
     setMinYears(value);
-    onFilterChange(value);
+    if (onFilterChange) onFilterChange(value);
   };
 
   const handleReset = () => {
@@ -143,7 +143,7 @@ export function ExperienceFilter({
                 key={years}
                 onClick={() => {
                   setMinYears(years);
-                  onFilterChange(years);
+                  if (onFilterChange) onFilterChange(years);
                 }}
                 className={`
                   px-3 py-1.5 text-sm rounded-full border transition-colors
