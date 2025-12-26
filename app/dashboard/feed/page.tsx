@@ -23,6 +23,46 @@ export default async function FeedPage() {
     .eq('id', user.id)
     .single();
 
+  // Fetch quick stats
+  const isWorker = profile?.role === 'worker';
+
+  // Count applications (workers) or applications to employer's jobs
+  let applicationsCount = 0;
+  if (isWorker) {
+    const { count } = await supabase
+      .from('job_applications')
+      .select('*', { count: 'exact', head: true })
+      .eq('applicant_id', user.id);
+    applicationsCount = count || 0;
+  } else {
+    // Count applications to all jobs posted by this employer
+    const { data: employerJobs } = await supabase
+      .from('jobs')
+      .select('id')
+      .eq('employer_id', user.id);
+
+    if (employerJobs && employerJobs.length > 0) {
+      const jobIds = employerJobs.map(job => job.id);
+      const { count } = await supabase
+        .from('job_applications')
+        .select('*', { count: 'exact', head: true })
+        .in('job_id', jobIds);
+      applicationsCount = count || 0;
+    }
+  }
+
+  // Count conversations
+  const { count: conversationsCount } = await supabase
+    .from('conversations')
+    .select('*', { count: 'exact', head: true })
+    .or(`participant_1_id.eq.${user.id},participant_2_id.eq.${user.id}`);
+
+  // Count profile views
+  const { count: profileViewsCount } = await supabase
+    .from('profile_views')
+    .select('*', { count: 'exact', head: true })
+    .eq('viewed_profile_id', user.id);
+
   return (
     <div className="space-y-6">
       {/* Capture initial location on first visit */}
@@ -43,16 +83,6 @@ export default async function FeedPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="flex items-center justify-between rounded-lg bg-blue-50 p-4">
-              <div>
-                <p className="font-medium text-gray-900">Profile Complete</p>
-                <p className="text-sm text-gray-600">
-                  You're all set as a {profile?.role}
-                </p>
-              </div>
-              <div className="text-2xl">✓</div>
-            </div>
-
             {profile?.role === 'worker' ? (
               <div className="rounded-lg border-2 border-dashed border-gray-300 p-6 text-center">
                 <p className="text-gray-600">
@@ -89,17 +119,17 @@ export default async function FeedPage() {
         <CardContent>
           <div className="grid grid-cols-3 gap-4">
             <div className="rounded-lg bg-gray-50 p-4 text-center">
-              <p className="text-2xl font-bold text-krewup-blue">0</p>
+              <p className="text-2xl font-bold text-krewup-blue">{applicationsCount}</p>
               <p className="text-sm text-gray-600">
-                {profile?.role === 'worker' ? 'Applications' : 'Job Posts'}
+                {profile?.role === 'worker' ? 'Applications' : 'Applications'}
               </p>
             </div>
             <div className="rounded-lg bg-gray-50 p-4 text-center">
-              <p className="text-2xl font-bold text-krewup-blue">0</p>
+              <p className="text-2xl font-bold text-krewup-blue">{conversationsCount || 0}</p>
               <p className="text-sm text-gray-600">Messages</p>
             </div>
             <div className="rounded-lg bg-gray-50 p-4 text-center">
-              <p className="text-2xl font-bold text-krewup-blue">0</p>
+              <p className="text-2xl font-bold text-krewup-blue">{profileViewsCount || 0}</p>
               <p className="text-sm text-gray-600">Profile Views</p>
             </div>
           </div>

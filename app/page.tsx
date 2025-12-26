@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
 import { Button } from '@/components/ui';
 import { cookies } from 'next/headers';
@@ -17,8 +18,14 @@ export default async function Home() {
 
       <div className="text-center px-4 relative z-10">
         <div className="mb-6 flex justify-center">
-          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-krewup-blue to-krewup-orange shadow-2xl animate-bounce">
-            <span className="text-5xl">👷</span>
+          <div className="flex h-32 w-32 items-center justify-center">
+            <Image
+              src="/logo.png"
+              alt="KrewUp Logo"
+              width={128}
+              height={128}
+              priority
+            />
           </div>
         </div>
 

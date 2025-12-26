@@ -23,8 +23,16 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
  * ```
  */
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, helperText, id, ...props }, ref) => {
+  ({ className, label, error, helperText, id, value, defaultValue, ...props }, ref) => {
     const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
+
+    // Prevent controlled/uncontrolled switching
+    // If value is provided (even if undefined), ensure it's always a string
+    const controlledProps = value !== undefined
+      ? { value: value ?? '' }
+      : defaultValue !== undefined
+      ? { defaultValue: defaultValue ?? '' }
+      : {};
 
     return (
       <div className="w-full">
@@ -39,6 +47,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         <input
           ref={ref}
           id={inputId}
+          {...controlledProps}
           className={cn(
             'flex h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm',
             'placeholder:text-gray-400',

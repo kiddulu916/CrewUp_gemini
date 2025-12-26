@@ -1,16 +1,17 @@
 // features/applications/components/application-wizard/step-screening-questions.tsx
 'use client';
 
-import { useFormContext } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
 import { ScreeningQuestionsForm } from '../screening-questions-form';
+import { ApplicationFormData } from '../../types/application.types';
 import type { CustomQuestion } from '@/features/jobs/components/custom-questions-builder';
 
 interface StepScreeningQuestionsProps {
+  form: UseFormReturn<Partial<ApplicationFormData>>;
   questions: CustomQuestion[];
 }
 
-export function StepScreeningQuestions({ questions }: StepScreeningQuestionsProps) {
-  const form = useFormContext();
+export function StepScreeningQuestions({ form, questions }: StepScreeningQuestionsProps) {
   const answers = form.watch('customAnswers') || {};
   const errors = form.formState.errors.customAnswers as Record<string, any> || {};
 

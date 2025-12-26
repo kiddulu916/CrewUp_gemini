@@ -16,10 +16,10 @@ export default function MessagesPage() {
   );
 
   return (
-    <div className="flex h-[calc(100vh-64px)]">
+    <div className="flex h-screen -mx-4 -my-8 sm:-mx-6 lg:-mx-8">
       {/* Left Sidebar - Conversation List */}
       <div
-        className={`w-full md:w-1/5 md:border-r-2 md:border-gray-200 overflow-y-auto ${
+        className={`w-full md:w-1/4 md:border-r-2 md:border-gray-200 overflow-y-auto ${
           activeConversationId ? 'hidden md:block' : 'block'
         }`}
       >
@@ -32,15 +32,17 @@ export default function MessagesPage() {
 
       {/* Right Panel - Chat Window */}
       <div
-        className={`w-full md:w-4/5 ${
+        className={`w-full md:w-3/4 h-full ${
           activeConversationId ? 'block' : 'hidden md:block'
         }`}
       >
         {activeConversationId && activeConversation ? (
-          <ChatWindow
-            conversationId={activeConversationId}
-            otherParticipant={activeConversation.otherParticipant}
-          />
+          <div className="h-full">
+            <ChatWindow
+              conversationId={activeConversationId}
+              otherParticipant={activeConversation.otherParticipant}
+            />
+          </div>
         ) : (
           <div className="flex items-center justify-center h-full bg-gray-50">
             <div className="text-center max-w-md px-4">

@@ -23,21 +23,28 @@ function formatPhoneNumber(value: string): string {
 }
 
 /**
- * Get minimum date (tomorrow)
+ * Get minimum date (tomorrow) in local timezone
  */
 function getMinDate(): string {
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
-  return tomorrow.toISOString().split('T')[0];
+  // Use local date format to avoid timezone issues
+  const year = tomorrow.getFullYear();
+  const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+  const day = String(tomorrow.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 /**
- * Get maximum date (1 year from now)
+ * Get maximum date (1 year from now) in local timezone
  */
 function getMaxDate(): string {
   const oneYearFromNow = new Date();
   oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
-  return oneYearFromNow.toISOString().split('T')[0];
+  const year = oneYearFromNow.getFullYear();
+  const month = String(oneYearFromNow.getMonth() + 1).padStart(2, '0');
+  const day = String(oneYearFromNow.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 export function Step3Contact({ form }: Props) {
@@ -125,9 +132,12 @@ export function Step3Contact({ form }: Props) {
           <button
             type="button"
             onClick={() => {
-              const immediately = new Date();
-              immediately.setDate(immediately.getDate() + 1);
-              setValue('availableStartDate', immediately.toISOString().split('T')[0], {
+              const tomorrow = new Date();
+              tomorrow.setDate(tomorrow.getDate() + 1);
+              const year = tomorrow.getFullYear();
+              const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+              const day = String(tomorrow.getDate()).padStart(2, '0');
+              setValue('availableStartDate', `${year}-${month}-${day}`, {
                 shouldValidate: true,
               });
             }}
@@ -140,7 +150,10 @@ export function Step3Contact({ form }: Props) {
             onClick={() => {
               const oneWeek = new Date();
               oneWeek.setDate(oneWeek.getDate() + 7);
-              setValue('availableStartDate', oneWeek.toISOString().split('T')[0], {
+              const year = oneWeek.getFullYear();
+              const month = String(oneWeek.getMonth() + 1).padStart(2, '0');
+              const day = String(oneWeek.getDate()).padStart(2, '0');
+              setValue('availableStartDate', `${year}-${month}-${day}`, {
                 shouldValidate: true,
               });
             }}
@@ -153,7 +166,10 @@ export function Step3Contact({ form }: Props) {
             onClick={() => {
               const twoWeeks = new Date();
               twoWeeks.setDate(twoWeeks.getDate() + 14);
-              setValue('availableStartDate', twoWeeks.toISOString().split('T')[0], {
+              const year = twoWeeks.getFullYear();
+              const month = String(twoWeeks.getMonth() + 1).padStart(2, '0');
+              const day = String(twoWeeks.getDate()).padStart(2, '0');
+              setValue('availableStartDate', `${year}-${month}-${day}`, {
                 shouldValidate: true,
               });
             }}
@@ -166,7 +182,10 @@ export function Step3Contact({ form }: Props) {
             onClick={() => {
               const oneMonth = new Date();
               oneMonth.setDate(oneMonth.getDate() + 30);
-              setValue('availableStartDate', oneMonth.toISOString().split('T')[0], {
+              const year = oneMonth.getFullYear();
+              const month = String(oneMonth.getMonth() + 1).padStart(2, '0');
+              const day = String(oneMonth.getDate()).padStart(2, '0');
+              setValue('availableStartDate', `${year}-${month}-${day}`, {
                 shouldValidate: true,
               });
             }}

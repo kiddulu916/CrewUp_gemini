@@ -11,7 +11,10 @@ export function useSubscription() {
       if (!result.success) {
         throw new Error(result.error);
       }
-      return result.subscription;
+      return {
+        subscription: result.subscription,
+        profileSubscriptionStatus: result.profileSubscriptionStatus,
+      };
     },
     refetchOnWindowFocus: true,  // Refetch after Stripe redirects
     staleTime: 1000 * 60 * 10,   // 10 minutes
@@ -19,6 +22,11 @@ export function useSubscription() {
 }
 
 export function useIsPro() {
-  const { data: subscription } = useSubscription();
-  return subscription?.status === 'active' && subscription?.stripe_subscription_id !== '';
+  const { data } = useSubscription();
+  // Prefer profile subscription status (source of truth for UI)
+  // Fall back to checking subscriptions table
+  if (data?.profileSubscriptionStatus === 'pro') {
+    return true;
+  }
+  return data?.subscription?.status === 'active' && data?.subscription?.stripe_subscription_id !== '';
 }

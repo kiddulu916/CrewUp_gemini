@@ -7,6 +7,7 @@ import { Input } from '@/components/ui';
 
 type Props = {
   form: UseFormReturn<Partial<ApplicationFormData>>;
+  jobTrades: string[];
 };
 
 // SVG Icons
@@ -38,94 +39,241 @@ const BadgeCheckIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-// Comprehensive trade skills list
-const TRADE_SKILLS = [
-  // Carpentry
-  'Framing',
-  'Finish Carpentry',
-  'Cabinetry',
-  'Drywall Installation',
-  'Rough Carpentry',
-  'Blueprint Reading',
+// Comprehensive trade skills organized by category (Key Skills from each trade)
+const TRADE_SKILLS_BY_CATEGORY: Record<string, string[]> = {
+  'Operating Engineers': [
+    'Precision Control of Hydraulic Equipment',
+    'Reading the Ground (Soil Stability Analysis)',
+    'Calculating Load Charts',
+    'Calculating Lifting Capacities',
+    'Equipment Maintenance',
+    'Grade Checking',
+    'Excavator Operation',
+    'Bulldozer Operation',
+    'Motor Grader Operation',
+    'Crane Operation',
+    'Paving Equipment Operation',
+  ],
+  'Demolition Specialists': [
+    'Structural Load Path Analysis',
+    'Hazardous Material Identification',
+    'Operation of Hydraulic Shear Crushers',
+    'Explosives Handling',
+    'Debris Management',
+    'Structural Demolition',
+    'Interior/Soft Strip',
+    'Explosive Demolition',
+    'Safety Protocols',
+  ],
+  'Craft Laborers': [
+    'Mortar Mixing Ratios',
+    'Trench Safety and Shoring',
+    'Laser Level Operation',
+    'Traffic Signaling',
+    'Public Safety Management',
+    'Concrete Consolidation',
+    'Mason Tending',
+    'Pipe Laying',
+    'Grade Checking',
+    'Flagging/Traffic Control',
+  ],
+  'Ironworkers': [
+    'Working at Heights',
+    'Welding (SMAW/FCAW)',
+    'Reading Structural Blueprints',
+    'Complex Rigging',
+    'Knot Tying',
+    'Rebar Tying/Spacing',
+    'Structural Erection',
+    'Reinforcing Steel Installation',
+    'Ornamental Iron Work',
+    'Machinery Rigging',
+  ],
+  'Concrete Masons & Cement Finishers': [
+    'Timing the Set of Concrete',
+    'Screeding',
+    'Floating for Flatness',
+    'Operating Power Trowels',
+    'Constructing Leak-Proof Formwork',
+    'Blueprint Interpretation',
+    'Flatwork Finishing',
+    'Architectural/Decorative Finishing',
+    'Form Setting',
+  ],
+  'Carpenters (Rough)': [
+    'Structural Layout and Geometry',
+    'Advanced Math (Trigonometry for Roof Pitches)',
+    'Pneumatic Tool Operation',
+    'Welding (Pile Drivers)',
+    'Wood Framing',
+    'Metal Stud Framing',
+    'Pile Driving',
+    'Bridge Construction',
+    'Blueprint Reading',
+  ],
+  'Masons': [
+    'Mortar Spreading Techniques',
+    'Precise Alignment (Plumb and Level)',
+    'Stone Cutting/Shaping',
+    'Understanding Thermal Properties of Materials',
+    'Bricklaying',
+    'Stone Masonry',
+    'Refractory Masonry',
+    'Restoration Masonry',
+  ],
+  'Roofers': [
+    'Heat Welding (TPO/PVC)',
+    'Handling Hot Asphalt (Built-Up Roofing)',
+    'Lashing Installation (Chimneys/Vents)',
+    'Fall Protection Safety',
+    'Low-Slope Roofing',
+    'Steep-Slope Roofing',
+    'Waterproofing',
+  ],
+  'Glaziers': [
+    'Handling Heavy/Fragile Glass',
+    'Laser Alignment',
+    'Sealant Application',
+    'Fabrication of Aluminum Frames',
+    'Curtain Wall Installation',
+    'Storefront Glazing',
+    'Residential Glazing',
+  ],
+  'Insulation Workers': [
+    'Chemical Safety (Handling Spray Foam)',
+    'Cutting and Fitting Around Obstructions',
+    'Understanding Fire Codes',
+    'Smoke Sealants (Firestopping)',
+    'Batt/Roll Installation',
+    'Spray Foam Application',
+    'Firestop Containment',
+  ],
+  'Electricians': [
+    'Circuitry and Load Calculation',
+    'Conduit Bending (Geometry)',
+    'Wire Splicing',
+    'Reading Electrical Schematics',
+    'Troubleshooting Faults',
+    'Inside Wireman Work',
+    'Residential Wiring',
+    'High Voltage Work',
+    'Low Voltage/Limited Energy Tech',
+  ],
+  'Plumbers & Pipefitters': [
+    'Pipe Joining (Soldering, Brazing, Welding, Threading)',
+    'Understanding Hydrodynamics and Pressure',
+    'Reading Isometric Drawings',
+    'Cross-Connection Control',
+    'Sanitary/Potable Plumbing',
+    'Industrial/Process Pipefitting',
+    'Steamfitting',
+    'Fire Suppression Systems',
+  ],
+  'HVAC & Sheet Metal Workers': [
+    'Thermodynamics',
+    'Refrigeration Cycle Diagnostics',
+    'Electrical Control Wiring',
+    'Complex Geometry (Pattern Layout for Ducts)',
+    'Metal Fabrication',
+    'HVAC Installation',
+    'HVAC Service',
+    'Architectural Sheet Metal',
+    'Duct Fabrication',
+  ],
+  'Drywall & Lathers': [
+    'Mudding and Taping (Creating Seamless Joints)',
+    'Sanding to Specific Levels of Finish',
+    'Installing Wire Mesh/Lath Foundations',
+    'Mixing Plaster',
+    'Drywall Hanging',
+    'Taping/Finishing',
+    'Lath Installation',
+    'Plastering',
+  ],
+  'Painters & Wall Coverers': [
+    'Surface Preparation (Sanding/Patching)',
+    'Color Matching',
+    'Spray Gun Operation',
+    'Chemical Handling (Industrial Epoxies)',
+    'Commercial/Residential Painting',
+    'Industrial Coating',
+    'Wall Covering Installation',
+  ],
+  'Flooring Installers': [
+    'Layout Planning (Pattern Matching)',
+    'Heat Welding (Vinyl Seams)',
+    'Grinding and Polishing (Terrazzo)',
+    'Substrate Preparation',
+    'Moisture Testing',
+    'Carpet Laying',
+    'Resilient/Vinyl Installation',
+    'Hardwood Finishing',
+    'Terrazzo Work',
+    'Tile Setting',
+  ],
+  'Finish Carpenters': [
+    'Precision Cutting (Miters/Joints)',
+    'Joinery',
+    'Reading Shop Drawings',
+    'Fine Detail Sanding/Finishing',
+    'Trim Carpentry',
+    'Cabinetmaking',
+    'Millwork',
+  ],
+  'Millwrights': [
+    'Precision Leveling and Alignment (Laser/Optical)',
+    'Rigging Heavy Machinery',
+    'Blueprint Reading',
+    'Fluid Power Systems',
+    'Industrial Mechanics',
+    'Turbine Installation',
+    'Conveyor Systems',
+  ],
+  'Elevator Constructors': [
+    'Integration of Mechanical, Electrical, and Hydraulic Systems',
+    'Troubleshooting Complex Control Logic',
+    'Strict Adherence to Safety Codes',
+    'New Installation',
+    'Service/Repair',
+    'Modernization',
+  ],
+  'Fence Erectors': [
+    'Post-Hole Digging and Setting',
+    'Site Layout and Alignment',
+    'Welding (Gates/Metal Fences)',
+    'Tensioning Wire',
+    'Chain Link Installation',
+    'Wood/Vinyl Fence Installation',
+    'Security/Access Gate Installation',
+  ],
+  'Commercial Divers': [
+    'Wet Welding',
+    'Diving Physiology/Safety',
+    'Underwater Inspection (NDT)',
+    'Hydraulic Tool Operation Underwater',
+    'Underwater Welding',
+    'Marine Construction',
+    'Salvage Operations',
+  ],
+  'Green Energy Technicians': [
+    'Working at Heights',
+    'DC Electrical Wiring',
+    'Structural Mounting',
+    'Energy Auditing (Blower Door Testing)',
+    'Solar PV Installation',
+    'Wind Turbine Maintenance',
+    'Weatherization',
+  ],
+  'Administration': [
+    'Project Management',
+    'Quality Control',
+    'Material Estimation',
+    'Safety Compliance',
+    'Blueprint Reading',
+  ],
+};
 
-  // Electrical
-  'Residential Wiring',
-  'Commercial Wiring',
-  'Electrical Troubleshooting',
-  'Conduit Installation',
-  'Panel Installation',
-  'Low Voltage Systems',
-
-  // Plumbing
-  'Pipe Installation',
-  'Drain Cleaning',
-  'Water Heater Installation',
-  'Gas Line Installation',
-  'PEX/Copper/PVC Piping',
-  'Fixture Installation',
-
-  // HVAC
-  'AC Installation',
-  'Furnace Repair',
-  'Ductwork',
-  'Refrigeration',
-  'Climate Control Systems',
-  'HVAC Diagnostics',
-
-  // Welding
-  'MIG Welding',
-  'TIG Welding',
-  'Arc Welding',
-  'Fabrication',
-  'Metal Cutting',
-  'Blueprint Reading',
-
-  // Masonry
-  'Bricklaying',
-  'Concrete Finishing',
-  'Stone Work',
-  'Block Laying',
-  'Tuckpointing',
-  'Foundation Work',
-
-  // Roofing
-  'Shingle Installation',
-  'Flat Roofing',
-  'Metal Roofing',
-  'Roof Repair',
-  'Waterproofing',
-  'Gutter Installation',
-
-  // Painting
-  'Interior Painting',
-  'Exterior Painting',
-  'Spray Painting',
-  'Drywall Finishing',
-  'Surface Preparation',
-  'Texture Application',
-
-  // Heavy Equipment
-  'Excavator Operation',
-  'Bulldozer Operation',
-  'Crane Operation',
-  'Forklift Operation',
-  'Backhoe Operation',
-  'Loader Operation',
-
-  // General Construction
-  'Project Management',
-  'Safety Compliance',
-  'Quality Control',
-  'Material Estimation',
-  'Site Preparation',
-  'Demolition',
-  'Scaffolding',
-  'Power Tools',
-  'Hand Tools',
-  'Construction Math',
-];
-
-export function Step7Skills({ form }: Props) {
+export function Step7Skills({ form, jobTrades }: Props) {
   const {
     control,
     formState: { errors },
@@ -142,6 +290,27 @@ export function Step7Skills({ form }: Props) {
   const [skillSearch, setSkillSearch] = useState('');
 
   const selectedSkills = watch('tradeSkills') || [];
+
+  // Get skills for all job trades, organized by trade
+  const jobTradeSkillsByCategory: Array<{ trade: string; skills: string[] }> = jobTrades
+    .map((trade) => ({
+      trade,
+      skills: TRADE_SKILLS_BY_CATEGORY[trade] || [],
+    }))
+    .filter((category) => category.skills.length > 0);
+
+  // Flatten all skills for search functionality
+  const allJobSkills = jobTradeSkillsByCategory.flatMap((category) => category.skills);
+
+  // Filter by search across all trades
+  const filteredSkillsByCategory = skillSearch
+    ? jobTradeSkillsByCategory.map((category) => ({
+        trade: category.trade,
+        skills: category.skills.filter((skill) =>
+          skill.toLowerCase().includes(skillSearch.toLowerCase())
+        ),
+      })).filter((category) => category.skills.length > 0)
+    : jobTradeSkillsByCategory;
 
   function toggleSkill(skill: string) {
     const currentSkills = selectedSkills;
@@ -166,17 +335,12 @@ export function Step7Skills({ form }: Props) {
     setExpandedCertIndex(fields.length);
   }
 
-  const filteredSkills = TRADE_SKILLS.filter((skill) =>
-    skill.toLowerCase().includes(skillSearch.toLowerCase())
-  );
-
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold text-gray-900 mb-2">Skills & Certifications</h2>
         <p className="text-gray-600">
-          Select your trade skills and list any relevant certifications. At least 3 skills are
-          required.
+          Select your relevant skills and list any certifications you hold.
         </p>
       </div>
 
@@ -212,9 +376,6 @@ export function Step7Skills({ form }: Props) {
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Trade Skills <span className="text-red-500">*</span>
-          <span className="ml-2 text-xs font-normal text-gray-500">
-            (Select at least 3)
-          </span>
         </label>
 
         {/* Search */}
@@ -232,44 +393,51 @@ export function Step7Skills({ form }: Props) {
         <div className="mb-2">
           <span className="text-sm text-gray-600">
             {selectedSkills.length} skill{selectedSkills.length !== 1 ? 's' : ''} selected
-            {selectedSkills.length < 3 && (
-              <span className="text-red-600 ml-2">
-                (need {3 - selectedSkills.length} more)
-              </span>
-            )}
           </span>
         </div>
 
-        {/* Skills Grid */}
-        <div className="border border-gray-300 rounded-lg p-4 max-h-96 overflow-y-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-            {filteredSkills.map((skill) => {
-              const isSelected = selectedSkills.includes(skill);
-              return (
-                <label
-                  key={skill}
-                  className={`flex items-center p-2 rounded cursor-pointer transition-colors ${
-                    isSelected
-                      ? 'bg-blue-50 border border-blue-300'
-                      : 'bg-white border border-gray-200 hover:bg-gray-50'
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={() => toggleSkill(skill)}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <span className="ml-2 text-sm text-gray-900">{skill}</span>
-                </label>
-              );
-            })}
+        {/* Skills organized by trade category */}
+        {filteredSkillsByCategory.length > 0 ? (
+          <div className="space-y-6">
+            {filteredSkillsByCategory.map((category) => (
+              <div key={category.trade} className="border border-gray-300 rounded-lg p-4 bg-white">
+                <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                  <span className="text-blue-600">🔨</span>
+                  {category.trade}
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                  {category.skills.map((skill) => {
+                    const isSelected = selectedSkills.includes(skill);
+                    return (
+                      <label
+                        key={skill}
+                        className={`flex items-center p-2 rounded cursor-pointer transition-colors ${
+                          isSelected
+                            ? 'bg-blue-50 border border-blue-300'
+                            : 'bg-white border border-gray-200 hover:bg-gray-50'
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleSkill(skill)}
+                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        />
+                        <span className="ml-2 text-sm text-gray-900">{skill}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
-
-          {filteredSkills.length === 0 && (
-            <p className="text-center text-gray-500 py-4">No skills found matching "{skillSearch}"</p>
-          )}
-        </div>
+        ) : (
+          <div className="text-center py-6 bg-gray-50 rounded-lg border border-gray-300">
+            <p className="text-sm text-gray-600">
+              {skillSearch ? 'No skills found matching your search' : 'No skills available for the selected trades'}
+            </p>
+          </div>
+        )}
 
         {errors.tradeSkills && (
           <p className="mt-1 text-sm text-red-600">{errors.tradeSkills.message}</p>

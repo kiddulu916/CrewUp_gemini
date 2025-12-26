@@ -28,7 +28,8 @@ export function ProximityAlertSettings() {
     queryFn: async () => {
       const result = await getMyProximityAlert();
       if (!result.success) throw new Error(result.error);
-      return result.alert;
+      // Return null instead of undefined if no alert exists
+      return result.alert || null;
     },
     enabled: isPro,
   });

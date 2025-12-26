@@ -8,7 +8,7 @@ type Props = {
 };
 
 export function ConversationList({ activeConversationId }: Props) {
-  const { data: conversations, isLoading } = useConversations();
+  const { data: conversations, isLoading, error } = useConversations();
 
   if (isLoading) {
     return (
@@ -16,6 +16,29 @@ export function ConversationList({ activeConversationId }: Props) {
         <div className="text-center">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-krewup-blue border-r-transparent"></div>
           <p className="mt-2 text-sm text-gray-500">Loading conversations...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    console.error('Conversation list error:', error);
+    return (
+      <div className="flex items-center justify-center p-12">
+        <div className="text-center max-w-sm">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-50 mb-4">
+            <span className="text-3xl">⚠️</span>
+          </div>
+          <h3 className="text-lg font-bold text-gray-900 mb-2">Error loading conversations</h3>
+          <p className="text-sm text-red-600 mb-2">
+            {error instanceof Error ? error.message : 'Unknown error'}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="text-sm text-krewup-blue hover:underline"
+          >
+            Refresh page
+          </button>
         </div>
       </div>
     );

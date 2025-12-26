@@ -187,7 +187,7 @@ export async function getJobApplications(
     .select(
       `
       *,
-      worker:profiles!worker_id(
+      worker:profiles!applicant_id(
         id,
         name,
         trade,

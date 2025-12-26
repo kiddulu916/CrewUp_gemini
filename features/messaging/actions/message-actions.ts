@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { createClient as createServiceClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 
@@ -84,30 +85,55 @@ export async function sendMessage(
 
 /**
  * Mark all messages in a conversation as read
+ * Uses service role to bypass RLS since users can't update messages they didn't send
  */
 export async function markMessagesAsRead(conversationId: string): Promise<MessageResult> {
-  const supabase = await createClient(await cookies());
+  console.log('[markMessagesAsRead] Marking messages as read for conversation:', conversationId);
 
+  // Get authenticated user first
+  const supabase = await createClient(await cookies());
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
+    console.error('[markMessagesAsRead] Not authenticated');
     return { success: false, error: 'Not authenticated' };
   }
 
-  // Mark all messages from other participant as read
-  const { error } = await supabase
+  console.log('[markMessagesAsRead] User ID:', user.id);
+
+  // Use service role client to bypass RLS for updating read_at
+  const supabaseAdmin = createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  // First, count how many unread messages there are
+  const { count: unreadCount } = await supabaseAdmin
     .from('messages')
-    .update({ read_at: new Date().toISOString() })
+    .select('*', { count: 'exact', head: true })
     .eq('conversation_id', conversationId)
     .neq('sender_id', user.id)
     .is('read_at', null);
 
+  console.log('[markMessagesAsRead] Found unread messages:', unreadCount || 0);
+
+  // Mark all messages from other participant as read (using admin client to bypass RLS)
+  const { data, error } = await supabaseAdmin
+    .from('messages')
+    .update({ read_at: new Date().toISOString() })
+    .eq('conversation_id', conversationId)
+    .neq('sender_id', user.id)
+    .is('read_at', null)
+    .select();
+
   if (error) {
-    console.error('Mark as read error:', error);
+    console.error('[markMessagesAsRead] Error:', error);
     return { success: false, error: 'Failed to mark messages as read' };
   }
+
+  console.log('[markMessagesAsRead] Marked as read:', data?.length || 0, 'messages');
 
   revalidatePath('/dashboard/messages');
 

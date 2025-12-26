@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { SignOutButton } from '@/features/auth/components/sign-out-button';
 import { Badge } from '@/components/ui';
 import { cookies } from 'next/headers';
@@ -40,9 +41,14 @@ export default async function DashboardLayout({
         <div className="flex h-full flex-col">
           {/* Logo with gradient */}
           <div className="flex h-16 items-center justify-center bg-gradient-to-r from-krewup-blue to-krewup-light-blue px-2">
-            <Link href="/dashboard/feed" className="text-xl font-bold text-white flex items-center gap-1">
-              <span className="text-2xl">👷</span>
-              <span className="hidden sm:inline">KrewUp</span>
+            <Link href="/dashboard/feed" className="flex items-center gap-2">
+              <Image
+                src="/logo.png"
+                alt="KrewUp Logo"
+                width={40}
+                height={40}
+                className="object-contain"
+              />
             </Link>
           </div>
 

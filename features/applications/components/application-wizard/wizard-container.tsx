@@ -58,6 +58,10 @@ export function ApplicationWizardContainer({ jobId, jobTitle }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [customQuestions, setCustomQuestions] = useState<CustomQuestion[]>([]);
   const [hasScreeningQuestions, setHasScreeningQuestions] = useState(false);
+  const [jobTrades, setJobTrades] = useState<string[]>(['Craft Laborers']);
+
+  // Calculate total steps dynamically
+  const totalSteps = hasScreeningQuestions ? 9 : 8;
 
   const {
     currentStep,
@@ -73,28 +77,69 @@ export function ApplicationWizardContainer({ jobId, jobTitle }: Props) {
     setExtractedText,
     nextStep,
     prevStep,
-  } = useApplicationWizard(jobId);
+  } = useApplicationWizard(jobId, totalSteps);
 
-  // Fetch job details to check for custom questions
+  // Debug logging
+  console.log('Wizard state:', {
+    hasScreeningQuestions,
+    totalSteps,
+    customQuestionsCount: customQuestions.length,
+    currentStep
+  });
+
+  // Fetch job details to check for custom questions and get trades
   useEffect(() => {
     async function fetchJobDetails() {
       const supabase = createClient();
       const { data: job } = await supabase
         .from('jobs')
         .select(`
+          trade,
+          trades,
+          trade_selections,
           custom_questions,
           employer:profiles!employer_id(subscription_status)
         `)
         .eq('id', jobId)
         .single();
 
-      // Check if job has custom questions and employer is Pro
-      // Note: employer is an array from the relationship query, so we access [0]
-      const employer = Array.isArray(job?.employer) ? job.employer[0] : job?.employer;
+      // Extract all trades from the job posting
+      let extractedTrades: string[] = [];
 
-      if (job?.custom_questions && job.custom_questions.length > 0 && employer?.subscription_status === 'pro') {
+      // Priority 1: Check trade_selections (newest format with structured data)
+      if (job?.trade_selections && Array.isArray(job.trade_selections) && job.trade_selections.length > 0) {
+        extractedTrades = job.trade_selections
+          .map((ts: any) => ts.trade)
+          .filter((t: string) => t && t.trim() !== '');
+      }
+
+      // Priority 2: Check trades array (legacy format)
+      if (extractedTrades.length === 0 && job?.trades && Array.isArray(job.trades) && job.trades.length > 0) {
+        extractedTrades = job.trades.filter((t: string) => t && t.trim() !== '');
+      }
+
+      // Priority 3: Fallback to single trade field
+      if (extractedTrades.length === 0 && job?.trade) {
+        extractedTrades = [job.trade];
+      }
+
+      // Set the trades (will use default if extraction failed)
+      if (extractedTrades.length > 0) {
+        setJobTrades(extractedTrades);
+      }
+
+      // Check if job has custom questions
+      // Workers should see questions if they exist (Pro employers created them)
+      // The Pro check is only for viewing answers, not for showing questions to applicants
+      console.log('Job custom_questions:', job?.custom_questions);
+      console.log('Custom questions length:', job?.custom_questions?.length);
+
+      if (job?.custom_questions && job.custom_questions.length > 0) {
+        console.log('Setting custom questions:', job.custom_questions);
         setCustomQuestions(job.custom_questions);
         setHasScreeningQuestions(true);
+      } else {
+        console.log('No custom questions found for this job');
       }
     }
 
@@ -149,9 +194,6 @@ export function ApplicationWizardContainer({ jobId, jobTitle }: Props) {
     );
   }
 
-  // Calculate total steps dynamically
-  const totalSteps = hasScreeningQuestions ? 9 : 8;
-
   // No need to adjust display step since screening questions are at the end
   const getDisplayStep = (step: number) => step;
 
@@ -192,13 +234,13 @@ export function ApplicationWizardContainer({ jobId, jobTitle }: Props) {
 
           {currentStep === 6 && <Step6Education form={form} />}
 
-          {currentStep === 7 && <Step7Skills form={form} />}
+          {currentStep === 7 && <Step7Skills form={form} jobTrades={jobTrades} />}
 
           {currentStep === 8 && <Step8References form={form} />}
 
           {/* Conditional Screening Questions Step - Last step before submission */}
           {hasScreeningQuestions && currentStep === 9 && (
-            <StepScreeningQuestions questions={customQuestions} />
+            <StepScreeningQuestions form={form} questions={customQuestions} />
           )}
         </div>
       </div>

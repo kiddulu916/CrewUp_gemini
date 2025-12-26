@@ -10,6 +10,7 @@ export type SubscriptionResult = {
   success: boolean;
   error?: string;
   subscription?: Subscription;
+  profileSubscriptionStatus?: 'free' | 'pro';
 };
 
 /**
@@ -26,6 +27,15 @@ export async function getMySubscription(): Promise<SubscriptionResult> {
   if (authError || !user) {
     return { success: false, error: 'Not authenticated' };
   }
+
+  // Get profile subscription status (source of truth for UI)
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('subscription_status')
+    .eq('id', user.id)
+    .single();
+
+  const profileSubscriptionStatus = (profile?.subscription_status as 'free' | 'pro') || 'free';
 
   const { data: subscription, error } = await supabase
     .from('subscriptions')
@@ -44,6 +54,7 @@ export async function getMySubscription(): Promise<SubscriptionResult> {
     const farFuture = new Date('2099-12-31');
     return {
       success: true,
+      profileSubscriptionStatus,
       subscription: {
         id: '',
         user_id: user.id,
@@ -61,7 +72,7 @@ export async function getMySubscription(): Promise<SubscriptionResult> {
     };
   }
 
-  return { success: true, subscription };
+  return { success: true, subscription, profileSubscriptionStatus };
 }
 
 export type CheckoutResult = {

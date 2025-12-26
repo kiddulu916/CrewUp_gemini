@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import React from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useMessages } from '../hooks/use-messages';
 import { useSendMessage } from '../hooks/use-send-message';
 import { MessageList } from './message-list';
@@ -20,6 +21,7 @@ type Props = {
 
 export function ChatWindow({ conversationId, otherParticipant }: Props) {
   const supabase = createClient();
+  const queryClient = useQueryClient();
   const { data: messages, isLoading } = useMessages(conversationId);
   const sendMessage = useSendMessage();
 
@@ -35,9 +37,26 @@ export function ChatWindow({ conversationId, otherParticipant }: Props) {
   // Mark messages as read when conversation opens
   useEffect(() => {
     if (conversationId) {
-      markMessagesAsRead(conversationId);
+      console.log('[ChatWindow] Opening conversation:', conversationId);
+      markMessagesAsRead(conversationId).then((result) => {
+        if (result.success) {
+          console.log('[ChatWindow] Successfully marked messages as read');
+          // Invalidate immediately
+          queryClient.invalidateQueries({ queryKey: ['conversations'] });
+          console.log('[ChatWindow] Invalidated conversations query (immediate)');
+
+          // And again after delay to ensure database is updated
+          setTimeout(() => {
+            queryClient.invalidateQueries({ queryKey: ['conversations'] });
+            queryClient.refetchQueries({ queryKey: ['conversations'] });
+            console.log('[ChatWindow] Force refetch conversations query (delayed)');
+          }, 1000);
+        } else {
+          console.error('[ChatWindow] Failed to mark messages as read:', result.error);
+        }
+      });
     }
-  }, [conversationId]);
+  }, [conversationId, queryClient]);
 
   async function handleSend(content: string) {
     await sendMessage.mutateAsync({

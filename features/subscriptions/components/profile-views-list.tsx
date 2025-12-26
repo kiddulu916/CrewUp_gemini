@@ -127,7 +127,6 @@ export function ProfileViewsList() {
   return (
     <Card className="p-6">
       <div className="mb-4">
-        <h3 className="text-xl font-bold mb-1">Who Viewed Your Profile</h3>
         <p className="text-sm text-gray-600">
           <strong>{weeklyCount}</strong> {weeklyCount === 1 ? 'view' : 'views'} this week
         </p>

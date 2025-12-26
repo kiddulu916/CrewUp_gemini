@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import { moveFileToApplication } from './file-upload-actions';
 import { deleteDraft } from './draft-actions';
+import { saveApplicationDataToProfile } from './save-to-profile-actions';
 import type { ApplicationFormData } from '../types/application.types';
 
 type ApplicationResult = {
@@ -50,7 +51,7 @@ export async function createApplication(
       .from('job_applications')
       .select('id')
       .eq('job_id', data.jobId)
-      .eq('worker_id', user.id)
+      .eq('applicant_id', user.id)
       .single();
 
     if (existingApp) {
@@ -60,7 +61,7 @@ export async function createApplication(
     // Create application
     const { error } = await supabase.from('job_applications').insert({
       job_id: data.jobId,
-      worker_id: user.id,
+      applicant_id: user.id,
       cover_letter: data.coverLetter || null,
       status: 'pending',
     });
@@ -159,7 +160,7 @@ export async function hasApplied(jobId: string): Promise<boolean> {
       .from('job_applications')
       .select('id')
       .eq('job_id', jobId)
-      .eq('worker_id', user.id)
+      .eq('applicant_id', user.id)
       .single();
 
     return !!data;
@@ -199,7 +200,7 @@ export async function getJobApplications(jobId: string) {
       .select(
         `
         *,
-        worker:profiles!worker_id(
+        applicant:profiles!applicant_id(
           id,
           name,
           trade,
@@ -282,23 +283,26 @@ export async function submitApplication(
       .from('job_applications')
       .select('id')
       .eq('job_id', jobId)
-      .eq('worker_id', user.id)
+      .eq('applicant_id', user.id)
       .single();
 
     if (existingApp) {
       return { success: false, error: 'You have already applied to this job' };
     }
 
+    // Extract custom answers if present (not part of ApplicationFormData type)
+    const customAnswers = (formData as any).customAnswers || null;
+
     // Create the application
     const { data: application, error: createError } = await supabase
       .from('job_applications')
       .insert({
         job_id: jobId,
-        worker_id: user.id,
+        applicant_id: user.id,
         status: 'pending',
         form_data: formData,
+        custom_answers: customAnswers,
         resume_extracted_text: resumeExtractedText || null,
-        contact_shared: false,
       })
       .select('id')
       .single();
@@ -355,6 +359,9 @@ export async function submitApplication(
         })
         .eq('id', applicationId);
     }
+
+    // Save application data back to profile (for future auto-fill)
+    await saveApplicationDataToProfile(formData);
 
     // Delete the draft
     await deleteDraft(jobId);

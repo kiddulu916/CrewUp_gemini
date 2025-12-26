@@ -93,6 +93,7 @@ export async function createJob(data: JobData): Promise<JobResult> {
       p_trades: data.trades || null,
       p_sub_trades: data.sub_trades || null,
       p_trade_selections: data.trade_selections || null,
+      p_custom_questions: data.custom_questions || null,
     });
 
     if (createError) {

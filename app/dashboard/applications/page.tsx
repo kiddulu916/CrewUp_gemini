@@ -34,7 +34,7 @@ export default async function ApplicationsPage() {
   if (isWorker) {
     // Worker: Fetch their submitted applications
     const { data: apps } = await supabase
-      .from('applications')
+      .from('job_applications')
       .select(`
         *,
         job:jobs!inner(
@@ -53,17 +53,17 @@ export default async function ApplicationsPage() {
           )
         )
       `)
-      .eq('worker_id', user.id)
+      .eq('applicant_id', user.id)
       .order('created_at', { ascending: false });
 
     applications = apps || [];
   } else {
     // Employer: Fetch applications to their jobs
     const { data: apps } = await supabase
-      .from('applications')
+      .from('job_applications')
       .select(`
         *,
-        worker:profiles!worker_id(
+        applicant:profiles!applicant_id(
           id,
           name,
           trade,
@@ -155,15 +155,15 @@ export default async function ApplicationsPage() {
                       <div>
                         <div className="flex items-center gap-3 mb-2">
                           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-krewup-blue to-krewup-orange text-white font-bold text-lg shadow-lg">
-                            {app.worker.name.charAt(0).toUpperCase()}
+                            {app.applicant.name.charAt(0).toUpperCase()}
                           </div>
                           <div>
                             <h3 className="text-xl font-bold text-gray-900">
-                              {app.worker.name}
+                              {app.applicant.name}
                             </h3>
                             <p className="text-sm text-gray-600">
-                              {app.worker.trade}
-                              {app.worker.sub_trade && ` - ${app.worker.sub_trade}`}
+                              {app.applicant.trade}
+                              {app.applicant.sub_trade && ` - ${app.applicant.sub_trade}`}
                             </p>
                           </div>
                         </div>
@@ -204,7 +204,7 @@ export default async function ApplicationsPage() {
                         <>
                           <div>
                             <p className="text-sm text-gray-500">Worker Location</p>
-                            <p className="text-gray-900 font-medium">{app.worker.location}</p>
+                            <p className="text-gray-900 font-medium">{app.applicant.location}</p>
                           </div>
                           <div>
                             <p className="text-sm text-gray-500">Position</p>
@@ -264,15 +264,15 @@ export default async function ApplicationsPage() {
                     {/* Message Button - Employers can message applicants */}
                     {!isWorker && (
                       <MessageButton
-                        recipientId={app.worker.id}
-                        recipientName={app.worker.name}
+                        recipientId={app.applicant.id}
+                        recipientName={app.applicant.name}
                         variant="outline"
                         className="text-xs"
                       />
                     )}
 
                     <Link
-                      href={`/dashboard/jobs/${app.job.id}`}
+                      href={`/dashboard/applications/${app.id}`}
                       className="text-sm text-krewup-blue hover:underline font-medium"
                     >
                       View Details →

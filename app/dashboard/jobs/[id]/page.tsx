@@ -3,6 +3,7 @@ import { notFound, redirect } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from '@/components/ui';
 import { ApplyButton } from '@/features/jobs/components/apply-button';
 import { DeleteJobButton } from '@/features/jobs/components/delete-job-button';
+import { EditJobButton } from '@/features/jobs/components/edit-job-button';
 import { MessageButton } from '@/features/messaging/components/message-button';
 import { ApplicationsListWithFilter } from '@/features/applications/components/applications-list-with-filter';
 import { JobViewTracker } from '@/features/jobs/components/job-view-tracker';
@@ -63,10 +64,10 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   let hasApplied = false;
   if (isWorker) {
     const { data: application } = await supabase
-      .from('applications')
+      .from('job_applications')
       .select('id')
       .eq('job_id', job.id)
-      .eq('worker_id', user.id)
+      .eq('applicant_id', user.id)
       .single();
 
     hasApplied = !!application;
@@ -76,10 +77,10 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   let applications = [];
   if (isJobOwner) {
     const { data: apps } = await supabase
-      .from('applications')
+      .from('job_applications')
       .select(`
         *,
-        worker:profiles!worker_id(
+        applicant:profiles!applicant_id(
           id,
           name,
           trade,
@@ -129,7 +130,12 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                   ✓ Applied
                 </Badge>
               )}
-              {isJobOwner && <DeleteJobButton jobId={job.id} />}
+              {isJobOwner && (
+                <>
+                  <EditJobButton jobId={job.id} />
+                  <DeleteJobButton jobId={job.id} />
+                </>
+              )}
             </div>
           </div>
         </CardHeader>

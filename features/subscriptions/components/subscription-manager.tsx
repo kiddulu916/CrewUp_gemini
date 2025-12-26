@@ -13,16 +13,21 @@ import { ProBadge } from './pro-badge';
 export function SubscriptionManager() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: subscription, isLoading, error, refetch } = useSubscription();
+  const { data, isLoading, error, refetch } = useSubscription();
   const { openPortal, isLoading: isPortalLoading } = useCheckout();
   const [isPolling, setIsPolling] = useState(false);
   const [pollAttempts, setPollAttempts] = useState(0);
 
+  const subscription = data?.subscription;
+  const profileSubscriptionStatus = data?.profileSubscriptionStatus;
+
   // Handle checkout success - poll for webhook completion
   useEffect(() => {
     const success = searchParams.get('success');
-    if (success === 'true' && subscription) {
-      const isPro = subscription.status === 'active' && subscription.stripe_subscription_id !== '';
+    if (success === 'true' && data) {
+      // Check both profile status and subscription table (profile is source of truth)
+      const isPro = profileSubscriptionStatus === 'pro' ||
+        (subscription?.status === 'active' && subscription?.stripe_subscription_id !== '');
 
       // If not Pro yet and we haven't exceeded polling attempts, keep polling
       if (!isPro && pollAttempts < 20) {
@@ -44,7 +49,7 @@ export function SubscriptionManager() {
         setIsPolling(false);
       }
     }
-  }, [searchParams, subscription, pollAttempts, refetch, router]);
+  }, [searchParams, data, subscription, profileSubscriptionStatus, pollAttempts, refetch, router]);
 
   // Show loading skeleton with proper Card styling
   if (isLoading) {
@@ -100,7 +105,9 @@ export function SubscriptionManager() {
     );
   }
 
-  const isPro = subscription?.status === 'active' && subscription?.stripe_subscription_id !== '';
+  // Determine Pro status - prefer profile subscription status (source of truth)
+  const isPro = profileSubscriptionStatus === 'pro' ||
+    (subscription?.status === 'active' && subscription?.stripe_subscription_id !== '');
 
   // Handle polling timeout - show helpful message
   if (searchParams.get('success') === 'true' && !isPro && pollAttempts >= 20) {

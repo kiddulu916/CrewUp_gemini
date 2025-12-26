@@ -11,7 +11,7 @@ type Application = {
   status: string;
   cover_letter?: string | null;
   created_at: string;
-  worker: {
+  applicant: {
     id: string;
     name: string;
     trade: string;
@@ -60,13 +60,13 @@ export function ApplicationsListWithFilter({
   // Sort: boosted first, then by created_at
   const sortedApplications = [...applicationsToShow].sort((a, b) => {
     const aIsBoosted =
-      a.worker.is_profile_boosted &&
-      a.worker.boost_expires_at &&
-      new Date(a.worker.boost_expires_at) > new Date();
+      a.applicant.is_profile_boosted &&
+      a.applicant.boost_expires_at &&
+      new Date(a.applicant.boost_expires_at) > new Date();
     const bIsBoosted =
-      b.worker.is_profile_boosted &&
-      b.worker.boost_expires_at &&
-      new Date(b.worker.boost_expires_at) > new Date();
+      b.applicant.is_profile_boosted &&
+      b.applicant.boost_expires_at &&
+      new Date(b.applicant.boost_expires_at) > new Date();
 
     if (aIsBoosted && !bIsBoosted) return -1;
     if (!aIsBoosted && bIsBoosted) return 1;
@@ -110,14 +110,14 @@ export function ApplicationsListWithFilter({
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-krewup-blue to-krewup-orange text-white font-bold text-lg shadow-lg">
-                      {app.worker.name.charAt(0).toUpperCase()}
+                      {app.applicant.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h4 className="text-lg font-bold text-gray-900">{app.worker.name}</h4>
-                        {app.worker.is_profile_boosted &&
-                          app.worker.boost_expires_at &&
-                          new Date(app.worker.boost_expires_at) > new Date() && (
+                        <h4 className="text-lg font-bold text-gray-900">{app.applicant.name}</h4>
+                        {app.applicant.is_profile_boosted &&
+                          app.applicant.boost_expires_at &&
+                          new Date(app.applicant.boost_expires_at) > new Date() && (
                             <Badge
                               variant="warning"
                               className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-none"
@@ -127,18 +127,18 @@ export function ApplicationsListWithFilter({
                           )}
                       </div>
                       <p className="text-sm text-gray-600">
-                        {app.worker.trade}
-                        {app.worker.sub_trade && ` - ${app.worker.sub_trade}`}
+                        {app.applicant.trade}
+                        {app.applicant.sub_trade && ` - ${app.applicant.sub_trade}`}
                       </p>
                     </div>
                   </div>
 
                   <div className="ml-15 space-y-2">
                     <p className="text-sm text-gray-700">
-                      <span className="font-semibold">Location:</span> {app.worker.location}
+                      <span className="font-semibold">Location:</span> {app.applicant.location}
                     </p>
-                    {app.worker.bio && (
-                      <p className="text-sm text-gray-600 italic">{app.worker.bio}</p>
+                    {app.applicant.bio && (
+                      <p className="text-sm text-gray-600 italic">{app.applicant.bio}</p>
                     )}
                     {app.cover_letter && (
                       <div className="mt-3 p-3 bg-gray-50 rounded-lg">
@@ -168,8 +168,8 @@ export function ApplicationsListWithFilter({
                     {app.status}
                   </Badge>
                   <MessageButton
-                    recipientId={app.worker.id}
-                    recipientName={app.worker.name}
+                    recipientId={app.applicant.id}
+                    recipientName={app.applicant.name}
                     variant="secondary"
                   />
                 </div>

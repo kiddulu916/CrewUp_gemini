@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
 
         // Get subscription details
         const subscriptionId = session.subscription as string;
-        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        const subscription: Stripe.Subscription = await stripe.subscriptions.retrieve(subscriptionId);
         const priceId = subscription.items.data[0]?.price.id;
 
         // Determine plan_type based on price ID
@@ -68,6 +68,14 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ error: 'Unknown price ID' }, { status: 500 });
         }
 
+        // Safely convert Unix timestamps (seconds) to ISO strings
+        const periodStart = (subscription as any).current_period_start
+          ? new Date((subscription as any).current_period_start * 1000).toISOString()
+          : new Date().toISOString();
+        const periodEnd = (subscription as any).current_period_end
+          ? new Date((subscription as any).current_period_end * 1000).toISOString()
+          : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(); // Default to 30 days
+
         const { error } = await supabaseAdmin.from('subscriptions').upsert({
           user_id: userId,
           stripe_customer_id: session.customer as string,
@@ -75,9 +83,9 @@ export async function POST(req: NextRequest) {
           stripe_price_id: priceId,
           status: 'active' as any,
           plan_type: planType,
-          current_period_start: new Date((subscription as any).current_period_start * 1000).toISOString(),
-          current_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
-          cancel_at_period_end: (subscription as any).cancel_at_period_end ?? false,
+          current_period_start: periodStart,
+          current_period_end: periodEnd,
+          cancel_at_period_end: subscription.cancel_at_period_end ?? false,
         });
 
         if (error) {
@@ -142,6 +150,14 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ error: 'Unknown price ID' }, { status: 500 });
         }
 
+        // Safely convert Unix timestamps (seconds) to ISO strings
+        const periodStart = (subscription as any).current_period_start
+          ? new Date((subscription as any).current_period_start * 1000).toISOString()
+          : new Date().toISOString();
+        const periodEnd = (subscription as any).current_period_end
+          ? new Date((subscription as any).current_period_end * 1000).toISOString()
+          : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+
         const { error: updateError } = await supabaseAdmin
           .from('subscriptions')
           .update({
@@ -149,9 +165,9 @@ export async function POST(req: NextRequest) {
             stripe_price_id: priceId,
             status: subscription.status as any,
             plan_type: planType,
-            current_period_start: new Date((subscription as any).current_period_start * 1000).toISOString(),
-            current_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
-            cancel_at_period_end: (subscription as any).cancel_at_period_end ?? false,
+            current_period_start: periodStart,
+            current_period_end: periodEnd,
+            cancel_at_period_end: subscription.cancel_at_period_end ?? false,
           })
           .eq('user_id', existingSubscription.user_id);
 

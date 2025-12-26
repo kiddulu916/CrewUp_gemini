@@ -28,56 +28,33 @@ export function ConversationItem({ conversation, isActive = false }: Props) {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
-  const truncateMessage = (text: string, maxLength = 50) => {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
-  };
-
   return (
     <Link
       href={`/dashboard/messages/${conversation.id}`}
-      className={`block border-b border-gray-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-orange-50 transition-all duration-200 ${
+      className={`block hover:bg-gradient-to-r hover:from-blue-50 hover:to-orange-50 transition-all duration-200 ${
         isActive ? 'bg-gradient-to-r from-blue-50 to-orange-50 border-l-4 border-l-krewup-blue' : ''
       }`}
     >
       <div className="p-4">
-        <div className="flex items-start gap-3">
-          {/* Avatar */}
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-krewup-blue to-krewup-orange text-white font-bold shadow-md">
-            {conversation.otherParticipant.name.charAt(0).toUpperCase()}
-          </div>
+        <div className="flex items-center justify-between gap-3">
+          {/* Recipient Name */}
+          <h3 className="font-semibold text-gray-900 text-base flex-1">
+            {conversation.otherParticipant.name}
+          </h3>
 
-          {/* Content */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between mb-1">
-              <h3 className="font-semibold text-gray-900 truncate">
-                {conversation.otherParticipant.name}
-              </h3>
-              {conversation.lastMessageAt && (
-                <span className="text-xs text-gray-500 shrink-0 ml-2">
-                  {formatRelativeTime(conversation.lastMessageAt)}
-                </span>
-              )}
-            </div>
+          {/* Right side: Timestamp and Unread Count */}
+          <div className="flex items-center gap-2 shrink-0">
+            {conversation.lastMessageAt && (
+              <span className="text-xs text-gray-500">
+                {formatRelativeTime(conversation.lastMessageAt)}
+              </span>
+            )}
 
-            <div className="flex items-center justify-between gap-2">
-              {conversation.lastMessage ? (
-                <p className="text-sm text-gray-600 truncate">
-                  {truncateMessage(conversation.lastMessage.content)}
-                </p>
-              ) : (
-                <p className="text-sm text-gray-400 italic">No messages yet</p>
-              )}
-
-              {conversation.unreadCount > 0 && (
-                <Badge
-                  variant="danger"
-                  className="shrink-0 animate-pulse"
-                >
-                  {conversation.unreadCount}
-                </Badge>
-              )}
-            </div>
+            {conversation.unreadCount > 0 && (
+              <Badge variant="danger" className="animate-pulse">
+                {conversation.unreadCount}
+              </Badge>
+            )}
           </div>
         </div>
       </div>
