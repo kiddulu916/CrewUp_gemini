@@ -3,7 +3,7 @@
 
 -- Add credential_category column with constraint
 ALTER TABLE certifications
-  ADD COLUMN credential_category TEXT
+  ADD COLUMN IF NOT EXISTS credential_category TEXT
   CHECK (credential_category IN ('license', 'certification'));
 
 -- Backfill existing records (all current records are worker certifications)
@@ -16,7 +16,7 @@ ALTER TABLE certifications
   ALTER COLUMN credential_category SET NOT NULL;
 
 -- Add index for performance on filtering by category
-CREATE INDEX idx_certifications_category
+CREATE INDEX IF NOT EXISTS idx_certifications_category
   ON certifications(credential_category);
 
 -- Create function to enforce role-based credential types
@@ -51,6 +51,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Create trigger to enforce validation
+DROP TRIGGER IF EXISTS enforce_credential_category ON certifications;
 CREATE TRIGGER enforce_credential_category
   BEFORE INSERT OR UPDATE ON certifications
   FOR EACH ROW
