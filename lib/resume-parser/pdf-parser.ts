@@ -1,7 +1,7 @@
 export async function extractTextFromPDF(buffer: ArrayBuffer): Promise<string> {
   try {
     // Dynamic import for pdf-parse to handle ESM/CJS compatibility
-    const pdfParseModule = await import('pdf-parse');
+    const pdfParseModule = await import('pdf-parse') as any;
 
     // Try multiple ways to get the parser function
     let parseFunction: any;
@@ -15,8 +15,8 @@ export async function extractTextFromPDF(buffer: ArrayBuffer): Promise<string> {
       parseFunction = pdfParseModule;
     }
     // Method 3: Check for named export
-    else if (typeof (pdfParseModule as any).pdf === 'function') {
-      parseFunction = (pdfParseModule as any).pdf;
+    else if (typeof pdfParseModule.pdf === 'function') {
+      parseFunction = pdfParseModule.pdf;
     }
 
     if (!parseFunction || typeof parseFunction !== 'function') {

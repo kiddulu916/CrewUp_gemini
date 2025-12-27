@@ -47,7 +47,7 @@ export function useConversations() {
           // Fetch the other participant's profile
           const { data: otherParticipant, error: profileError } = await supabase
             .from('profiles')
-            .select('id, name')
+            .select('id, name, profile_image_url')
             .eq('id', otherParticipantId)
             .single();
 
@@ -56,7 +56,7 @@ export function useConversations() {
             // Return a fallback if profile fetch fails
             return {
               id: conv.id,
-              otherParticipant: { id: otherParticipantId, name: 'Unknown User' },
+              otherParticipant: { id: otherParticipantId, name: 'Unknown User', profile_image_url: undefined },
               lastMessage: undefined,
               lastMessageAt: conv.last_message_at,
               unreadCount: 0,

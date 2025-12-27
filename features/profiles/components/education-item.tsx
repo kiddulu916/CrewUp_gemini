@@ -64,7 +64,7 @@ export function EducationItem({ education, showActions = true }: Props) {
               </Button>
               <Button
                 size="sm"
-                variant="destructive"
+                variant="danger"
                 onClick={handleDelete}
                 isLoading={isDeleting}
               >

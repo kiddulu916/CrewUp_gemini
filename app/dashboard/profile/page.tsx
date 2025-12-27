@@ -5,6 +5,7 @@ import { ExperienceItem } from '@/features/profiles/components/experience-item';
 import { EducationItem } from '@/features/profiles/components/education-item';
 import { ProfileViewsList } from '@/features/subscriptions/components/profile-views-list';
 import { InitialsAvatar } from '@/lib/utils/initials-avatar';
+import { CollapsibleSection } from '@/components/common';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 
@@ -71,192 +72,177 @@ export default async function ProfilePage() {
       </div>
 
       {/* Basic Info Card */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Basic Information</CardTitle>
-            {profile?.subscription_status === 'pro' && <Badge variant="pro">Pro Member</Badge>}
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-start gap-6">
-            {/* Profile Picture */}
-            {profile?.profile_image_url ? (
-              <img
-                src={profile.profile_image_url}
-                alt={profile.name}
-                className="w-24 h-24 rounded-full object-cover border-4 border-gray-200 shrink-0"
-              />
-            ) : (
-              <InitialsAvatar name={profile?.name || ''} userId={profile?.id || ''} size="lg" />
-            )}
-
-            {/* Info Grid */}
-            <div className="flex-1 grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm font-medium text-gray-500">Name</p>
-                <p className="mt-1 text-base text-gray-900">{profile?.name}</p>
-              </div>
-              {profile?.role === 'employer' && profile?.company_name && (
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Company Name</p>
-                  <p className="mt-1 text-base text-gray-900">{profile.company_name}</p>
-                </div>
-              )}
-              <div>
-                <p className="text-sm font-medium text-gray-500">Email</p>
-                <p className="mt-1 text-base text-gray-900">{profile?.email}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-500">Role</p>
-                <p className="mt-1 text-base text-gray-900 capitalize">{profile?.role}</p>
-              </div>
-              {profile?.employer_type && (
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Employer Type</p>
-                  <p className="mt-1 text-base text-gray-900 capitalize">
-                    {profile.employer_type}
-                  </p>
-                </div>
-              )}
-              <div>
-                <p className="text-sm font-medium text-gray-500">Trade</p>
-                <p className="mt-1 text-base text-gray-900">{profile?.trade}</p>
-              </div>
-              {profile?.sub_trade && (
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Specialty</p>
-                  <p className="mt-1 text-base text-gray-900">{profile.sub_trade}</p>
-                </div>
-              )}
-              <div>
-                <p className="text-sm font-medium text-gray-500">Location</p>
-                <p className="mt-1 text-base text-gray-900">{profile?.location}</p>
-              </div>
-              {profile?.phone && (
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Phone</p>
-                  <p className="mt-1 text-base text-gray-900">{profile.phone}</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {profile?.bio && (
-            <div className="mt-6">
-              <p className="text-sm font-medium text-gray-500">Bio</p>
-              <p className="mt-2 text-base text-gray-700">{profile.bio}</p>
-            </div>
+      <CollapsibleSection
+        title="Basic Information"
+        defaultOpen={true}
+        badge={profile?.subscription_status === 'pro' ? <Badge variant="pro">Pro Member</Badge> : undefined}
+      >
+        <div className="flex items-start gap-6">
+          {/* Profile Picture */}
+          {profile?.profile_image_url ? (
+            <img
+              src={profile.profile_image_url}
+              alt={profile.name}
+              className="w-24 h-24 rounded-full object-cover border-4 border-gray-200 shrink-0"
+            />
+          ) : (
+            <InitialsAvatar name={profile?.name || ''} userId={profile?.id || ''} size="lg" />
           )}
-        </CardContent>
-      </Card>
+
+          {/* Info Grid */}
+          <div className="flex-1 grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm font-medium text-gray-500">Name</p>
+              <p className="mt-1 text-base text-gray-900">{profile?.name}</p>
+            </div>
+            {profile?.role === 'employer' && profile?.company_name && (
+              <div>
+                <p className="text-sm font-medium text-gray-500">Company Name</p>
+                <p className="mt-1 text-base text-gray-900">{profile.company_name}</p>
+              </div>
+            )}
+            <div>
+              <p className="text-sm font-medium text-gray-500">Email</p>
+              <p className="mt-1 text-base text-gray-900">{profile?.email}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">Role</p>
+              <p className="mt-1 text-base text-gray-900 capitalize">{profile?.role}</p>
+            </div>
+            {profile?.employer_type && (
+              <div>
+                <p className="text-sm font-medium text-gray-500">Employer Type</p>
+                <p className="mt-1 text-base text-gray-900 capitalize">
+                  {profile.employer_type}
+                </p>
+              </div>
+            )}
+            <div>
+              <p className="text-sm font-medium text-gray-500">Trade</p>
+              <p className="mt-1 text-base text-gray-900">{profile?.trade}</p>
+            </div>
+            {profile?.sub_trade && (
+              <div>
+                <p className="text-sm font-medium text-gray-500">Specialty</p>
+                <p className="mt-1 text-base text-gray-900">{profile.sub_trade}</p>
+              </div>
+            )}
+            <div>
+              <p className="text-sm font-medium text-gray-500">Location</p>
+              <p className="mt-1 text-base text-gray-900">{profile?.location}</p>
+            </div>
+            {profile?.phone && (
+              <div>
+                <p className="text-sm font-medium text-gray-500">Phone</p>
+                <p className="mt-1 text-base text-gray-900">{profile.phone}</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {profile?.bio && (
+          <div className="mt-6">
+            <p className="text-sm font-medium text-gray-500">Bio</p>
+            <p className="mt-2 text-base text-gray-700">{profile.bio}</p>
+          </div>
+        )}
+      </CollapsibleSection>
 
       {/* Who Viewed My Profile - Workers Only */}
       {profile?.role === 'worker' && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Who Viewed My Profile</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ProfileViewsList />
-          </CardContent>
-        </Card>
+        <CollapsibleSection title="Who Viewed My Profile" defaultOpen={true}>
+          <ProfileViewsList />
+        </CollapsibleSection>
       )}
 
       {/* Certifications - Workers Only */}
       {profile?.role === 'worker' && (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Certifications</CardTitle>
-              <Link href="/dashboard/profile/certifications">
-                <Button variant="outline" size="sm">
-                  Add Certification
-                </Button>
-              </Link>
+        <CollapsibleSection
+          title="Certifications"
+          defaultOpen={true}
+          actions={
+            <Link href="/dashboard/profile/certifications">
+              <Button variant="outline" size="sm">
+                Add Certification
+              </Button>
+            </Link>
+          }
+        >
+          {certifications && certifications.length > 0 ? (
+            <div className="space-y-3">
+              {certifications.map((cert: any) => (
+                <CertificationItem key={cert.id} cert={cert} />
+              ))}
             </div>
-          </CardHeader>
-          <CardContent>
-            {certifications && certifications.length > 0 ? (
-              <div className="space-y-3">
-                {certifications.map((cert: any) => (
-                  <CertificationItem key={cert.id} cert={cert} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                <p>No certifications added yet</p>
-                <p className="text-sm mt-1">
-                  Add certifications to stand out to employers
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <p>No certifications added yet</p>
+              <p className="text-sm mt-1">
+                Add certifications to stand out to employers
+              </p>
+            </div>
+          )}
+        </CollapsibleSection>
       )}
 
       {/* Work Experience - Workers Only */}
       {profile?.role === 'worker' && (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Work Experience</CardTitle>
-              <Link href="/dashboard/profile/experience">
-                <Button variant="outline" size="sm">
-                  Add Experience
-                </Button>
-              </Link>
+        <CollapsibleSection
+          title="Work Experience"
+          defaultOpen={true}
+          actions={
+            <Link href="/dashboard/profile/experience">
+              <Button variant="outline" size="sm">
+                Add Experience
+              </Button>
+            </Link>
+          }
+        >
+          {workExperience && workExperience.length > 0 ? (
+            <div className="space-y-4">
+              {workExperience.map((exp: any) => (
+                <ExperienceItem key={exp.id} exp={exp} />
+              ))}
             </div>
-          </CardHeader>
-          <CardContent>
-            {workExperience && workExperience.length > 0 ? (
-              <div className="space-y-4">
-                {workExperience.map((exp: any) => (
-                  <ExperienceItem key={exp.id} exp={exp} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                <p>No work experience added yet</p>
-                <p className="text-sm mt-1">
-                  Add your experience to showcase your skills
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <p>No work experience added yet</p>
+              <p className="text-sm mt-1">
+                Add your experience to showcase your skills
+              </p>
+            </div>
+          )}
+        </CollapsibleSection>
       )}
 
       {/* Education - Workers Only */}
       {profile?.role === 'worker' && (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Education</CardTitle>
-              <Link href="/dashboard/profile/education">
-                <Button variant="outline" size="sm">
-                  Add Education
-                </Button>
-              </Link>
+        <CollapsibleSection
+          title="Education"
+          defaultOpen={true}
+          actions={
+            <Link href="/dashboard/profile/education">
+              <Button variant="outline" size="sm">
+                Add Education
+              </Button>
+            </Link>
+          }
+        >
+          {education && education.length > 0 ? (
+            <div className="space-y-3">
+              {education.map((edu: any) => (
+                <EducationItem key={edu.id} education={edu} />
+              ))}
             </div>
-          </CardHeader>
-          <CardContent>
-            {education && education.length > 0 ? (
-              <div className="space-y-3">
-                {education.map((edu: any) => (
-                  <EducationItem key={edu.id} education={edu} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                <p>No education added yet</p>
-                <p className="text-sm mt-1">
-                  Add your education to enhance your profile
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <p>No education added yet</p>
+              <p className="text-sm mt-1">
+                Add your education to enhance your profile
+              </p>
+            </div>
+          )}
+        </CollapsibleSection>
       )}
     </div>
   );

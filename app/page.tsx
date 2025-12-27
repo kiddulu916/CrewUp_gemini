@@ -17,21 +17,17 @@ export default async function Home() {
       <div className="absolute bottom-20 right-10 w-96 h-96 bg-krewup-orange opacity-10 rounded-full blur-3xl"></div>
 
       <div className="text-center px-4 relative z-10">
-        <div className="mb-6 flex justify-center">
-          <div className="flex h-32 w-32 items-center justify-center">
+        <div className="mb-8 flex justify-center">
+          <div className="flex items-center justify-center">
             <Image
               src="/logo.png"
               alt="KrewUp Logo"
-              width={128}
-              height={128}
+              width={256}
+              height={256}
               priority
             />
           </div>
         </div>
-
-        <h1 className="text-7xl font-extrabold bg-gradient-to-r from-krewup-blue via-purple-600 to-krewup-orange bg-clip-text text-transparent mb-6 animate-pulse">
-          KrewUp
-        </h1>
 
         <p className="text-2xl font-semibold text-gray-700 mb-4">
           Connecting Skilled Trade Workers with Employers
@@ -42,39 +38,24 @@ export default async function Home() {
         </p>
 
         {user ? (
-          <div className="space-y-4">
+          <div className="flex flex-col items-center space-y-4 mb-16">
             <p className="text-xl font-semibold text-gray-700">Welcome back! 🎉</p>
             <Link href="/dashboard/feed">
-              <Button size="lg" className="shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-110">Go to Dashboard</Button>
+              <Button size="lg" className="w-48 shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-110">Go to Dashboard</Button>
             </Link>
           </div>
         ) : (
-          <div className="flex gap-4 justify-center">
+          <div className="flex gap-4 justify-center items-center mb-16">
             <Link href="/signup">
-              <Button size="lg" className="shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-110">Get Started</Button>
+              <Button size="lg" className="w-48 shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-110">Get Started</Button>
             </Link>
             <Link href="/login">
-              <Button variant="outline" size="lg" className="shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-110">
+              <Button variant="outline" size="lg" className="w-48 shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-110">
                 Sign In
               </Button>
             </Link>
           </div>
         )}
-
-        <div className="mt-12 grid grid-cols-3 gap-8 max-w-3xl mx-auto">
-          <div className="bg-white/80 backdrop-blur-sm p-4 rounded-xl shadow-lg border-2 border-krewup-blue/20 hover:scale-105 transition-transform">
-            <div className="text-3xl mb-2">💼</div>
-            <div className="text-sm font-semibold text-gray-700">Find Jobs</div>
-          </div>
-          <div className="bg-white/80 backdrop-blur-sm p-4 rounded-xl shadow-lg border-2 border-krewup-orange/20 hover:scale-105 transition-transform">
-            <div className="text-3xl mb-2">🤝</div>
-            <div className="text-sm font-semibold text-gray-700">Connect</div>
-          </div>
-          <div className="bg-white/80 backdrop-blur-sm p-4 rounded-xl shadow-lg border-2 border-purple-500/20 hover:scale-105 transition-transform">
-            <div className="text-3xl mb-2">🚀</div>
-            <div className="text-sm font-semibold text-gray-700">Grow</div>
-          </div>
-        </div>
       </div>
     </div>
   );

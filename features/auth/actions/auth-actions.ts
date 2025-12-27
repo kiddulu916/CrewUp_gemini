@@ -66,6 +66,8 @@ export async function signUp(
   });
 
   if (error) {
+    console.error('[signUp] Supabase error:', error);
+    console.error('[signUp] Error details:', JSON.stringify(error, null, 2));
     return { success: false, error: error.message };
   }
 

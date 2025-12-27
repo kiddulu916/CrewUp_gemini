@@ -40,6 +40,39 @@ export async function completeOnboarding(data: OnboardingData): Promise<Onboardi
     return { success: false, error: 'Not authenticated' };
   }
 
+  // Check if profile exists
+  const { data: existingProfile, error: checkError } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('id', user.id)
+    .maybeSingle();
+
+  console.log('[onboarding] Check existing profile:', { exists: !!existingProfile, error: checkError });
+
+  // If profile doesn't exist, create it first
+  if (!existingProfile) {
+    console.log('[onboarding] Profile does not exist, creating it...');
+    const { error: insertError } = await supabase
+      .from('profiles')
+      .insert({
+        id: user.id,
+        email: user.email || data.email,
+        name: data.name,
+        role: data.role,
+        subscription_status: 'free',
+        trade: data.trade || 'General Laborer',
+        location: data.location || 'Update your location',
+        bio: data.bio || `${data.role === 'worker' ? 'Skilled' : 'Hiring'} professional`,
+        phone: data.phone,
+      });
+
+    if (insertError) {
+      console.error('[onboarding] Error creating profile:', insertError);
+      return { success: false, error: `Failed to create profile: ${insertError.message}` };
+    }
+    console.log('[onboarding] Profile created successfully');
+  }
+
   // Set default location if not provided
   const location = data.location || 'United States';
   const coords = data.coords;
@@ -118,7 +151,22 @@ export async function completeOnboarding(data: OnboardingData): Promise<Onboardi
     }
   }
 
-  console.log('[onboarding-actions] Profile updated successfully, returning success');
+  // Verify the profile was updated correctly
+  const { data: updatedProfile, error: verifyError } = await supabase
+    .from('profiles')
+    .select('name, role, trade, location, phone, email')
+    .eq('id', user.id)
+    .single();
+
+  console.log('[onboarding-actions] Profile updated successfully');
+  console.log('[onboarding-actions] User ID:', user.id);
+  console.log('[onboarding-actions] Verify error:', verifyError);
+  console.log('[onboarding-actions] Updated profile data:', updatedProfile);
+  console.log('[onboarding-actions] Checking onboarding completion:');
+  console.log('  - Name starts with User-?:', updatedProfile?.name?.startsWith('User-'));
+  console.log('  - Location is "Update your location"?:', updatedProfile?.location === 'Update your location');
+  console.log('  - Trade is "General Laborer"?:', updatedProfile?.trade === 'General Laborer');
+
   revalidatePath('/', 'layout');
   return { success: true };
 }

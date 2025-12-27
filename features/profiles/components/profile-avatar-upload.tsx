@@ -92,7 +92,7 @@ export function ProfileAvatarUpload({
   };
 
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="flex flex-col items-start gap-2">
       {/* Avatar Preview */}
       <div
         className="relative cursor-pointer group"
@@ -111,16 +111,16 @@ export function ProfileAvatarUpload({
           <img
             src={previewUrl}
             alt={userName}
-            className="w-32 h-32 rounded-full object-cover border-4 border-gray-200"
+            className="w-24 h-24 rounded-full object-cover border-4 border-gray-200"
           />
         ) : (
-          <InitialsAvatar name={userName} userId={userId} size="xl" />
+          <InitialsAvatar name={userName} userId={userId} size="lg" />
         )}
 
         {/* Hover Overlay */}
         {!disabled && !isProcessing && (
           <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-            <span className="text-white text-sm font-medium">Change Picture</span>
+            <span className="text-white text-xs font-medium px-2">Change</span>
           </div>
         )}
 
@@ -144,13 +144,13 @@ export function ProfileAvatarUpload({
 
       {/* Error Message */}
       {error && (
-        <p className="text-sm text-red-600 text-center max-w-xs">{error}</p>
+        <p className="text-xs text-red-600 text-center max-w-[96px]">{error}</p>
       )}
 
       {/* Helper Text */}
       {!error && (
-        <p className="text-sm text-gray-500 text-center max-w-xs">
-          Click to upload a profile picture (JPEG, PNG, or WebP, max 2MB)
+        <p className="text-xs text-gray-500 text-center max-w-[96px]">
+          Click to change picture
         </p>
       )}
     </div>

@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { ProximityAlertSettings } from '@/features/proximity-alerts/components/proximity-alert-settings';
+import { BoostManager } from '@/features/subscriptions/components/boost-manager';
 
 export default function SettingsPage() {
   return (
@@ -13,6 +14,11 @@ export default function SettingsPage() {
           Manage your account preferences and notifications
         </p>
       </div>
+
+      {/* Profile Boost */}
+      <section>
+        <BoostManager />
+      </section>
 
       {/* Proximity Alerts */}
       <section>

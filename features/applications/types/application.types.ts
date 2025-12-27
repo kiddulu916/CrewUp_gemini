@@ -39,6 +39,9 @@ export interface ApplicationFormData {
   howHeardAboutJob: string;
   emergencyContact: EmergencyContactEntry;
   consents: ConsentEntry;
+
+  // Responses to employer-defined screening questions
+  customAnswers?: Record<string, string>;
 }
 
 export interface WorkHistoryEntry {
@@ -87,6 +90,7 @@ export interface ConsentEntry {
   physicalRequirements: boolean;
   backgroundCheck: boolean;
   drugTest: boolean;
+  dataAccuracy: boolean;
 }
 
 export interface ApplicationDraft {

@@ -33,9 +33,9 @@ When working on this project:
 
 ### Current Status
 
-**Phase 1 (Free MVP) - Near Completion** ✅
+**Phase 1 (Free MVP) - COMPLETE** ✅
 
-The Next.js rebuild is well underway with most core features implemented:
+The Next.js rebuild is complete with all core features implemented and deployed:
 
 **✅ Completed:**
 - Database schema with PostGIS support
@@ -43,24 +43,62 @@ The Next.js rebuild is well underway with most core features implemented:
 - Automatic profile creation via database triggers
 - 3-step onboarding with automatic device location capture
 - Phone number auto-formatting and email auto-fill
-- Profile management (view, edit, certifications, experience)
+- Profile management (view, edit, certifications, experience, education)
+- Profile picture upload with image compression
+- Certification photo upload (code complete, needs Supabase Storage bucket config)
 - Job posting and feed with distance-based sorting
+- Conditional pay rate logic (hourly vs contract jobs)
 - Job applications system
 - Real-time messaging (using polling for cost efficiency)
 - Google Places Autocomplete integration
 - PostGIS coordinate storage and queries
 - Complete database reset script for development
+- Toast notifications and confirmation dialogs
 - Deployed to production at https://krewup.net
 
-**🔧 In Progress:**
-- Manual testing of all features
-- Certification photo upload (code complete, needs Supabase Storage bucket config)
-- Mobile responsiveness improvements
+**Phase 2 (Monetization) - PRODUCTION READY** ✅
 
-**📋 Next Up:**
+Stripe integration is fully implemented and configured:
+
+**✅ Completed:**
+- Pricing page with monthly ($15/month) and annual ($150/year) plans
+- Subscription management page
+- Stripe checkout integration
+- Webhook handlers for all subscription events
+- Pro badge and feature gating components
+- Subscription hooks and server actions
+- Stripe account configured and ready for production
+- Supabase Storage buckets created and configured
+
+**Phase 3 (Advanced Pro Features) - MOSTLY COMPLETE** ✅
+
+Most planned Pro features have been implemented:
+
+**✅ Fully Implemented:**
+- **Custom Screening Questions** - Employers can add up to 5 custom questions to job postings
+- **Job Analytics Dashboard** - View tracking, unique visitors, conversion rates with interactive charts
+- **Certification Filtering** - Employers can filter applicants by verified certifications
+- **Profile Boost Infrastructure** - Badge display, expiry tracking, cron job for resets
+
+**⚠️ Partially Implemented:**
+- **Proximity Alerts** - Settings UI and background cron job complete, needs notification display UI
+- **Profile Boost Activation** - Infrastructure exists, needs user activation mechanism
+- **Endorsements System** - Server actions complete (bonus feature)
+
+**❌ Not Implemented:**
+- Job Compatibility Score (trade/cert/distance matching algorithm)
+- Bulk Job Posting (templates and bulk operations)
+
+**🔧 Current Focus:**
+- Manual testing of all features in production
+- Mobile responsiveness testing and improvements
 - End-to-end testing of all user flows
-- Beta user invitations
-- Stripe integration for Pro subscriptions (Phase 2)
+- Complete remaining Phase 3 features (proximity notifications, profile boost activation)
+
+**📋 Next Steps:**
+- Finish proximity alert notification UI
+- Add profile boost activation mechanism
+- Public launch and user acquisition
 
 **Legacy Note**: The single-file React app in `krewup.jsx` is the legacy version and should NOT be modified. All new work happens in the Next.js app following the development plan.
 

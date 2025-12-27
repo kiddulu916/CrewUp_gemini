@@ -23,7 +23,7 @@ This document covers the complete deployment strategy for KrewUp, including envi
 - Deploy: Automatic on pull request
 
 **3. Production (Vercel)**
-- URL: `krewup.app` (custom domain)
+- URL: `krewup.net` (custom domain)
 - Database: Production Supabase project
 - Payments: Stripe live mode
 - Purpose: Real users, real payments
@@ -43,7 +43,7 @@ npm i -g vercel
 vercel login
 
 # Link project
-cd krewup-nextjs
+cd krewup
 vercel link
 
 # Follow prompts:
@@ -63,7 +63,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOi...
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOi...  # Server-side only
 
 # App URL
-NEXT_PUBLIC_URL=https://krewup.app  # Production
+NEXT_PUBLIC_URL=https://krewup.net  # Production
 # NEXT_PUBLIC_URL=https://krewup-staging.vercel.app  # Staging
 
 # Stripe
@@ -119,7 +119,7 @@ SENTRY_AUTH_TOKEN=...
   "framework": "nextjs",
   "regions": ["iad1"],
   "env": {
-    "NEXT_PUBLIC_URL": "https://krewup.app"
+    "NEXT_PUBLIC_URL": "https://krewup.net"
   },
   "headers": [
     {
@@ -152,7 +152,7 @@ const nextConfig = {
   },
   experimental: {
     serverActions: {
-      allowedOrigins: ['krewup.app', '*.vercel.app'],
+      allowedOrigins: ['krewup.net', '*.vercel.app'],
     },
   },
   // Sentry configuration

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { Badge } from '@/components/ui';
+import { InitialsAvatar } from '@/lib/utils/initials-avatar';
 import type { ConversationWithDetails } from '../types';
 
 type Props = {
@@ -36,25 +37,44 @@ export function ConversationItem({ conversation, isActive = false }: Props) {
       }`}
     >
       <div className="p-4">
-        <div className="flex items-center justify-between gap-3">
-          {/* Recipient Name */}
-          <h3 className="font-semibold text-gray-900 text-base flex-1">
-            {conversation.otherParticipant.name}
-          </h3>
-
-          {/* Right side: Timestamp and Unread Count */}
-          <div className="flex items-center gap-2 shrink-0">
-            {conversation.lastMessageAt && (
-              <span className="text-xs text-gray-500">
-                {formatRelativeTime(conversation.lastMessageAt)}
-              </span>
+        <div className="flex items-center gap-3">
+          {/* Avatar */}
+          <div className="flex-shrink-0">
+            {conversation.otherParticipant.profile_image_url ? (
+              <img
+                src={conversation.otherParticipant.profile_image_url}
+                alt={conversation.otherParticipant.name}
+                className="h-12 w-12 rounded-full object-cover border-2 border-gray-200"
+              />
+            ) : (
+              <InitialsAvatar
+                name={conversation.otherParticipant.name}
+                userId={conversation.otherParticipant.id}
+                size="md"
+              />
             )}
+          </div>
 
-            {conversation.unreadCount > 0 && (
-              <Badge variant="danger" className="animate-pulse">
-                {conversation.unreadCount}
-              </Badge>
-            )}
+          {/* Conversation Info */}
+          <div className="flex-1 min-w-0 flex items-center justify-between">
+            <h3 className="font-semibold text-gray-900 text-base truncate">
+              {conversation.otherParticipant.name}
+            </h3>
+
+            {/* Right side: Timestamp and Unread Count */}
+            <div className="flex items-center gap-2 shrink-0 ml-2">
+              {conversation.lastMessageAt && (
+                <span className="text-xs text-gray-500">
+                  {formatRelativeTime(conversation.lastMessageAt)}
+                </span>
+              )}
+
+              {conversation.unreadCount > 0 && (
+                <Badge variant="danger" className="animate-pulse">
+                  {conversation.unreadCount}
+                </Badge>
+              )}
+            </div>
           </div>
         </div>
       </div>

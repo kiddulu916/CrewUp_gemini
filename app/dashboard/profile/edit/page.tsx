@@ -29,6 +29,33 @@ export default async function ProfileEditPage() {
     redirect('/onboarding');
   }
 
+  // Fetch certifications for workers and licenses for contractors
+  const { data: certifications } =
+    (profile.role === 'worker' ||
+     (profile.role === 'employer' && profile.employer_type === 'contractor'))
+      ? await supabase
+          .from('certifications')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+      : { data: null };
+
+  const { data: workExperience } = profile.role === 'worker'
+    ? await supabase
+        .from('work_experience')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('start_date', { ascending: false })
+    : { data: null };
+
+  const { data: education } = profile.role === 'worker'
+    ? await supabase
+        .from('education')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('graduation_year', { ascending: false, nullsFirst: false })
+    : { data: null };
+
   return (
     <div className="space-y-6">
       <div>
@@ -40,7 +67,12 @@ export default async function ProfileEditPage() {
         </p>
       </div>
 
-      <ProfileForm initialData={profile} />
+      <ProfileForm
+        initialData={profile}
+        certifications={certifications || []}
+        workExperience={workExperience || []}
+        education={education || []}
+      />
     </div>
   );
 }

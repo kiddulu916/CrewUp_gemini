@@ -4,7 +4,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { SignOutButton } from '@/features/auth/components/sign-out-button';
 import { Badge } from '@/components/ui';
+import { InitialsAvatar } from '@/lib/utils/initials-avatar';
 import { cookies } from 'next/headers';
+import { BottomNav } from './bottom-nav';
+import { NotificationBell } from '@/features/notifications/components/notification-bell';
 
 export default async function DashboardLayout({
   children,
@@ -36,17 +39,46 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50">
-      {/* Sidebar */}
-      <aside className="w-40 bg-white border-r border-gray-200 shadow-lg">
+      {/* Mobile Header - Visible on mobile, hidden on tablet+ */}
+      <header className="fixed top-0 left-0 right-0 z-40 h-16 bg-gradient-to-r from-krewup-blue to-krewup-light-blue shadow-md md:hidden">
+        <div className="flex h-full items-center justify-between px-4">
+          <Link href="/dashboard/feed" className="flex items-center">
+            <Image
+              src="/navbar_logo.png"
+              alt="KrewUp Logo"
+              width={100}
+              height={60}
+              className="object-contain"
+            />
+          </Link>
+          <div className="flex items-center gap-2">
+            <div className="[&>a]:text-white">
+              <NotificationBell />
+            </div>
+            {profile.profile_image_url ? (
+              <img
+                src={profile.profile_image_url}
+                alt={profile.name}
+                className="h-10 w-10 rounded-full object-cover border-2 border-white shadow-lg"
+              />
+            ) : (
+              <InitialsAvatar name={profile.name} userId={profile.id} size="md" />
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* Sidebar - Hidden on mobile, visible on tablet+ */}
+      <aside className="hidden md:flex w-40 bg-white border-r border-gray-200 shadow-lg">
         <div className="flex h-full flex-col">
           {/* Logo with gradient */}
-          <div className="flex h-16 items-center justify-center bg-gradient-to-r from-krewup-blue to-krewup-light-blue px-2">
+          <div className="flex h-20 items-center justify-center bg-gradient-to-r from-krewup-blue to-krewup-light-blue px-2 py-2">
             <Link href="/dashboard/feed" className="flex items-center gap-2">
               <Image
-                src="/logo.png"
+                src="/navbar_logo.png"
                 alt="KrewUp Logo"
-                width={40}
-                height={40}
+                width={120}
+                height={80}
                 className="object-contain"
               />
             </Link>
@@ -89,6 +121,10 @@ export default async function DashboardLayout({
               Messages
             </NavLink>
 
+            <NavLink href="/dashboard/notifications" icon="🔔" color="blue">
+              Notifications
+            </NavLink>
+
             {isWorker && (
               <NavLink href="/dashboard/settings" icon="⚙️" color="purple">
                 Settings
@@ -109,9 +145,15 @@ export default async function DashboardLayout({
           {/* User Info */}
           <div className="border-t-2 border-krewup-light-blue p-2 bg-gradient-to-r from-blue-50 to-orange-50">
             <div className="flex flex-col items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-krewup-blue to-krewup-orange text-white font-bold text-sm shadow-lg">
-                {profile.name.charAt(0).toUpperCase()}
-              </div>
+              {profile.profile_image_url ? (
+                <img
+                  src={profile.profile_image_url}
+                  alt={profile.name}
+                  className="h-10 w-10 rounded-full object-cover border-2 border-gray-200 shadow-lg"
+                />
+              ) : (
+                <InitialsAvatar name={profile.name} userId={profile.id} size="md" />
+              )}
               <div className="w-full text-center">
                 <p className="text-xs font-semibold text-gray-900 truncate px-1">
                   {profile.name.split(' ')[0]}
@@ -127,10 +169,13 @@ export default async function DashboardLayout({
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 pt-20 md:pt-8 pb-24 md:pb-8">
           {children}
         </div>
       </main>
+
+      {/* Bottom Navigation - Visible on mobile, hidden on tablet+ */}
+      <BottomNav isWorker={isWorker} isPro={isPro} />
     </div>
   );
 }

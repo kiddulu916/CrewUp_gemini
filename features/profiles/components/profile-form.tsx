@@ -3,11 +3,19 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Input, Textarea, Select, Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
-import { LocationAutocomplete } from '@/components/common/location-autocomplete';
+import { LocationAutocomplete, CollapsibleSection } from '@/components/common';
 import { useUpdateProfile } from '../hooks/use-update-profile';
 import { useUserLocation } from '@/hooks/use-user-location';
 import { useToast } from '@/components/providers/toast-provider';
 import { TRADES, TRADE_SUBCATEGORIES, EMPLOYER_TYPES } from '@/lib/constants';
+import { CertificationForm } from './certification-form';
+import { CertificationItem } from './certification-item';
+import { ExperienceForm } from './experience-form';
+import { ExperienceItem } from './experience-item';
+import { EducationForm } from './education-form';
+import { EducationItem } from './education-item';
+import { ProfileAvatarUpload } from './profile-avatar-upload';
+import { uploadProfilePicture } from '../actions/profile-picture-actions';
 
 type ProfileFormProps = {
   initialData: {
@@ -23,10 +31,14 @@ type ProfileFormProps = {
     role: string;
     employer_type?: string | null;
     company_name?: string | null;
+    profile_image_url?: string | null;
   };
+  certifications?: any[];
+  workExperience?: any[];
+  education?: any[];
 };
 
-export function ProfileForm({ initialData }: ProfileFormProps) {
+export function ProfileForm({ initialData, certifications = [], workExperience = [], education = [] }: ProfileFormProps) {
   const router = useRouter();
   const updateProfile = useUpdateProfile();
   const locationState = useUserLocation();
@@ -45,6 +57,12 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
   });
 
   const [error, setError] = useState<string | null>(null);
+  const [selectedProfilePicture, setSelectedProfilePicture] = useState<File | null>(null);
+
+  // State for showing/hiding forms
+  const [showCertificationForm, setShowCertificationForm] = useState(false);
+  const [showExperienceForm, setShowExperienceForm] = useState(false);
+  const [showEducationForm, setShowEducationForm] = useState(false);
 
   // Update coords when location is fetched
   useEffect(() => {
@@ -64,6 +82,18 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
     setError(null);
 
     try {
+      // Upload profile picture first if selected
+      let profileImageUrl = initialData.profile_image_url;
+      if (selectedProfilePicture) {
+        const uploadResult = await uploadProfilePicture(selectedProfilePicture);
+        if (!uploadResult.success) {
+          setError(uploadResult.error || 'Failed to upload profile picture');
+          toast.error(uploadResult.error || 'Failed to upload profile picture');
+          return;
+        }
+        profileImageUrl = uploadResult.url;
+      }
+
       await updateProfile.mutateAsync({
         name: formData.name,
         phone: formData.phone || null,
@@ -72,6 +102,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
         trade: formData.trade,
         sub_trade: formData.sub_trade || null,
         bio: formData.bio,
+        profile_image_url: profileImageUrl,
         ...(initialData.role === 'employer' && {
           employer_type: formData.employer_type || null,
           company_name: formData.company_name || null,
@@ -120,40 +151,55 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Basic Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Basic Information</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-              Full Name <span className="text-red-500">*</span>
-            </label>
-            <Input
-              id="name"
-              type="text"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="John Doe"
-              required
-              maxLength={100}
-            />
+      <CollapsibleSection title="Basic Information" defaultOpen={true}>
+        <div className="space-y-4">
+          {/* Top Row: Profile Picture + Name/Email */}
+          <div className="flex gap-6">
+            {/* Profile Picture Upload - Left Side */}
+            <div className="flex-shrink-0">
+              <ProfileAvatarUpload
+                currentImageUrl={initialData.profile_image_url || null}
+                userName={initialData.name}
+                userId={initialData.id}
+                onImageSelected={(file) => setSelectedProfilePicture(file)}
+                disabled={updateProfile.isPending}
+              />
+            </div>
+
+            {/* Name and Email - Right Side */}
+            <div className="flex-1 space-y-4">
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                  Full Name <span className="text-red-500">*</span>
+                </label>
+                <Input
+                  id="name"
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="John Doe"
+                  required
+                  maxLength={100}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
+                </label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={initialData.email}
+                  disabled
+                  className="bg-gray-100 cursor-not-allowed"
+                />
+                <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+              </div>
+            </div>
           </div>
 
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-            </label>
-            <Input
-              id="email"
-              type="email"
-              value={initialData.email}
-              disabled
-              className="bg-gray-100 cursor-not-allowed"
-            />
-            <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
-          </div>
-
+          {/* Phone Number - Full Width */}
           <div>
             <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
               Phone Number
@@ -167,6 +213,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
             />
           </div>
 
+          {/* Bio - Full Width */}
           <div>
             <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-1">
               Bio
@@ -183,15 +230,12 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
               {formData.bio.length}/500 characters
             </p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </CollapsibleSection>
 
       {/* Trade Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Trade Information</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      <CollapsibleSection title="Trade Information" defaultOpen={true}>
+        <div className="space-y-4">
           <div>
             <label htmlFor="trade" className="block text-sm font-medium text-gray-700 mb-1.5">
               Primary Trade <span className="text-red-500">*</span>
@@ -223,16 +267,13 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
               />
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </CollapsibleSection>
 
       {/* Employer Type (Employers Only) */}
       {initialData.role === 'employer' && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Employer Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <CollapsibleSection title="Employer Information" defaultOpen={true}>
+          <div className="space-y-4">
             <div>
               <label htmlFor="company_name" className="block text-sm font-medium text-gray-700 mb-1">
                 Company/Business Name <span className="text-red-500">*</span>
@@ -268,16 +309,66 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                 ]}
               />
             </div>
-          </CardContent>
-        </Card>
+
+            {/* Contractor Licenses (Contractors Only) */}
+            {formData.employer_type === 'contractor' && (
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-900">Contractor Licenses</h4>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Add your contractor licenses with verification documents
+                    </p>
+                  </div>
+                  {!showCertificationForm && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowCertificationForm(true)}
+                    >
+                      Add License
+                    </Button>
+                  )}
+                </div>
+
+                {showCertificationForm && (
+                  <CertificationForm
+                    role={initialData.role}
+                    employerType={formData.employer_type}
+                    onSuccess={() => {
+                      setShowCertificationForm(false);
+                      router.refresh();
+                    }}
+                    onCancel={() => setShowCertificationForm(false)}
+                  />
+                )}
+
+                {certifications && certifications.length > 0 ? (
+                  <div className="space-y-3">
+                    {certifications.map((cert: any) => (
+                      <CertificationItem key={cert.id} cert={cert} />
+                    ))}
+                  </div>
+                ) : (
+                  !showCertificationForm && (
+                    <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
+                      <p>No licenses added yet</p>
+                      <p className="text-sm mt-1">
+                        Add your contractor licenses to verify your credentials
+                      </p>
+                    </div>
+                  )
+                )}
+              </div>
+            )}
+          </div>
+        </CollapsibleSection>
       )}
 
       {/* Location */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Location</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      <CollapsibleSection title="Location" defaultOpen={true}>
+        <div className="space-y-4">
           <LocationAutocomplete
             label="Address / City"
             value={formData.location}
@@ -298,8 +389,157 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
               ✓ Location coordinates saved ({formData.coords.lat.toFixed(4)}, {formData.coords.lng.toFixed(4)})
             </p>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </CollapsibleSection>
+
+      {/* Certifications (Workers Only) */}
+      {initialData.role === 'worker' && (
+        <CollapsibleSection
+          title="Certifications"
+          defaultOpen={false}
+          actions={
+            !showCertificationForm && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowCertificationForm(true)}
+              >
+                Add Certification
+              </Button>
+            )
+          }
+        >
+          <div className="space-y-4">
+            {showCertificationForm && (
+              <CertificationForm
+                role={initialData.role}
+                employerType={formData.employer_type}
+                onSuccess={() => {
+                  setShowCertificationForm(false);
+                  router.refresh();
+                }}
+                onCancel={() => setShowCertificationForm(false)}
+              />
+            )}
+
+            {certifications && certifications.length > 0 ? (
+              <div className="space-y-3">
+                {certifications.map((cert: any) => (
+                  <CertificationItem key={cert.id} cert={cert} />
+                ))}
+              </div>
+            ) : (
+              !showCertificationForm && (
+                <div className="text-center py-8 text-gray-500">
+                  <p>No certifications added yet</p>
+                  <p className="text-sm mt-1">
+                    Add certifications to stand out to employers
+                  </p>
+                </div>
+              )
+            )}
+          </div>
+        </CollapsibleSection>
+      )}
+
+      {/* Work Experience (Workers Only) */}
+      {initialData.role === 'worker' && (
+        <CollapsibleSection
+          title="Work Experience"
+          defaultOpen={false}
+          actions={
+            !showExperienceForm && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowExperienceForm(true)}
+              >
+                Add Experience
+              </Button>
+            )
+          }
+        >
+          <div className="space-y-4">
+            {showExperienceForm && (
+              <ExperienceForm
+                onSuccess={() => {
+                  setShowExperienceForm(false);
+                  router.refresh();
+                }}
+                onCancel={() => setShowExperienceForm(false)}
+              />
+            )}
+
+            {workExperience && workExperience.length > 0 ? (
+              <div className="space-y-4">
+                {workExperience.map((exp: any) => (
+                  <ExperienceItem key={exp.id} exp={exp} />
+                ))}
+              </div>
+            ) : (
+              !showExperienceForm && (
+                <div className="text-center py-8 text-gray-500">
+                  <p>No work experience added yet</p>
+                  <p className="text-sm mt-1">
+                    Add your experience to showcase your skills
+                  </p>
+                </div>
+              )
+            )}
+          </div>
+        </CollapsibleSection>
+      )}
+
+      {/* Education (Workers Only) */}
+      {initialData.role === 'worker' && (
+        <CollapsibleSection
+          title="Education"
+          defaultOpen={false}
+          actions={
+            !showEducationForm && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowEducationForm(true)}
+              >
+                Add Education
+              </Button>
+            )
+          }
+        >
+          <div className="space-y-4">
+            {showEducationForm && (
+              <EducationForm
+                onSuccess={() => {
+                  setShowEducationForm(false);
+                  router.refresh();
+                }}
+                onCancel={() => setShowEducationForm(false)}
+              />
+            )}
+
+            {education && education.length > 0 ? (
+              <div className="space-y-3">
+                {education.map((edu: any) => (
+                  <EducationItem key={edu.id} education={edu} />
+                ))}
+              </div>
+            ) : (
+              !showEducationForm && (
+                <div className="text-center py-8 text-gray-500">
+                  <p>No education added yet</p>
+                  <p className="text-sm mt-1">
+                    Add your education to enhance your profile
+                  </p>
+                </div>
+              )
+            )}
+          </div>
+        </CollapsibleSection>
+      )}
 
       {/* Error Message */}
       {error && (

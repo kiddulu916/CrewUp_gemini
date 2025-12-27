@@ -5,9 +5,21 @@ import { useRouter } from 'next/navigation';
 import { Button, Input, Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { useToast } from '@/components/providers/toast-provider';
 import { addCertification, uploadCertificationPhoto } from '../actions/certification-actions';
-import { CERTIFICATIONS } from '@/lib/constants';
+import {
+  ALL_CERTIFICATIONS,
+  CERTIFICATION_CATEGORIES,
+  ALL_LICENSES,
+  LICENSE_CATEGORIES,
+} from '@/lib/constants';
 
-export function CertificationForm() {
+type Props = {
+  role?: string;
+  employerType?: string | null;
+  onSuccess?: () => void;
+  onCancel?: () => void;
+};
+
+export function CertificationForm({ role = 'worker', employerType, onSuccess, onCancel }: Props) {
   const router = useRouter();
   const toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -17,7 +29,15 @@ export function CertificationForm() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
 
+  // Determine credential type based on user role
+  const isContractor = role === 'employer' && employerType === 'contractor';
+  const credentialCategory = isContractor ? 'license' : 'certification';
+  const credentialLabel = isContractor ? 'License' : 'Certification';
+  const availableCategories = isContractor ? LICENSE_CATEGORIES : CERTIFICATION_CATEGORIES;
+  const flatOptions = isContractor ? ALL_LICENSES : ALL_CERTIFICATIONS;
+
   const [formData, setFormData] = useState({
+    selectedCategory: '',
     certification_type: '',
     customCertification: '',
     certification_number: '',
@@ -58,7 +78,7 @@ export function CertificationForm() {
           : formData.certification_type;
 
       if (!certType) {
-        setError('Please select or enter a certification type');
+        setError(`Please select or enter a ${credentialLabel.toLowerCase()} type`);
         setIsLoading(false);
         return;
       }
@@ -102,6 +122,7 @@ export function CertificationForm() {
       }
 
       const result = await addCertification({
+        credential_category: credentialCategory,
         certification_type: certType,
         certification_number: formData.certification_number, // Required
         issued_by: formData.issued_by, // Required
@@ -111,16 +132,20 @@ export function CertificationForm() {
       });
 
       if (!result.success) {
-        const errorMsg = result.error || 'Failed to add certification';
+        const errorMsg = result.error || `Failed to add ${credentialLabel.toLowerCase()}`;
         setError(errorMsg);
         toast.error(errorMsg);
         setIsLoading(false);
         return;
       }
 
-      toast.success('Certification added successfully!');
-      router.push('/dashboard/profile');
-      router.refresh();
+      toast.success(`${credentialLabel} added successfully!`);
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push('/dashboard/profile');
+        router.refresh();
+      }
     } catch (err: any) {
       const errorMsg = err.message || 'Failed to add certification';
       setError(errorMsg);
@@ -133,12 +158,40 @@ export function CertificationForm() {
     <form onSubmit={handleSubmit} className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Certification Details</CardTitle>
+          <CardTitle>{credentialLabel} Details</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Category selection for organized options */}
+          {Object.keys(availableCategories).length > 1 && (
+            <div>
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+                Category
+              </label>
+              <select
+                id="category"
+                value={formData.selectedCategory}
+                onChange={(e) => {
+                  setFormData({
+                    ...formData,
+                    selectedCategory: e.target.value,
+                    certification_type: '', // Reset selection when category changes
+                  });
+                }}
+                className="flex h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-krewup-blue focus:border-transparent"
+              >
+                <option value="">All {credentialLabel}s</option>
+                {Object.keys(availableCategories).map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div>
             <label htmlFor="certification_type" className="block text-sm font-medium text-gray-700 mb-1">
-              Certification Type <span className="text-red-500">*</span>
+              {credentialLabel} Type <span className="text-red-500">*</span>
             </label>
             <select
               id="certification_type"
@@ -149,12 +202,24 @@ export function CertificationForm() {
               className="flex h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-krewup-blue focus:border-transparent"
               required
             >
-              <option value="">Select a certification</option>
-              {CERTIFICATIONS.map((cert) => (
-                <option key={cert} value={cert}>
-                  {cert}
-                </option>
-              ))}
+              <option value="">Select a {credentialLabel.toLowerCase()}</option>
+
+              {/* Show filtered options based on selected category */}
+              {formData.selectedCategory ? (
+                (availableCategories[formData.selectedCategory as keyof typeof availableCategories] as readonly string[] || []).map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))
+              ) : (
+                /* Show all options if no category selected */
+                flatOptions.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))
+              )}
+
               <option value="custom">Other (specify below)</option>
             </select>
           </div>
@@ -162,7 +227,7 @@ export function CertificationForm() {
           {formData.certification_type === 'custom' && (
             <div>
               <label htmlFor="customCertification" className="block text-sm font-medium text-gray-700 mb-1">
-                Custom Certification Name <span className="text-red-500">*</span>
+                Custom {credentialLabel} Name <span className="text-red-500">*</span>
               </label>
               <Input
                 id="customCertification"
@@ -171,7 +236,7 @@ export function CertificationForm() {
                 onChange={(e) =>
                   setFormData({ ...formData, customCertification: e.target.value })
                 }
-                placeholder="Enter certification name"
+                placeholder={`Enter ${credentialLabel.toLowerCase()} name`}
                 required
                 maxLength={100}
               />
@@ -180,7 +245,7 @@ export function CertificationForm() {
 
           <div>
             <label htmlFor="certification_number" className="block text-sm font-medium text-gray-700 mb-1">
-              Certification Number <span className="text-red-500">*</span>
+              {credentialLabel} Number <span className="text-red-500">*</span>
             </label>
             <Input
               id="certification_number"
@@ -240,10 +305,10 @@ export function CertificationForm() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Certification Photo <span className="text-red-500">*</span>
+              {credentialLabel} Photo <span className="text-red-500">*</span>
             </label>
             <p className="text-xs text-gray-500 mb-3">
-              Upload a photo of your certification document (JPEG, PNG, WebP, or PDF - Max 5MB) - Required for verification
+              Upload a photo of your {credentialLabel.toLowerCase()} document (JPEG, PNG, WebP, or PDF - Max 5MB) - Required for verification
             </p>
 
             {!photoPreview ? (
@@ -330,16 +395,28 @@ export function CertificationForm() {
       )}
 
       <div className="flex gap-4">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => router.push('/dashboard/profile')}
-          className="w-full"
-        >
-          Cancel
-        </Button>
+        {onCancel && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            className="w-full"
+          >
+            Cancel
+          </Button>
+        )}
+        {!onCancel && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.push('/dashboard/profile')}
+            className="w-full"
+          >
+            Cancel
+          </Button>
+        )}
         <Button type="submit" variant="primary" isLoading={isLoading || isUploading} className="w-full">
-          {isUploading ? 'Uploading photo...' : isLoading ? 'Adding...' : 'Add Certification'}
+          {isUploading ? 'Uploading photo...' : isLoading ? 'Adding...' : `Add ${credentialLabel}`}
         </Button>
       </div>
     </form>

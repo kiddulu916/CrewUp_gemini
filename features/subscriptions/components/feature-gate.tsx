@@ -15,7 +15,7 @@ interface FeatureGateProps {
 
 export function FeatureGate({ children, feature, fallback }: FeatureGateProps) {
   const router = useRouter();
-  const { data: subscription, isLoading, error } = useSubscription();
+  const { data, isLoading, error } = useSubscription();
 
   // Show loading skeleton while checking subscription status
   if (isLoading) {
@@ -44,7 +44,9 @@ export function FeatureGate({ children, feature, fallback }: FeatureGateProps) {
     );
   }
 
-  const isPro = subscription?.status === 'active' && subscription?.stripe_subscription_id !== '';
+  // Check if user is Pro (prefer profile status, fallback to subscription table)
+  const isPro = data?.profileSubscriptionStatus === 'pro' ||
+    (data?.subscription?.status === 'active' && data?.subscription?.stripe_subscription_id !== '');
 
   if (isPro) {
     return <>{children}</>;

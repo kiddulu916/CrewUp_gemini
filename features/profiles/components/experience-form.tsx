@@ -6,7 +6,12 @@ import { Button, Input, Textarea, Card, CardContent, CardHeader, CardTitle } fro
 import { useToast } from '@/components/providers/toast-provider';
 import { addExperience } from '../actions/experience-actions';
 
-export function ExperienceForm() {
+type Props = {
+  onSuccess?: () => void;
+  onCancel?: () => void;
+};
+
+export function ExperienceForm({ onSuccess, onCancel }: Props) {
   const router = useRouter();
   const toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -44,8 +49,12 @@ export function ExperienceForm() {
       }
 
       toast.success('Work experience added successfully!');
-      router.push('/dashboard/profile');
-      router.refresh();
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push('/dashboard/profile');
+        router.refresh();
+      }
     } catch (err: any) {
       const errorMsg = err.message || 'Failed to add work experience';
       setError(errorMsg);
@@ -162,14 +171,26 @@ export function ExperienceForm() {
       )}
 
       <div className="flex gap-4">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => router.push('/dashboard/profile')}
-          className="w-full"
-        >
-          Cancel
-        </Button>
+        {onCancel && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            className="w-full"
+          >
+            Cancel
+          </Button>
+        )}
+        {!onCancel && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.push('/dashboard/profile')}
+            className="w-full"
+          >
+            Cancel
+          </Button>
+        )}
         <Button type="submit" variant="primary" isLoading={isLoading} className="w-full">
           {isLoading ? 'Adding...' : 'Add Experience'}
         </Button>

@@ -9,6 +9,7 @@ import { MessageList } from './message-list';
 import { MessageInput } from './message-input';
 import { markMessagesAsRead } from '../actions/message-actions';
 import { createClient } from '@/lib/supabase/client';
+import { InitialsAvatar } from '@/lib/utils/initials-avatar';
 
 type Props = {
   conversationId: string;
@@ -71,9 +72,17 @@ export function ChatWindow({ conversationId, otherParticipant }: Props) {
       {otherParticipant && (
         <div className="border-b-2 border-gray-200 bg-gradient-to-r from-krewup-blue to-krewup-light-blue p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-krewup-blue font-bold shadow-md">
-              {otherParticipant.name.charAt(0).toUpperCase()}
-            </div>
+            {otherParticipant.profile_image_url ? (
+              <img
+                src={otherParticipant.profile_image_url}
+                alt={otherParticipant.name}
+                className="h-10 w-10 rounded-full object-cover border-2 border-white shadow-md"
+              />
+            ) : (
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-krewup-blue font-bold shadow-md">
+                {otherParticipant.name.charAt(0).toUpperCase()}
+              </div>
+            )}
             <div>
               <h2 className="text-lg font-bold text-white">{otherParticipant.name}</h2>
               <p className="text-sm text-blue-100">Active conversation</p>

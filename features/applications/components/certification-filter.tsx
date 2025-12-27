@@ -6,27 +6,13 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useIsPro } from '@/features/subscriptions/hooks/use-subscription';
 import { useRouter } from 'next/navigation';
+import { ALL_CERTIFICATIONS } from '@/lib/constants';
 
 interface CertificationFilterProps {
   onFilterChange: (certifications: string[], verifiedOnly: boolean) => void;
   initialCertifications?: string[];
   initialVerifiedOnly?: boolean;
 }
-
-const COMMON_CERTIFICATIONS = [
-  'OSHA 10',
-  'OSHA 30',
-  'First Aid',
-  'CPR',
-  'Journeyman License',
-  'Master License',
-  'Forklift Certification',
-  'Welding Certification',
-  'Electrical License',
-  'Plumbing License',
-  'HVAC Certification',
-  'EPA Certification',
-];
 
 export function CertificationFilter({
   onFilterChange,
@@ -123,11 +109,11 @@ export function CertificationFilter({
         </p>
       </div>
 
-      {/* Common Certifications */}
+      {/* Certifications */}
       <div className="mb-4">
-        <p className="text-sm font-medium mb-2">Common Certifications:</p>
+        <p className="text-sm font-medium mb-2">Certifications:</p>
         <div className="flex flex-wrap gap-2">
-          {COMMON_CERTIFICATIONS.map((cert) => (
+          {ALL_CERTIFICATIONS.map((cert) => (
             <button
               key={cert}
               onClick={() => handleToggleCert(cert)}

@@ -166,7 +166,21 @@ export const EMPLOYER_TYPES = ['contractor', 'recruiter'] as const;
 // Subscription levels
 export const SUBSCRIPTION_LEVELS = ['Free', 'Pro'] as const;
 
-// Certification types
+// Import new organized certifications and licenses
+export {
+  ALL_CERTIFICATIONS,
+  CERTIFICATION_CATEGORIES,
+  type WorkerCertification
+} from './constants/certifications';
+
+export {
+  ALL_LICENSES,
+  LICENSE_CATEGORIES,
+  type ContractorLicense
+} from './constants/licenses';
+
+// Backward compatibility - deprecated
+/** @deprecated Use ALL_CERTIFICATIONS instead */
 export const CERTIFICATIONS = [
   'OSHA 10',
   'OSHA 30',

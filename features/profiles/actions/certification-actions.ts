@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 
 export type CertificationData = {
+  credential_category: 'license' | 'certification';
   certification_type: string;
   certification_number?: string;
   issued_by?: string;
@@ -34,16 +35,42 @@ export async function addCertification(data: CertificationData): Promise<Certifi
     return { success: false, error: 'Not authenticated' };
   }
 
+  // Get user's profile to determine role and employer_type
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role, employer_type')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile) {
+    return { success: false, error: 'Profile not found' };
+  }
+
+  // Validate credential_category matches user role
+  if (profile.role === 'worker' && data.credential_category !== 'certification') {
+    return { success: false, error: 'Workers can only add certifications' };
+  }
+
+  if (profile.role === 'employer' && profile.employer_type === 'contractor'
+      && data.credential_category !== 'license') {
+    return { success: false, error: 'Contractors can only add licenses' };
+  }
+
+  if (profile.role === 'employer' && profile.employer_type === 'recruiter') {
+    return { success: false, error: 'Recruiters cannot add credentials' };
+  }
+
   // Validate required fields
   if (!data.certification_type || data.certification_type.trim().length === 0) {
     return { success: false, error: 'Certification type is required' };
   }
 
-  // Insert certification
+  // Insert certification with credential_category
   const { data: certification, error: insertError } = await supabase
     .from('certifications')
     .insert({
       user_id: user.id,
+      credential_category: data.credential_category,
       certification_type: data.certification_type.trim(),
       certification_number: data.certification_number?.trim() || null,
       issued_by: data.issued_by?.trim() || null,

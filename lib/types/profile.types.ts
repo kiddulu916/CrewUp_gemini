@@ -82,6 +82,7 @@ export interface ProfessionalReference {
 export interface Certification {
   id: string;
   user_id: string;
+  credential_category: 'license' | 'certification';
   certification_type: string;
   image_url: string;
   is_verified: boolean;

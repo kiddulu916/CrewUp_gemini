@@ -57,16 +57,10 @@ export default async function ConversationPage({ params }: Props) {
       ? conversation.participant_2_id
       : conversation.participant_1_id;
 
-  console.log('[ConversationPage] Loading conversation:', {
-    conversationId,
-    userId: user.id,
-    otherParticipantId
-  });
-
   // Fetch other participant's profile
   const { data: otherProfile, error: profileError } = await supabase
     .from('profiles')
-    .select('id, name')
+    .select('id, name, profile_image_url')
     .eq('id', otherParticipantId)
     .single();
 
@@ -114,9 +108,17 @@ export default async function ConversationPage({ params }: Props) {
             </svg>
           </Link>
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-krewup-blue font-bold shadow-md text-sm">
-              {otherProfile.name.charAt(0).toUpperCase()}
-            </div>
+            {otherProfile.profile_image_url ? (
+              <img
+                src={otherProfile.profile_image_url}
+                alt={otherProfile.name}
+                className="h-8 w-8 rounded-full object-cover border-2 border-white shadow-md"
+              />
+            ) : (
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-krewup-blue font-bold shadow-md text-sm">
+                {otherProfile.name.charAt(0).toUpperCase()}
+              </div>
+            )}
             <h1 className="text-lg font-bold text-white">{otherProfile.name}</h1>
           </div>
         </div>
