@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -493,7 +493,7 @@ export default function UsersPage() {
                 <CardContent>
                   <div className="grid grid-cols-2 gap-4">
                     {!moderationStatus?.isBanned && (
-                      <>
+                      <React.Fragment key="moderation-actions">
                         <Button
                           variant="secondary"
                           onClick={() => setShowSuspendDialog(true)}
@@ -508,10 +508,11 @@ export default function UsersPage() {
                         >
                           Ban User
                         </Button>
-                      </>
+                      </React.Fragment>
                     )}
                     {moderationStatus?.isBanned && (
                       <Button
+                        key="unban-action"
                         variant="primary"
                         onClick={handleUnbanUser}
                         disabled={actionLoading}
@@ -522,6 +523,7 @@ export default function UsersPage() {
                     )}
                     {selectedUser.subscription_status === 'free' ? (
                       <Button
+                        key="grant-pro-action"
                         variant="primary"
                         onClick={() => setShowGrantProDialog(true)}
                         disabled={actionLoading}
@@ -531,6 +533,7 @@ export default function UsersPage() {
                       </Button>
                     ) : (
                       <Button
+                        key="revoke-pro-action"
                         variant="secondary"
                         onClick={handleRevokePro}
                         disabled={actionLoading}
