@@ -19,7 +19,7 @@ export default async function FeedPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('*')
+    .select('*, is_admin')
     .eq('id', user.id)
     .single();
 
@@ -76,6 +76,28 @@ export default async function FeedPage() {
           Here's what's happening in your network
         </p>
       </div>
+
+      {/* Admin Panel Button - Only visible to admins */}
+      {profile?.is_admin && (
+        <Card className="border-blue-500 bg-blue-50">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-blue-900">Admin Panel</h3>
+                <p className="text-sm text-blue-700 mt-1">
+                  Manage certifications, users, and platform settings
+                </p>
+              </div>
+              <a
+                href="/admin/dashboard"
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+              >
+                Go to Admin Panel →
+              </a>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>
