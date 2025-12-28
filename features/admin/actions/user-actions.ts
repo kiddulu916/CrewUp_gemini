@@ -367,7 +367,7 @@ export async function getUserModerationHistory(userId: string) {
     .select(
       `
       *,
-      actioned_by_profile:profiles!user_moderation_actions_actioned_by_fkey(name)
+      actioned_by_profile:profiles!actioned_by(name)
     `
     )
     .eq('user_id', userId)
