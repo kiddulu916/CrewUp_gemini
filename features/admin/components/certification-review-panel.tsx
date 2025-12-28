@@ -14,8 +14,10 @@ type CertificationWithProfile = {
   id: string;
   user_id: string;
   credential_category: string;
-  certification_type: string;
-  image_url: string;
+  name: string;
+  certification_number?: string;
+  issued_by?: string;
+  photo_url: string;
   verification_status: string;
   verified_at?: string;
   verified_by?: string;
@@ -127,7 +129,7 @@ export function CertificationReviewPanel({ certification, onClose }: Props) {
       <CardHeader className="border-b">
         <div className="flex items-start justify-between">
           <div>
-            <CardTitle>{certification.certification_type}</CardTitle>
+            <CardTitle>{certification.name}</CardTitle>
             <div className="flex gap-2 mt-2">
               <Badge
                 variant={
@@ -176,8 +178,8 @@ export function CertificationReviewPanel({ certification, onClose }: Props) {
               <div className="absolute inset-0 bg-black bg-opacity-90" />
             )}
             <Image
-              src={certification.image_url}
-              alt={certification.certification_type}
+              src={certification.photo_url}
+              alt={certification.name}
               fill
               className={`${isZoomed ? 'object-contain' : 'object-cover'}`}
               sizes={isZoomed ? '100vw' : '600px'}
