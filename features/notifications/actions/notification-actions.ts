@@ -10,8 +10,8 @@ export interface Notification {
   type: 'proximity_alert' | 'application_status' | 'new_message' | 'profile_view';
   title: string;
   message: string;
-  link?: string;
-  read: boolean;
+  data?: any;
+  read_at: string | null;
   created_at: string;
 }
 
@@ -67,7 +67,7 @@ export async function getUnreadCount() {
       .from('notifications')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', user.id)
-      .eq('read', false);
+      .is('read_at', null);
 
     if (error) {
       console.error('Error fetching unread count:', error);
@@ -98,7 +98,7 @@ export async function markNotificationAsRead(notificationId: string) {
 
     const { error } = await supabase
       .from('notifications')
-      .update({ read: true })
+      .update({ read_at: new Date().toISOString() })
       .eq('id', notificationId)
       .eq('user_id', user.id); // Ensure user owns the notification
 
@@ -132,9 +132,9 @@ export async function markAllNotificationsAsRead() {
 
     const { error } = await supabase
       .from('notifications')
-      .update({ read: true })
+      .update({ read_at: new Date().toISOString() })
       .eq('user_id', user.id)
-      .eq('read', false);
+      .is('read_at', null);
 
     if (error) {
       console.error('Error marking all notifications as read:', error);
