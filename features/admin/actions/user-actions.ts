@@ -73,6 +73,26 @@ export async function suspendUser(
 
   console.log('[suspendUser] Successfully inserted:', insertedData);
 
+  // Verify the insert persisted
+  const { data: verifyData, error: verifyError } = await supabase
+    .from('user_moderation_actions')
+    .select('*')
+    .eq('id', insertedData[0].id)
+    .single();
+
+  console.log('[suspendUser] Verification query result:', verifyData);
+  console.log('[suspendUser] Verification query error:', verifyError);
+
+  // Also check with service role
+  const { createServiceClient } = require('@/lib/supabase/server');
+  const serviceSupabase = await createServiceClient(await cookies());
+  const { data: serviceVerify } = await serviceSupabase
+    .from('user_moderation_actions')
+    .select('*')
+    .eq('id', insertedData[0].id)
+    .single();
+  console.log('[suspendUser] Service role verification:', serviceVerify);
+
   // Log activity
   const { error: logError } = await supabase.from('admin_activity_log').insert({
     admin_id: user.id,
