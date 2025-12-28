@@ -30,6 +30,22 @@ export async function signIn(email: string, password: string): Promise<AuthResul
   // Check moderation status using service role (bypasses RLS)
   if (data.user) {
     const serviceSupabase = await createServiceClient(await cookies());
+
+    // Test: Can service role query profiles table?
+    const { data: testProfiles, error: testError } = await serviceSupabase
+      .from('profiles')
+      .select('id')
+      .limit(1);
+    console.log('[signIn] Service role test - Can query profiles?', testProfiles ? 'YES' : 'NO');
+    console.log('[signIn] Service role test error:', testError);
+
+    // Test: Can service role count moderation actions?
+    const { count, error: countError } = await serviceSupabase
+      .from('user_moderation_actions')
+      .select('*', { count: 'exact', head: true });
+    console.log('[signIn] Service role - moderation actions count:', count);
+    console.log('[signIn] Service role - count error:', countError);
+
     const { data: actions, error: moderationError } = await serviceSupabase
       .from('user_moderation_actions')
       .select('*')
