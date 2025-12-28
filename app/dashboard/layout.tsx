@@ -8,6 +8,7 @@ import { InitialsAvatar } from '@/lib/utils/initials-avatar';
 import { cookies } from 'next/headers';
 import { BottomNav } from './bottom-nav';
 import { NotificationBell } from '@/features/notifications/components/notification-bell';
+import { ModerationGuard } from '@/features/auth/components/moderation-guard';
 
 export default async function DashboardLayout({
   children,
@@ -39,6 +40,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50">
+      <ModerationGuard />
       {/* Mobile Header - Visible on mobile, hidden on tablet+ */}
       <header className="fixed top-0 left-0 right-0 z-40 h-16 bg-gradient-to-r from-krewup-blue to-krewup-light-blue shadow-md md:hidden">
         <div className="flex h-full items-center justify-between px-4">

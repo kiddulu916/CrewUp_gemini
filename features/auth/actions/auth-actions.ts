@@ -5,6 +5,8 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 
+const SUPPORT_EMAIL = 'support@krewup.net';
+
 export type AuthResult = {
   success: boolean;
   error?: string;
@@ -16,13 +18,61 @@ export type AuthResult = {
 export async function signIn(email: string, password: string): Promise<AuthResult> {
   const supabase = await createClient(await cookies());
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
   if (error) {
     return { success: false, error: error.message };
+  }
+
+  // Check moderation status
+  if (data.user) {
+    const { data: actions } = await supabase
+      .from('user_moderation_actions')
+      .select('*')
+      .eq('user_id', data.user.id)
+      .in('action_type', ['ban', 'suspension', 'unbanned'])
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    if (actions && actions.length > 0) {
+      // Check for permanent ban
+      const latestBan = actions.find((a) => a.action_type === 'ban');
+      const latestUnban = actions.find((a) => a.action_type === 'unbanned');
+
+      const isBanned =
+        latestBan &&
+        (!latestUnban || new Date(latestBan.created_at) > new Date(latestUnban.created_at));
+
+      if (isBanned) {
+        // Log out the user immediately
+        await supabase.auth.signOut();
+        return {
+          success: false,
+          error: `Your account has been permanently banned.\n\nReason: ${latestBan.reason}\n\nIf you believe this is a mistake, please contact ${SUPPORT_EMAIL} to appeal.`,
+        };
+      }
+
+      // Check for active suspension
+      const activeSuspension = actions.find(
+        (a) =>
+          a.action_type === 'suspension' &&
+          a.expires_at &&
+          new Date(a.expires_at) > new Date()
+      );
+
+      if (activeSuspension) {
+        const expiresDate = new Date(activeSuspension.expires_at).toLocaleString();
+        // Log out the user immediately
+        await supabase.auth.signOut();
+        return {
+          success: false,
+          error: `Your account has been temporarily suspended until ${expiresDate}.\n\nReason: ${activeSuspension.reason}\n\nIf you believe this is a mistake, please contact ${SUPPORT_EMAIL} to appeal.`,
+        };
+      }
+    }
   }
 
   revalidatePath('/', 'layout');
