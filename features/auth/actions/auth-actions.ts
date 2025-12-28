@@ -46,6 +46,21 @@ export async function signIn(email: string, password: string): Promise<AuthResul
     console.log('[signIn] Found actions:', actions?.length || 0);
     if (actions && actions.length > 0) {
       console.log('[signIn] Actions:', JSON.stringify(actions, null, 2));
+    } else {
+      // Debug: Check what user_ids exist in the table
+      const { data: allActions } = await serviceSupabase
+        .from('user_moderation_actions')
+        .select('user_id, action_type, created_at')
+        .limit(5);
+      console.log('[signIn] Sample of all actions in table:', JSON.stringify(allActions, null, 2));
+
+      // Also check the profiles table to see what ID is stored there
+      const { data: profile } = await serviceSupabase
+        .from('profiles')
+        .select('id')
+        .eq('id', data.user.id)
+        .single();
+      console.log('[signIn] Profile exists with this auth user ID?', profile ? 'YES' : 'NO');
     }
 
     if (actions && actions.length > 0) {
