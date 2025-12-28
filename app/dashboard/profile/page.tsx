@@ -33,7 +33,7 @@ export default async function ProfilePage() {
   const { data: certifications } = profile?.role === 'worker'
     ? await supabase
         .from('certifications')
-        .select('*')
+        .select('id, certification_type, certification_number, issued_by, expires_at, is_verified, verification_status, rejection_reason, created_at')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
     : { data: null };
