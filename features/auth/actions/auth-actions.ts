@@ -48,11 +48,21 @@ export async function signIn(email: string, password: string): Promise<AuthResul
       console.log('[signIn] Actions:', JSON.stringify(actions, null, 2));
     } else {
       // Debug: Check what user_ids exist in the table
-      const { data: allActions } = await serviceSupabase
+      const { data: allActions, error: allError } = await serviceSupabase
         .from('user_moderation_actions')
         .select('user_id, action_type, created_at')
         .limit(5);
       console.log('[signIn] Sample of all actions in table:', JSON.stringify(allActions, null, 2));
+      console.log('[signIn] Error querying all actions:', allError);
+
+      // Try to query the specific record we know exists
+      const { data: specificAction, error: specificError } = await serviceSupabase
+        .from('user_moderation_actions')
+        .select('*')
+        .eq('id', '374de1dd-5443-46e4-936b-75d6c055409f')
+        .single();
+      console.log('[signIn] Query for specific known record (374de1dd...):', specificAction);
+      console.log('[signIn] Error:', specificError);
 
       // Also check the profiles table to see what ID is stored there
       const { data: profile } = await serviceSupabase

@@ -71,6 +71,7 @@ export async function createServiceClient(cookieStore: Awaited<ReturnType<typeof
 
   console.log('[createServiceClient] Creating service client with key:',
     supabaseServiceKey.substring(0, 20) + '...');
+  console.log('[createServiceClient] Using Supabase URL:', supabaseUrl);
 
   return createServerClient(
     supabaseUrl!,
