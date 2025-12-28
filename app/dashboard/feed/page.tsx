@@ -68,36 +68,26 @@ export default async function FeedPage() {
       {/* Capture initial location on first visit */}
       <InitialLocationCapture />
 
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">
-          Welcome back, {profile?.name}! 👋
-        </h1>
-        <p className="mt-2 text-gray-600">
-          Here's what's happening in your network
-        </p>
-      </div>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Welcome back, {profile?.name}! 👋
+          </h1>
+          <p className="mt-2 text-gray-600">
+            Here's what's happening in your network
+          </p>
+        </div>
 
-      {/* Admin Panel Button - Only visible to admins */}
-      {profile?.is_admin && (
-        <Card className="border-blue-500 bg-blue-50">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-semibold text-blue-900">Admin Panel</h3>
-                <p className="text-sm text-blue-700 mt-1">
-                  Manage certifications, users, and platform settings
-                </p>
-              </div>
-              <a
-                href="/admin/dashboard"
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
-              >
-                Go to Admin Panel →
-              </a>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+        {/* Admin Panel Button - Only visible to admins */}
+        {profile?.is_admin && (
+          <a
+            href="/admin/dashboard"
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors whitespace-nowrap"
+          >
+            Admin Panel →
+          </a>
+        )}
+      </div>
 
       <Card>
         <CardHeader>
