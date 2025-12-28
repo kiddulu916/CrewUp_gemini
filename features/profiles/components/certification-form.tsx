@@ -139,7 +139,9 @@ export function CertificationForm({ role = 'worker', employerType, onSuccess, on
         return;
       }
 
-      toast.success(`${credentialLabel} added successfully!`);
+      toast.success(
+        `${credentialLabel} submitted for verification! You'll be notified when it's reviewed (usually within 24-48 hours).`
+      );
       if (onSuccess) {
         onSuccess();
       } else {
@@ -393,6 +395,13 @@ export function CertificationForm({ role = 'worker', employerType, onSuccess, on
           <p className="text-sm text-red-800">{error}</p>
         </div>
       )}
+
+      <div className="rounded-lg bg-blue-50 border border-blue-200 p-4">
+        <p className="text-sm text-blue-800">
+          <strong>📋 Verification Process:</strong> All certifications are reviewed by our team
+          within 24-48 hours. You'll receive an email notification once your certification is verified.
+        </p>
+      </div>
 
       <div className="flex gap-4">
         {onCancel && (
