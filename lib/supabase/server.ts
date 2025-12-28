@@ -32,6 +32,7 @@ import { cookies } from 'next/headers';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 export async function createClient(cookieStore: Awaited<ReturnType<typeof cookies>>) {
 
@@ -51,6 +52,33 @@ export async function createClient(cookieStore: Awaited<ReturnType<typeof cookie
           } catch (error) {
             // The `setAll` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing user sessions.
+          }
+        },
+      },
+    }
+  );
+}
+
+/**
+ * Create a Supabase client with service role key (bypasses RLS)
+ * Use with caution - only for server-side operations that need full access
+ */
+export async function createServiceClient(cookieStore: Awaited<ReturnType<typeof cookies>>) {
+  return createServerClient(
+    supabaseUrl!,
+    supabaseServiceKey!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options);
+            });
+          } catch (error) {
+            // Ignore cookie errors in Server Components
           }
         },
       },

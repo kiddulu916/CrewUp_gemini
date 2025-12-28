@@ -1,6 +1,6 @@
 'use server';
 
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 
 export interface ModerationCheckResult {
@@ -25,8 +25,9 @@ export async function checkUserModerationStatus(): Promise<ModerationCheckResult
     return { allowed: true };
   }
 
-  // Get the most recent moderation actions
-  const { data: actions } = await supabase
+  // Get the most recent moderation actions using service role (bypasses RLS)
+  const serviceSupabase = await createServiceClient(await cookies());
+  const { data: actions } = await serviceSupabase
     .from('user_moderation_actions')
     .select('*')
     .eq('user_id', user.id)

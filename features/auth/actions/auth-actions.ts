@@ -1,6 +1,6 @@
 'use server';
 
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
@@ -27,9 +27,10 @@ export async function signIn(email: string, password: string): Promise<AuthResul
     return { success: false, error: error.message };
   }
 
-  // Check moderation status
+  // Check moderation status using service role (bypasses RLS)
   if (data.user) {
-    const { data: actions } = await supabase
+    const serviceSupabase = await createServiceClient(await cookies());
+    const { data: actions } = await serviceSupabase
       .from('user_moderation_actions')
       .select('*')
       .eq('user_id', data.user.id)
