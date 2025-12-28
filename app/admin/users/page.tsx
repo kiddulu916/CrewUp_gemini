@@ -20,7 +20,7 @@ import {
 } from '@/features/admin/actions/user-actions';
 
 type Profile = {
-  user_id: string;
+  id: string;
   name: string;
   email: string;
   role: string;
@@ -80,7 +80,7 @@ export default function UsersPage() {
 
   useEffect(() => {
     if (selectedUser) {
-      fetchUserDetails(selectedUser.user_id);
+      fetchUserDetails(selectedUser.id);
     }
   }, [selectedUser]);
 
@@ -158,7 +158,7 @@ export default function UsersPage() {
     setActionLoading(true);
     try {
       const result = await suspendUser(
-        selectedUser.user_id,
+        selectedUser.id,
         suspendReason,
         suspendDuration
       );
@@ -168,7 +168,7 @@ export default function UsersPage() {
         setShowSuspendDialog(false);
         setSuspendReason('');
         setSuspendDuration(7);
-        fetchUserDetails(selectedUser.user_id);
+        fetchUserDetails(selectedUser.id);
       } else {
         toast.error(result.error || 'Failed to suspend user');
       }
@@ -190,13 +190,13 @@ export default function UsersPage() {
 
     setActionLoading(true);
     try {
-      const result = await banUser(selectedUser.user_id, banReason);
+      const result = await banUser(selectedUser.id, banReason);
 
       if (result.success) {
         toast.success('User permanently banned');
         setShowBanDialog(false);
         setBanReason('');
-        fetchUserDetails(selectedUser.user_id);
+        fetchUserDetails(selectedUser.id);
       } else {
         toast.error(result.error || 'Failed to ban user');
       }
@@ -217,11 +217,11 @@ export default function UsersPage() {
 
     setActionLoading(true);
     try {
-      const result = await unbanUser(selectedUser.user_id);
+      const result = await unbanUser(selectedUser.id);
 
       if (result.success) {
         toast.success('User unbanned');
-        fetchUserDetails(selectedUser.user_id);
+        fetchUserDetails(selectedUser.id);
       } else {
         toast.error(result.error || 'Failed to unban user');
       }
@@ -243,14 +243,14 @@ export default function UsersPage() {
 
     setActionLoading(true);
     try {
-      const result = await grantProSubscription(selectedUser.user_id, proReason);
+      const result = await grantProSubscription(selectedUser.id, proReason);
 
       if (result.success) {
         toast.success('Pro subscription granted');
         setShowGrantProDialog(false);
         setProReason('');
         fetchUsers();
-        fetchUserDetails(selectedUser.user_id);
+        fetchUserDetails(selectedUser.id);
       } else {
         toast.error(result.error || 'Failed to grant Pro subscription');
       }
@@ -270,12 +270,12 @@ export default function UsersPage() {
 
     setActionLoading(true);
     try {
-      const result = await revokeProSubscription(selectedUser.user_id, reason);
+      const result = await revokeProSubscription(selectedUser.id, reason);
 
       if (result.success) {
         toast.success('Pro subscription revoked');
         fetchUsers();
-        fetchUserDetails(selectedUser.user_id);
+        fetchUserDetails(selectedUser.id);
       } else {
         toast.error(result.error || 'Failed to revoke Pro subscription');
       }
@@ -360,10 +360,10 @@ export default function UsersPage() {
                 <div className="space-y-2 max-h-[600px] overflow-y-auto">
                   {filteredUsers.map((user) => (
                     <button
-                      key={user.user_id}
+                      key={user.id}
                       onClick={() => setSelectedUser(user)}
                       className={`w-full text-left p-4 rounded-lg border transition-all ${
-                        selectedUser?.user_id === user.user_id
+                        selectedUser?.user_id === user.id
                           ? 'border-blue-500 bg-blue-50'
                           : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                       }`}
