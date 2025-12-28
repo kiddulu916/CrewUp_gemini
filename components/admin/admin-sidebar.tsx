@@ -17,13 +17,13 @@ export function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-44 bg-gray-900 text-white min-h-screen">
+    <aside className="w-44 bg-gray-900 text-white min-h-screen flex flex-col">
       <div className="p-3">
         <h1 className="text-lg font-bold">KrewUp Admin</h1>
         <p className="text-xs text-gray-400 mt-1">Platform Mgmt</p>
       </div>
 
-      <nav className="px-2 space-y-1 pb-16">
+      <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
         {navigation.map((item) => {
           const isActive =
             pathname === item.href || pathname.startsWith(item.href + '/');
@@ -45,7 +45,7 @@ export function AdminSidebar() {
         })}
       </nav>
 
-      <div className="absolute bottom-0 w-44 p-3 border-t border-gray-800">
+      <div className="p-3 border-t border-gray-800">
         <Link
           href="/dashboard/feed"
           className="flex items-center gap-2 text-xs text-gray-400 hover:text-white transition-colors"
