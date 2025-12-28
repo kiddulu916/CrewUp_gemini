@@ -70,22 +70,22 @@ export default async function DashboardLayout({
 
       {/* Sidebar - Hidden on mobile, visible on tablet+ */}
       <aside className="hidden md:flex w-40 bg-white border-r border-gray-200 shadow-lg">
-        <div className="flex h-full flex-col">
+        <div className="flex h-full flex-col w-full">
           {/* Logo with gradient */}
-          <div className="flex h-20 items-center justify-center bg-gradient-to-r from-krewup-blue to-krewup-light-blue">
-            <Link href="/dashboard/feed" className="flex items-center">
+          <div className="flex h-20 items-center justify-center bg-gradient-to-r from-krewup-blue to-krewup-light-blue w-full">
+            <Link href="/dashboard/feed" className="flex items-center w-full justify-center">
               <Image
                 src="/navbar_logo.png"
                 alt="KrewUp Logo"
-                width={140}
+                width={160}
                 height={80}
-                className="object-contain"
+                className="object-cover w-full"
               />
             </Link>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 space-y-1 px-2 py-4">
+          <nav className="flex-1 space-y-1 px-1 py-4">
             <NavLink href="/dashboard/feed" icon="📰" color="blue">
               Feed
             </NavLink>
@@ -143,8 +143,8 @@ export default async function DashboardLayout({
           </nav>
 
           {/* User Info */}
-          <div className="border-t-2 border-krewup-light-blue p-2 bg-gradient-to-r from-blue-50 to-orange-50">
-            <div className="flex flex-col items-center gap-2">
+          <div className="border-t-2 border-krewup-light-blue p-1 bg-gradient-to-r from-blue-50 to-orange-50 w-full">
+            <div className="flex flex-col items-center gap-1">
               {profile.profile_image_url ? (
                 <img
                   src={profile.profile_image_url}
@@ -155,12 +155,12 @@ export default async function DashboardLayout({
                 <InitialsAvatar name={profile.name} userId={profile.id} size="md" />
               )}
               <div className="w-full text-center">
-                <p className="text-xs font-semibold text-gray-900 truncate px-1">
+                <p className="text-xs font-semibold text-gray-900 truncate">
                   {profile.name.split(' ')[0]}
                 </p>
               </div>
             </div>
-            <div className="mt-2 flex justify-center">
+            <div className="mt-1 flex justify-center w-full">
               <SignOutButton />
             </div>
           </div>
@@ -209,7 +209,7 @@ function NavLink({
   return (
     <Link
       href={href}
-      className={`flex items-center gap-2 rounded-lg px-2 py-2.5 text-xs font-medium transition-all duration-300 text-gray-700 hover:shadow-lg hover:scale-105 hover:border-l-4 ${colorStyles[color]} ${highlightStyles}`}
+      className={`flex items-center gap-1 rounded-lg px-1 py-2.5 text-xs font-medium transition-all duration-300 text-gray-700 hover:shadow-lg hover:scale-105 hover:border-l-4 ${colorStyles[color]} ${highlightStyles}`}
     >
       <span className="text-lg">{icon}</span>
       <span className="truncate font-semibold">{children}</span>
