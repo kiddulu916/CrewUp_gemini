@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 
+      
+
 export const metadata = {
   title: 'Sign Up - KrewUp',
   description: 'Create your KrewUp account',

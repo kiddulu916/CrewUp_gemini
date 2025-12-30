@@ -1,6 +1,8 @@
 // app/pricing/page.tsx
 import { PricingCard } from '@/features/subscriptions/components/pricing-card';
 
+      
+
 export default function PricingPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">

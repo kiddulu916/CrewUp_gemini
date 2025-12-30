@@ -5,6 +5,8 @@ import { MessageButton } from '@/features/messaging/components/message-button';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 
+      
+
 export default async function ApplicationsPage() {
   const supabase = await createClient(await cookies());
 

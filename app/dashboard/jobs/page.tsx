@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { formatRelativeTime } from '@/lib/utils';
 import { cookies } from 'next/headers';
 
+      
+
 export const metadata = {
   title: 'Jobs - KrewUp',
   description: 'Browse and manage job postings',

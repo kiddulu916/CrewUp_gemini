@@ -5,6 +5,8 @@ import { EducationItem } from '@/features/profiles/components/education-item';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 
+      
+
 export const metadata = {
   title: 'Education - KrewUp',
   description: 'Manage your education history',

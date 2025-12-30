@@ -7,6 +7,8 @@ import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 
+      
+
 type Props = {
   params: Promise<{
     id: string;

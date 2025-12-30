@@ -6,6 +6,8 @@ import { getJob } from '@/features/jobs/actions/job-actions';
 import { createClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 
+      
+
 type EditJobPageProps = {
   params: Promise<{ id: string }>;
 };

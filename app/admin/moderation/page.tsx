@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 import { ModerationQueue } from '@/features/admin/components/moderation-queue';
 
+  
+
 export default async function ModerationPage({
   searchParams,
 }: {

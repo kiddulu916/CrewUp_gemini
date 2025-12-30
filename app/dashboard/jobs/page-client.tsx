@@ -7,6 +7,8 @@ import { useJobs } from '@/features/jobs/hooks/use-jobs';
 import { useAutoUserLocation } from '@/hooks/use-user-location';
 import { sortJobsByDistance } from '@/features/jobs/utils/distance';
 
+      
+
 type Job = {
   id: string;
   title: string;

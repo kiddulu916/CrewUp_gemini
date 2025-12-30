@@ -3,6 +3,8 @@ import { redirect, notFound } from 'next/navigation';
 import { ApplicationWizardContainer } from '@/features/applications/components/application-wizard/wizard-container';
 import { cookies } from 'next/headers';
 
+      
+
 type Props = {
   params: Promise<{
     id: string;

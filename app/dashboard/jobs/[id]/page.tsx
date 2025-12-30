@@ -11,6 +11,8 @@ import { JobAnalyticsDashboard } from '@/features/jobs/components/job-analytics-
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 
+      
+
 export default async function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient(await cookies());
   const { id } = await params;

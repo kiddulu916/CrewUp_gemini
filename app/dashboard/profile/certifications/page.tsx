@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation';
 import { CertificationForm } from '@/features/profiles/components/certification-form';
 import { cookies } from 'next/headers';
 
+      
+
 export const metadata = {
   title: 'Add Certification - KrewUp',
   description: 'Add a new certification to your profile',

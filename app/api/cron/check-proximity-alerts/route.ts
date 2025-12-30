@@ -12,6 +12,7 @@ const supabaseAdmin = createClient(
  * Cron job to check for new jobs matching proximity alerts
  * Runs every 10 minutes
  * Protected by Vercel Cron Secret
+ * Note: This route is not functional in static export builds (mobile).
  */
 export async function GET(request: Request) {
   try {

@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server';
 import { AdminSidebar } from '@/components/admin/admin-sidebar';
 import { cookies } from 'next/headers';
 
+    
+
 export default async function AdminLayout({
   children,
 }: {

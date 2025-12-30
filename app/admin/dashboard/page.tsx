@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server';
 import { MetricCard } from '@/components/admin/metric-card';
 import { cookies } from 'next/headers';
 
+ 
+
 export default async function AdminDashboardPage() {
   const supabase = await createClient(await cookies());
 

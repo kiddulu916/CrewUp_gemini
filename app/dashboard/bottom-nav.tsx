@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+      
+
 interface BottomNavProps {
   isWorker: boolean;
   isPro: boolean;

@@ -9,6 +9,8 @@ import { CollapsibleSection, LicensePreviewCard } from '@/components/common';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 
+      
+
 export const metadata = {
   title: 'Profile - KrewUp',
   description: 'View and manage your profile',

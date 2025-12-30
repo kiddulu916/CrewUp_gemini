@@ -10,6 +10,8 @@ import { BottomNav } from './bottom-nav';
 import { NotificationBell } from '@/features/notifications/components/notification-bell';
 import { ModerationGuard } from '@/features/auth/components/moderation-guard';
 
+      
+
 export default async function DashboardLayout({
   children,
 }: {

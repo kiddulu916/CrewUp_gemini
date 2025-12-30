@@ -1,6 +1,8 @@
 // app/dashboard/subscription/page.tsx
 import { SubscriptionManager } from '@/features/subscriptions/components/subscription-manager';
 
+      
+
 export default function SubscriptionPage() {
   return (
     <div className="max-w-2xl mx-auto py-8 px-4">

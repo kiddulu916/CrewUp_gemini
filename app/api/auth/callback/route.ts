@@ -7,6 +7,7 @@ import { cookies } from 'next/headers';
  *
  * This route handles the callback from OAuth providers (Google)
  * and exchanges the authorization code for a session.
+ * Note: This route is not functional in static export builds (mobile).
  */
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);

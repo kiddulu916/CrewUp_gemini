@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { InitialLocationCapture } from '@/features/dashboard/components/initial-location-capture';
 import { cookies } from 'next/headers';
 
+      
+
 export const metadata = {
   title: 'Feed - KrewUp',
   description: 'Your personalized job feed',

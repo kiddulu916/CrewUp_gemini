@@ -5,6 +5,8 @@ import { JobForm } from '@/features/jobs/components/job-form';
 import { ContractorVerificationBanner } from '@/components/common';
 import { cookies } from 'next/headers';
 
+      
+
 export const metadata = {
   title: 'Post a Job - KrewUp',
   description: 'Post a new job opportunity',

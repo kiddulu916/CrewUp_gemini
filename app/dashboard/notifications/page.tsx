@@ -1,5 +1,7 @@
 import { NotificationList } from '@/features/notifications/components/notification-list';
 
+      
+
 export default function NotificationsPage() {
   return (
     <div className="max-w-3xl mx-auto">

@@ -13,6 +13,10 @@ const supabaseAdmin = createClient(
 // Idempotency: Track processed event IDs to prevent duplicate processing
 const processedEvents = new Set<string>();
 
+/**
+ * Stripe webhook handler
+ * Note: This route is not functional in static export builds (mobile).
+ */
 export async function POST(req: NextRequest) {
   const body = await req.text();
   const headersList = await headers();

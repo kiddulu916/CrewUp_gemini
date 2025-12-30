@@ -12,6 +12,7 @@ const supabaseAdmin = createClient(
  * Cron job to reset expired profile boosts
  * Runs daily to check for boosts that have expired
  * Protected by Vercel Cron Secret
+ * Note: This route is not functional in static export builds (mobile).
  */
 export async function GET(request: Request) {
   try {

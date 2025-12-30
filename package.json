@@ -42,6 +42,7 @@
     "browser-image-compression": "^2.0.2",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "export": "^0.1.337",
     "mammoth": "^1.11.0",
     "next": "^16.0.10",
     "pdf-parse": "^2.4.5",

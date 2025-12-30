@@ -3,6 +3,8 @@ import { ProfileForm } from '@/features/profiles/components/profile-form';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 
+      
+
 export const metadata = {
   title: 'Edit Profile - KrewUp',
   description: 'Update your profile information',
