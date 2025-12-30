@@ -187,9 +187,9 @@ export async function fillAndVerify(
 
   // Verify value was set
   await page.waitForFunction(
-    ({ sel, val }) => {
-      const el = document.querySelector(sel) as HTMLInputElement;
-      return el && el.value === val;
+    ({ selector, value }) => {
+      const el = document.querySelector(selector) as HTMLInputElement;
+      return el && el.value === value;
     },
     { selector, value },
     { timeout: 2000 }
@@ -209,9 +209,9 @@ export async function selectAndVerify(
 
   // Verify selection
   await page.waitForFunction(
-    ({ sel, val }) => {
-      const el = document.querySelector(sel) as HTMLSelectElement;
-      return el && el.value === val;
+    ({ selector, value }) => {
+      const el = document.querySelector(selector) as HTMLSelectElement;
+      return el && el.value === value;
     },
     { selector, value },
     { timeout: 2000 }

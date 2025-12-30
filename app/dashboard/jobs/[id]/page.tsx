@@ -227,7 +227,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                       {Object.entries(job.subtrade_pay_rates).map(([subtrade, rate]) => (
                         <div key={subtrade} className="text-base">
                           <span className="font-semibold text-gray-700">{subtrade}:</span>{' '}
-                          <span className="text-krewup-orange">{rate}</span>
+                          <span className="text-krewup-orange">{String(rate)}</span>
                         </div>
                       ))}
                     </div>

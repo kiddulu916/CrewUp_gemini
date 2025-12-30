@@ -312,7 +312,7 @@ export function ModerationReviewPanel({ report, onClose }: Props) {
                   <div className="space-y-1">
                     {Object.entries(reportedContent.subtrade_pay_rates).map(([subtrade, rate]) => (
                       <div key={subtrade} className="text-sm text-gray-900">
-                        <span className="font-semibold">{subtrade}:</span> {rate}
+                        <span className="font-semibold">{subtrade}:</span> {String(rate)}
                       </div>
                     ))}
                   </div>

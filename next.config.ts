@@ -2,6 +2,7 @@ import type { NextConfig } from 'next';
 import { withSentryConfig } from '@sentry/nextjs';
 
 const nextConfig: NextConfig = {
+  output: 'export',
   reactStrictMode: true,
   images: {
     remotePatterns: [
@@ -27,6 +28,8 @@ const nextConfig: NextConfig = {
     }];
   },
 };
+
+module.exports = nextConfig;
 
 export default withSentryConfig(nextConfig, {
   org: "corey-tb",

@@ -29,6 +29,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@capacitor/android": "^8.0.0",
     "@dotenvx/dotenvx": "^1.51.2",
     "@googlemaps/js-api-loader": "^2.0.2",
     "@hookform/resolvers": "^5.2.2",
@@ -55,6 +56,8 @@
     "zustand": "^5.0.9"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
     "@lhci/cli": "^0.15.1",
     "@playwright/experimental-ct-react": "^1.57.0",
     "@playwright/test": "^1.57.0",

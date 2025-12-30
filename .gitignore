@@ -54,3 +54,7 @@ Thumbs.db
 
 # Sentry Config File
 .env.sentry-build-plugin
+__tests__
+playwright-report
+tests
+test-results

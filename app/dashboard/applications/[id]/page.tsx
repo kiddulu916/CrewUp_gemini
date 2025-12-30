@@ -241,7 +241,7 @@ export default async function ApplicationDetailPage({ params }: Props) {
                         {Object.entries(application.job.subtrade_pay_rates).map(([subtrade, rate]) => (
                           <div key={subtrade} className="text-sm">
                             <span className="font-semibold text-gray-700">{subtrade}:</span>{' '}
-                            <span className="text-krewup-orange font-bold">{rate}</span>
+                            <span className="text-krewup-orange font-bold">{String(rate)}</span>
                           </div>
                         ))}
                       </div>
