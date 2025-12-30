@@ -29,6 +29,7 @@ export type JobData = {
   pay_rate: string;
   pay_min?: number;
   pay_max?: number;
+  subtrade_pay_rates?: Record<string, string> | null; // Per-subtrade rates (when 2+ subtrades)
   required_certs?: string[];
   time_length?: string;
   custom_questions?: CustomQuestion[]; // Pro feature
@@ -88,10 +89,11 @@ export async function createJob(data: JobData): Promise<JobResult> {
       p_sub_trade: data.sub_trades?.[0] || data.sub_trade || null,
       p_pay_min: data.pay_min || null,
       p_pay_max: data.pay_max || null,
+      p_subtrade_pay_rates: data.subtrade_pay_rates || null,
       p_required_certs: data.required_certs || null,
       p_time_length: data.time_length || null,
-      p_trades: data.trades || null,
-      p_sub_trades: data.sub_trades || null,
+      p_trades: data.trade_selections?.map(ts => ts.trade) || data.trades || [data.trade],
+      p_sub_trades: data.trade_selections?.flatMap(ts => ts.subTrades) || data.sub_trades || (data.sub_trade ? [data.sub_trade] : []),
       p_trade_selections: data.trade_selections || null,
       p_custom_questions: data.custom_questions || null,
     });
@@ -120,6 +122,7 @@ export async function createJob(data: JobData): Promise<JobResult> {
         pay_rate: data.pay_rate,
         pay_min: data.pay_min,
         pay_max: data.pay_max,
+        subtrade_pay_rates: data.subtrade_pay_rates || null,
         required_certs: data.required_certs || [],
         time_length: data.time_length || null,
         custom_questions: data.custom_questions || null,

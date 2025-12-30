@@ -66,8 +66,7 @@ export function CertificationForm({ role = 'worker', employerType, onSuccess, on
     setPhotoUrl(null);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setError(null);
     setIsLoading(true);
 
@@ -157,7 +156,7 @@ export function CertificationForm({ role = 'worker', employerType, onSuccess, on
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>{credentialLabel} Details</CardTitle>
@@ -424,10 +423,10 @@ export function CertificationForm({ role = 'worker', employerType, onSuccess, on
             Cancel
           </Button>
         )}
-        <Button type="submit" variant="primary" isLoading={isLoading || isUploading} className="w-full">
+        <Button type="button" onClick={handleSubmit} variant="primary" isLoading={isLoading || isUploading} className="w-full">
           {isUploading ? 'Uploading photo...' : isLoading ? 'Adding...' : `Add ${credentialLabel}`}
         </Button>
       </div>
-    </form>
+    </div>
   );
 }

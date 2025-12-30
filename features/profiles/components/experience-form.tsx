@@ -25,8 +25,7 @@ export function ExperienceForm({ onSuccess, onCancel }: Props) {
     description: '',
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setError(null);
     setIsLoading(true);
 
@@ -64,7 +63,7 @@ export function ExperienceForm({ onSuccess, onCancel }: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Work Experience Details</CardTitle>
@@ -191,10 +190,10 @@ export function ExperienceForm({ onSuccess, onCancel }: Props) {
             Cancel
           </Button>
         )}
-        <Button type="submit" variant="primary" isLoading={isLoading} className="w-full">
+        <Button type="button" onClick={handleSubmit} variant="primary" isLoading={isLoading} className="w-full">
           {isLoading ? 'Adding...' : 'Add Experience'}
         </Button>
       </div>
-    </form>
+    </div>
   );
 }

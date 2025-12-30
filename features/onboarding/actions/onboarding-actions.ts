@@ -21,7 +21,9 @@ export type OnboardingData = {
   licenseData?: {
     license_type: string;
     license_number: string;
+    issuing_authority: string;
     issuing_state: string;
+    issue_date: string;
     expires_at: string;
     photo_url: string;
   };
@@ -166,7 +168,9 @@ export async function completeOnboarding(data: OnboardingData): Promise<Onboardi
       credential_category: 'license',
       certification_type: data.licenseData.license_type,
       certification_number: data.licenseData.license_number,
-      issued_by: data.licenseData.issuing_state,
+      issued_by: data.licenseData.issuing_authority,
+      issuing_state: data.licenseData.issuing_state,
+      issue_date: data.licenseData.issue_date,
       expires_at: data.licenseData.expires_at,
       photo_url: data.licenseData.photo_url,
     });

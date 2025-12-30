@@ -21,7 +21,7 @@ export async function getContentReports(status?: string) {
   const { data: profile } = await supabase
     .from('profiles')
     .select('is_admin')
-    .eq('user_id', user.id)
+    .eq('id', user.id)
     .single();
 
   if (!profile?.is_admin) {
@@ -71,7 +71,7 @@ export async function getReportedContent(contentType: string, contentId: string)
   const { data: profile } = await supabase
     .from('profiles')
     .select('is_admin')
-    .eq('user_id', user.id)
+    .eq('id', user.id)
     .single();
 
   if (!profile?.is_admin) {
@@ -102,7 +102,7 @@ export async function getReportedContent(contentType: string, contentId: string)
       const profileResult = await supabase
         .from('profiles')
         .select('*')
-        .eq('user_id', contentId)
+        .eq('id', contentId)
         .single();
       data = profileResult.data;
       error = profileResult.error;
@@ -158,7 +158,7 @@ export async function removeContent(
   const { data: profile } = await supabase
     .from('profiles')
     .select('is_admin')
-    .eq('user_id', user.id)
+    .eq('id', user.id)
     .single();
 
   if (!profile?.is_admin) {
@@ -261,7 +261,7 @@ export async function warnUser(
   const { data: profile } = await supabase
     .from('profiles')
     .select('is_admin')
-    .eq('user_id', user.id)
+    .eq('id', user.id)
     .single();
 
   if (!profile?.is_admin) {
@@ -350,7 +350,7 @@ export async function suspendUserFromReport(
   const { data: profile } = await supabase
     .from('profiles')
     .select('is_admin')
-    .eq('user_id', user.id)
+    .eq('id', user.id)
     .single();
 
   if (!profile?.is_admin) {
@@ -447,7 +447,7 @@ export async function banUserFromReport(
   const { data: profile } = await supabase
     .from('profiles')
     .select('is_admin')
-    .eq('user_id', user.id)
+    .eq('id', user.id)
     .single();
 
   if (!profile?.is_admin) {
@@ -530,7 +530,7 @@ export async function dismissReport(reportId: string, adminNotes: string) {
   const { data: profile } = await supabase
     .from('profiles')
     .select('is_admin')
-    .eq('user_id', user.id)
+    .eq('id', user.id)
     .single();
 
   if (!profile?.is_admin) {

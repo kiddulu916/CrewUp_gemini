@@ -217,10 +217,24 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
               <div>
                 <h3 className="text-sm font-semibold text-gray-500 uppercase mb-1">Pay Rate</h3>
-                <p className="text-lg font-bold text-krewup-orange flex items-center gap-2">
-                  <span className="text-2xl">💰</span>
-                  {job.pay_rate}
-                </p>
+                <div className="text-lg font-bold text-krewup-orange">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-2xl">💰</span>
+                    <span>Compensation</span>
+                  </div>
+                  {job.subtrade_pay_rates && Object.keys(job.subtrade_pay_rates).length > 0 ? (
+                    <div className="ml-8 space-y-2">
+                      {Object.entries(job.subtrade_pay_rates).map(([subtrade, rate]) => (
+                        <div key={subtrade} className="text-base">
+                          <span className="font-semibold text-gray-700">{subtrade}:</span>{' '}
+                          <span className="text-krewup-orange">{rate}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="ml-8 text-base">{job.pay_rate}</div>
+                  )}
+                </div>
               </div>
 
               {job.required_certs && job.required_certs.length > 0 && (
@@ -241,32 +255,30 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
             {/* Employer Info */}
             {isWorker && job.employer && (
-              <div className="bg-gradient-to-br from-blue-50 to-orange-50 rounded-xl p-4 border-2 border-krewup-light-blue">
-                <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Posted By</h3>
-                <div className="space-y-3">
+              <div className="bg-gradient-to-br from-blue-50 to-orange-50 rounded-lg p-3 border border-krewup-light-blue">
+                <h3 className="text-xs font-semibold text-gray-500 uppercase mb-2">Posted By</h3>
+                <div className="space-y-2">
                   <div>
-                    <p className="text-xl font-bold text-gray-900">{job.employer.company_name || job.employer.name}</p>
-                    <p className="text-sm text-gray-600 capitalize">
+                    <p className="text-base font-bold text-gray-900">{job.employer.company_name || job.employer.name}</p>
+                    <p className="text-xs text-gray-600 capitalize">
                       {job.employer.employer_type}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-700">
+                  <div className="text-xs text-gray-700 space-y-1">
+                    <p>
                       <span className="font-semibold">Specialty:</span> {job.employer.trade}
                       {job.employer.sub_trade && ` - ${job.employer.sub_trade}`}
                     </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-700">
+                    <p>
                       <span className="font-semibold">Location:</span> {job.employer.location}
                     </p>
                   </div>
                   {job.employer.bio && (
-                    <div className="pt-2 border-t border-gray-200">
-                      <p className="text-sm text-gray-600 italic">{job.employer.bio}</p>
+                    <div className="pt-1.5 border-t border-gray-200">
+                      <p className="text-xs text-gray-600 italic line-clamp-2">{job.employer.bio}</p>
                     </div>
                   )}
-                  <div className="pt-3">
+                  <div className="pt-2">
                     <MessageButton
                       recipientId={job.employer.id}
                       recipientName={job.employer.name}

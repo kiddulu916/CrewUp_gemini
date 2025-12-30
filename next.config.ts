@@ -10,7 +10,21 @@ const nextConfig: NextConfig = {
         hostname: 'lh3.googleusercontent.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'vfjcpxaplapnuwtzvord.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
     ],
+  },
+  async headers() {
+    return [{
+      source: "/:path*",
+      headers: [{
+        key: "Document-Policy",
+        value: "js-profiling",
+      }],
+    }];
   },
 };
 
@@ -26,14 +40,5 @@ export default withSentryConfig(nextConfig, {
     treeshake: {
       removeDebugLogging: true,
     },
-  },
-  async headers() {
-    return [{
-      source: "/:path*",
-      headers: [{
-        key: "Document-Policy",
-        value: "js-profiling",
-      }],
-    }];
   },
 });

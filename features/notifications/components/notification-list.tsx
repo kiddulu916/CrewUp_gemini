@@ -18,10 +18,10 @@ export function NotificationList() {
   const [markingAllRead, setMarkingAllRead] = useState(false);
 
   const handleMarkAsRead = async (notification: Notification) => {
-    if (notification.read) {
+    if (notification.read_at) {
       // If already read, just navigate
-      if (notification.link) {
-        window.location.href = notification.link;
+      if (notification.data?.link) {
+        window.location.href = notification.data.link;
       }
       return;
     }
@@ -30,8 +30,8 @@ export function NotificationList() {
     queryClient.invalidateQueries({ queryKey: ['notifications'] });
 
     // Navigate if there's a link
-    if (notification.link) {
-      window.location.href = notification.link;
+    if (notification.data?.link) {
+      window.location.href = notification.data.link;
     }
   };
 
@@ -90,7 +90,7 @@ export function NotificationList() {
     );
   }
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const unreadCount = notifications.filter((n) => !n.read_at).length;
 
   return (
     <div className="space-y-4">
@@ -168,7 +168,7 @@ function NotificationItem({ notification, onMarkAsRead, onDelete, isDeleting }: 
   return (
     <Card
       className={`p-4 cursor-pointer transition-all hover:shadow-md ${
-        notification.read ? 'bg-white' : 'bg-blue-50 border-l-4 border-l-blue-600'
+        notification.read_at ? 'bg-white' : 'bg-blue-50 border-l-4 border-l-blue-600'
       }`}
       onClick={onMarkAsRead}
     >
@@ -178,7 +178,7 @@ function NotificationItem({ notification, onMarkAsRead, onDelete, isDeleting }: 
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <h3 className={`text-sm font-semibold ${notification.read ? 'text-gray-900' : 'text-blue-900'}`}>
+          <h3 className={`text-sm font-semibold ${notification.read_at ? 'text-gray-900' : 'text-blue-900'}`}>
             {notification.title}
           </h3>
           <p className="text-sm text-gray-600 mt-0.5">{notification.message}</p>

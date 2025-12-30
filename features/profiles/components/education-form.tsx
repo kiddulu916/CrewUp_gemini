@@ -42,8 +42,7 @@ export function EducationForm({ onSuccess, onCancel }: Props) {
     setFormData((prev) => ({ ...prev, ...updates }));
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit() {
     setError('');
     setIsLoading(true);
 
@@ -71,7 +70,7 @@ export function EducationForm({ onSuccess, onCancel }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="space-y-4">
       {error && (
         <div className="rounded-lg bg-red-50 border border-red-200 p-3">
           <p className="text-sm text-red-800">{error}</p>
@@ -141,10 +140,10 @@ export function EducationForm({ onSuccess, onCancel }: Props) {
             Cancel
           </Button>
         )}
-        <Button type="submit" isLoading={isLoading}>
+        <Button type="button" onClick={handleSubmit} isLoading={isLoading}>
           Add Education
         </Button>
       </div>
-    </form>
+    </div>
   );
 }

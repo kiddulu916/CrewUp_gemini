@@ -2,6 +2,10 @@ import { createClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 import { CertificationQueue } from '@/features/admin/components/certification-queue';
 
+// Force dynamic rendering - always fetch fresh data
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function CertificationsPage({
   searchParams,
 }: {
@@ -20,6 +24,11 @@ export default async function CertificationsPage({
       user_id,
       credential_category,
       certification_type,
+      certification_number,
+      issued_by,
+      issuing_state,
+      issue_date,
+      expires_at,
       image_url,
       verification_status,
       verified_at,
@@ -52,8 +61,21 @@ export default async function CertificationsPage({
   const { data: rawCertifications, error } = await query;
 
   if (error) {
-    console.error('Error fetching certifications:', error);
+    console.error('[admin/certifications] Error fetching certifications:', error);
   }
+
+  // Debug logging
+  console.log('[admin/certifications] Query results:', {
+    status,
+    count: rawCertifications?.length || 0,
+    certifications: rawCertifications?.map((c: any) => ({
+      id: c.id,
+      type: c.certification_type,
+      category: c.credential_category,
+      verification_status: c.verification_status,
+      user: (Array.isArray(c.profiles) ? c.profiles[0]?.name : c.profiles?.name) || 'Unknown'
+    }))
+  });
 
   // Transform the data to flatten the profiles array into a single object
   const certifications = rawCertifications?.map((cert: any) => ({

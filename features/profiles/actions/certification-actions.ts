@@ -9,6 +9,7 @@ export type CertificationData = {
   certification_type: string;
   certification_number?: string;
   issued_by?: string;
+  issuing_state?: string;
   issue_date?: string;
   expires_at?: string;
   photo_url?: string;
@@ -74,10 +75,11 @@ export async function addCertification(data: CertificationData): Promise<Certifi
       certification_type: data.certification_type.trim(),
       certification_number: data.certification_number?.trim() || null,
       issued_by: data.issued_by?.trim() || null,
+      issuing_state: data.issuing_state?.trim() || null,
       issue_date: data.issue_date || null,
       expires_at: data.expires_at || null,
-      photo_url: data.photo_url || null,
-      is_verified: false, // Starts as unverified
+      image_url: data.photo_url || null,
+      verification_status: 'pending', // Starts as pending verification
     })
     .select()
     .single();

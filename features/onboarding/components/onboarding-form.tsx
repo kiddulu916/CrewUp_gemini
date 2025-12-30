@@ -33,7 +33,9 @@ export function OnboardingForm({ initialName = '', initialEmail = '' }: Props) {
   const [licenseData, setLicenseData] = useState({
     license_type: '',
     license_number: '',
+    issuing_authority: '',
     issuing_state: '',
+    issue_date: '',
     expires_at: '',
   });
 
@@ -577,7 +579,19 @@ export function OnboardingForm({ initialName = '', initialEmail = '' }: Props) {
                       />
 
                       <Input
-                        label="Issuing State/Authority"
+                        label="Issuing Authority"
+                        type="text"
+                        placeholder="e.g., California Contractors State License Board"
+                        value={licenseData.issuing_authority}
+                        onChange={(e) =>
+                          setLicenseData({ ...licenseData, issuing_authority: e.target.value })
+                        }
+                        required
+                        helperText="The organization that issued your license"
+                      />
+
+                      <Input
+                        label="Issuing State"
                         type="text"
                         placeholder="e.g., California"
                         value={licenseData.issuing_state}
@@ -586,6 +600,17 @@ export function OnboardingForm({ initialName = '', initialEmail = '' }: Props) {
                         }
                         required
                         helperText="State that issued your license"
+                      />
+
+                      <Input
+                        label="Date Issued"
+                        type="date"
+                        value={licenseData.issue_date}
+                        onChange={(e) =>
+                          setLicenseData({ ...licenseData, issue_date: e.target.value })
+                        }
+                        required
+                        helperText="When your license was issued"
                       />
 
                       <Input
@@ -709,7 +734,9 @@ export function OnboardingForm({ initialName = '', initialEmail = '' }: Props) {
                       (formData.employer_type === 'contractor' &&
                         (!licenseData.license_type ||
                           !licenseData.license_number ||
+                          !licenseData.issuing_authority ||
                           !licenseData.issuing_state ||
+                          !licenseData.issue_date ||
                           !licenseData.expires_at ||
                           !licenseFile)))
                 }

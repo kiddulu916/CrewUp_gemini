@@ -1,8 +1,8 @@
-// Worker Certifications organized by trade
+// Worker Certifications organized by Trades
 // Data from docs/certifications-organized.md
 
 export const CERTIFICATION_CATEGORIES = {
-  'Electrical Trade': [
+  'Electrical': [
     'General Electrician',
     'Residential Electrician',
     'Fire/Life Safety Technician',
@@ -10,22 +10,22 @@ export const CERTIFICATION_CATEGORIES = {
     'Non-Residential Lighting Technician',
     'DIR',
   ],
-  'Plumbing Trade': [
+  'Plumbing': [
     'Journey-Level Plumber',
     'Registered Apprentice',
   ],
-  'HVAC and Refrigeration Trade': [
+  'HVAC and Refrigeration': [
     'Universal EPA 608',
     'EPA 608 Type I',
     'EPA 608 Type II',
     'EPA 608 Type III',
     'NATE',
   ],
-  'Welding Trade': [
+  'Welding': [
     'AWS',
     'LADBS Certified Welder',
   ],
-  'Safety and General Construction': [
+  'Safety': [
     'OSHA 10',
     'OSHA 30',
     'HAZWOPER',
@@ -43,7 +43,7 @@ export const CERTIFICATION_CATEGORIES = {
     'CSST',
     'DOSH/Cal-OSHA',
   ],
-  'Heavy Equipment and Specialized Operations': [
+  'Heavy Equipment': [
     'NCCCO',
     'Forklift Operator',
   ],
@@ -51,7 +51,7 @@ export const CERTIFICATION_CATEGORIES = {
     'Flagger',
     'TCT',
   ],
-  'Inspection and Code Compliance': [
+  'Inspection & Compliance': [
     'ICC: B1/B2/B3',
     'ICC: E1/E2',
     'ICC: P1/P2',
@@ -66,7 +66,7 @@ export const CERTIFICATION_CATEGORIES = {
     'IOR: Class C',
     'CESSWI',
   ],
-  'Green Building and Energy Efficiency': [
+  'Green Energy & Efficiency': [
     'LEED Green',
     'LEED AP',
     'LEED AP: BD+C',
@@ -78,7 +78,7 @@ export const CERTIFICATION_CATEGORIES = {
     'CALGreen Inspector',
     'Title 24',
   ],
-  'Construction Management and Professional Administration': [
+  'Management & Administration': [
     'CCM',
     'CAC',
     'CPC',
@@ -89,7 +89,7 @@ export const CERTIFICATION_CATEGORIES = {
     'CST: Level III',
     'CST: Level IV',
   ],
-  'Environmental and Civil Infrastructure': [
+  'Environmental & Civil Infra': [
     'SWRCB: D1',
     'SWRCB: D2',
     'SWRCB: D3',
@@ -105,3 +105,30 @@ export const ALL_CERTIFICATIONS = Object.values(CERTIFICATION_CATEGORIES).flat()
 
 // Type for worker certification
 export type WorkerCertification = typeof ALL_CERTIFICATIONS[number];
+
+// Map trade names to certification categories for filtering
+export const TRADE_TO_CERT_CATEGORY: Record<string, string> = {
+  'Operating Engineers': 'Heavy Equipment',
+  'Demolition Specialists': 'Safety',
+  'Craft Laborers': 'Safety',
+  'Ironworkers': 'Welding',
+  'Concrete Masons & Cement Finishers': 'Inspection & Compliance',
+  'Carpenters (Rough)': 'Safety',
+  'Masons': 'Inspection & Compliance',
+  'Roofers': 'Safety',
+  'Glaziers': 'Safety',
+  'Insulation Workers': 'Hazardous Materials',
+  'Electricians': 'Electrical',
+  'Plumbers & Pipefitters': 'Plumbing',
+  'HVAC & Sheet Metal Workers': 'HVAC and Refrigeration',
+  'Drywall & Lathers': 'Safety',
+  'Painters & Wall Coverers': 'Hazardous Materials',
+  'Flooring Installers': 'Safety',
+  'Finish Carpenters': 'Safety',
+  'Millwrights': 'Heavy Equipment',
+  'Elevator Constructors': 'Safety',
+  'Fence Erectors': 'Safety',
+  'Commercial Divers': 'Safety',
+  'Green Energy Technicians': 'Green Energy & Efficiency',
+  'Administration': 'Management & Administration',
+};

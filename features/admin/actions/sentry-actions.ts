@@ -60,24 +60,16 @@ function getSentryConfig() {
     return null;
   }
 
-  // Parse DSN to extract organization and project
-  // DSN format: https://<key>@<org>.ingest.sentry.io/<project>
-  try {
-    const url = new URL(dsn);
-    const pathParts = url.pathname.split('/');
-    const projectId = pathParts[pathParts.length - 1];
-    const hostParts = url.hostname.split('.');
-    const org = hostParts[0];
+  // Use organization slug from next.config.ts (not parsed from DSN)
+  // DSN contains org ID, but API needs org slug
+  const organization = 'corey-tb'; // From next.config.ts
+  const project = 'krewup'; // From next.config.ts
 
-    return {
-      organization: org,
-      project: projectId,
-      authToken,
-    };
-  } catch (error) {
-    console.error('Failed to parse Sentry DSN:', error);
-    return null;
-  }
+  return {
+    organization,
+    project,
+    authToken,
+  };
 }
 
 /**

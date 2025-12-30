@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { UseFormReturn, Controller, useFieldArray } from 'react-hook-form';
+import { UseFormReturn, Controller } from 'react-hook-form';
 import { ApplicationFormData } from '../../types/application.types';
 import { Input } from '@/components/ui';
 
@@ -9,35 +9,6 @@ type Props = {
   form: UseFormReturn<Partial<ApplicationFormData>>;
   jobTrades: string[];
 };
-
-// SVG Icons
-const PlusIcon = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-  </svg>
-);
-
-const TrashIcon = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-    />
-  </svg>
-);
-
-const BadgeCheckIcon = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
-    />
-  </svg>
-);
 
 // Comprehensive trade skills organized by category (Key Skills from each trade)
 const TRADE_SKILLS_BY_CATEGORY: Record<string, string[]> = {
@@ -281,12 +252,6 @@ export function Step7Skills({ form, jobTrades }: Props) {
     setValue,
   } = form;
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'certifications',
-  });
-
-  const [expandedCertIndex, setExpandedCertIndex] = useState<number>(-1);
   const [skillSearch, setSkillSearch] = useState('');
 
   const selectedSkills = watch('tradeSkills') || [];
@@ -325,22 +290,12 @@ export function Step7Skills({ form, jobTrades }: Props) {
     }
   }
 
-  function addCertification() {
-    append({
-      id: crypto.randomUUID(),
-      name: '',
-      issuingOrganization: '',
-      expirationDate: '',
-    });
-    setExpandedCertIndex(fields.length);
-  }
-
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">Skills & Certifications</h2>
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">Skills & Experience</h2>
         <p className="text-gray-600">
-          Select your relevant skills and list any certifications you hold.
+          Tell us about your experience and select your relevant trade skills.
         </p>
       </div>
 
@@ -444,145 +399,6 @@ export function Step7Skills({ form, jobTrades }: Props) {
         )}
       </div>
 
-      {/* Certifications Section */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium text-gray-900">Professional Certifications</h3>
-        <p className="text-sm text-gray-600">
-          Add any relevant certifications (OSHA, trade licenses, safety training, etc.)
-        </p>
-
-        {fields.length === 0 && (
-          <div className="text-center py-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-            <BadgeCheckIcon className="mx-auto h-10 w-10 text-gray-400" />
-            <p className="mt-2 text-sm text-gray-600">No certifications added</p>
-            <p className="text-xs text-gray-500 mt-1">Certifications are optional but recommended</p>
-          </div>
-        )}
-
-        {fields.map((field, index) => {
-          const isExpanded = expandedCertIndex === index;
-          const certName = watch(`certifications.${index}.name`);
-          const issuingOrg = watch(`certifications.${index}.issuingOrganization`);
-
-          return (
-            <div
-              key={field.id}
-              className="bg-white border border-gray-300 rounded-lg overflow-hidden"
-            >
-              {/* Header */}
-              <div
-                className="flex items-center justify-between p-3 bg-gray-50 cursor-pointer hover:bg-gray-100"
-                onClick={() => setExpandedCertIndex(isExpanded ? -1 : index)}
-              >
-                <div className="flex items-center space-x-2">
-                  <BadgeCheckIcon className="h-5 w-5 text-gray-600" />
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-900">
-                      {certName || `Certification ${index + 1}`}
-                    </h4>
-                    {issuingOrg && <p className="text-xs text-gray-500">{issuingOrg}</p>}
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    remove(index);
-                  }}
-                  className="text-red-600 hover:text-red-800 p-1"
-                >
-                  <TrashIcon className="h-4 w-4" />
-                </button>
-              </div>
-
-              {/* Expanded Form */}
-              {isExpanded && (
-                <div className="p-3 space-y-3">
-                  {/* Certification Name */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Certification Name <span className="text-red-500">*</span>
-                    </label>
-                    <Controller
-                      name={`certifications.${index}.name`}
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          {...field}
-                          type="text"
-                          placeholder="OSHA 30, Journeyman License, etc."
-                          className={
-                            errors.certifications?.[index]?.name ? 'border-red-500' : ''
-                          }
-                        />
-                      )}
-                    />
-                    {errors.certifications?.[index]?.name && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {errors.certifications[index]?.name?.message}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Issuing Organization */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Issuing Organization <span className="text-red-500">*</span>
-                    </label>
-                    <Controller
-                      name={`certifications.${index}.issuingOrganization`}
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          {...field}
-                          type="text"
-                          placeholder="OSHA, State Licensing Board, etc."
-                          className={
-                            errors.certifications?.[index]?.issuingOrganization
-                              ? 'border-red-500'
-                              : ''
-                          }
-                        />
-                      )}
-                    />
-                    {errors.certifications?.[index]?.issuingOrganization && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {errors.certifications[index]?.issuingOrganization?.message}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Expiration Date */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Expiration Date (Optional)
-                    </label>
-                    <Controller
-                      name={`certifications.${index}.expirationDate`}
-                      control={control}
-                      render={({ field }) => (
-                        <Input {...field} type="date" />
-                      )}
-                    />
-                    <p className="mt-1 text-xs text-gray-500">Leave blank if no expiration</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
-
-        {/* Add Certification Button */}
-        <button
-          type="button"
-          onClick={addCertification}
-          className="w-full flex items-center justify-center space-x-2 px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-700 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-        >
-          <PlusIcon className="h-5 w-5" />
-          <span className="font-medium">Add Certification</span>
-        </button>
-      </div>
-
       {/* Info Box */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <div className="flex">
@@ -605,8 +421,8 @@ export function Step7Skills({ form, jobTrades }: Props) {
             <h3 className="text-sm font-medium text-blue-800">Showcase your expertise</h3>
             <p className="mt-1 text-sm text-blue-700">
               Select all skills you're proficient in. More skills increase your chances of matching
-              with relevant jobs. Pro tip: Employers filter by certifications, so list all valid
-              ones!
+              with relevant jobs. Employers can view your certifications on your profile to verify
+              your qualifications.
             </p>
           </div>
         </div>

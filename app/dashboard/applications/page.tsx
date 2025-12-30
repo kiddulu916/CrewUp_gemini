@@ -44,6 +44,7 @@ export default async function ApplicationsPage() {
           sub_trade,
           location,
           pay_rate,
+          subtrade_pay_rates,
           job_type,
           status,
           employer:profiles!employer_id(
@@ -125,43 +126,38 @@ export default async function ApplicationsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-6">
+        <div className="grid gap-3">
           {applications.map((app: any) => (
             <Card
               key={app.id}
-              className="shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-gray-200 hover:border-krewup-blue"
+              className="shadow hover:shadow-lg transition-all duration-200 border border-gray-200 hover:border-krewup-blue"
             >
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 space-y-4">
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 space-y-2">
                     {/* Job/Worker Header */}
                     {isWorker ? (
                       <div>
-                        <Link
-                          href={`/dashboard/jobs/${app.job.id}`}
-                          className="group"
-                        >
-                          <h3 className="text-2xl font-bold text-gray-900 group-hover:text-krewup-blue transition-colors">
+                        <Link href={`/dashboard/jobs/${app.job.id}`} className="group">
+                          <h3 className="text-lg font-bold text-gray-900 group-hover:text-krewup-blue transition-colors">
                             {app.job.title}
                           </h3>
                         </Link>
-                        <div className="flex items-center gap-2 mt-2">
-                          <p className="text-gray-600">
-                            {app.job.employer.name} • {app.job.employer.employer_type}
-                          </p>
-                        </div>
+                        <p className="text-sm text-gray-600 mt-0.5">
+                          👤 {app.job.employer.name} • {app.job.employer.employer_type}
+                        </p>
                       </div>
                     ) : (
                       <div>
-                        <div className="flex items-center gap-3 mb-2">
-                          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-krewup-blue to-krewup-orange text-white font-bold text-lg shadow-lg">
+                        <div className="flex items-center gap-2">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-krewup-blue to-krewup-orange text-white font-bold text-sm">
                             {app.applicant.name.charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <h3 className="text-xl font-bold text-gray-900">
+                            <h3 className="text-lg font-bold text-gray-900">
                               {app.applicant.name}
                             </h3>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-xs text-gray-600">
                               {app.applicant.trade}
                               {app.applicant.sub_trade && ` - ${app.applicant.sub_trade}`}
                             </p>
@@ -169,61 +165,36 @@ export default async function ApplicationsPage() {
                         </div>
                         <Link
                           href={`/dashboard/jobs/${app.job.id}`}
-                          className="text-sm text-krewup-blue hover:underline"
+                          className="text-xs text-krewup-blue hover:underline inline-block mt-1"
                         >
                           Applied to: {app.job.title}
                         </Link>
                       </div>
                     )}
 
-                    {/* Details Grid */}
-                    <div className="grid md:grid-cols-2 gap-4">
+                    {/* Compact Details Line */}
+                    <div className="flex items-center gap-3 text-sm text-gray-600 flex-wrap">
                       {isWorker ? (
                         <>
-                          <div>
-                            <p className="text-sm text-gray-500">Location</p>
-                            <p className="text-gray-900 font-medium">{app.job.location}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-500">Pay Rate</p>
-                            <p className="text-krewup-orange font-bold">{app.job.pay_rate}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-500">Trade</p>
-                            <p className="text-gray-900">
-                              {app.job.trade}
-                              {app.job.sub_trade && ` - ${app.job.sub_trade}`}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-500">Job Type</p>
-                            <p className="text-gray-900">{app.job.job_type}</p>
-                          </div>
+                          <span>📍 {app.job.location}</span>
+                          <span className="text-gray-400">•</span>
+                          <span>🔨 {app.job.trade}{app.job.sub_trade && ` - ${app.job.sub_trade}`}</span>
+                          <span className="text-gray-400">•</span>
+                          <span>📋 {app.job.job_type}</span>
                         </>
                       ) : (
                         <>
-                          <div>
-                            <p className="text-sm text-gray-500">Worker Location</p>
-                            <p className="text-gray-900 font-medium">{app.applicant.location}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-500">Position</p>
-                            <p className="text-gray-900">
-                              {app.job.trade}
-                              {app.job.sub_trade && ` - ${app.job.sub_trade}`}
-                            </p>
-                          </div>
+                          <span>📍 {app.applicant.location}</span>
+                          <span className="text-gray-400">•</span>
+                          <span>🔨 {app.job.trade}{app.job.sub_trade && ` - ${app.job.sub_trade}`}</span>
                         </>
                       )}
                     </div>
 
-                    {/* Cover Letter */}
+                    {/* Cover Letter - Truncated */}
                     {app.cover_letter && (
-                      <div className="bg-gradient-to-br from-blue-50 to-orange-50 rounded-lg p-4 border-l-4 border-krewup-blue">
-                        <p className="text-sm font-semibold text-gray-700 mb-2">
-                          Cover Letter:
-                        </p>
-                        <p className="text-sm text-gray-700 leading-relaxed">
+                      <div className="bg-blue-50 rounded p-2 border-l-2 border-krewup-blue">
+                        <p className="text-xs text-gray-700 line-clamp-2">
                           {app.cover_letter}
                         </p>
                       </div>
@@ -231,19 +202,12 @@ export default async function ApplicationsPage() {
 
                     {/* Applied Date */}
                     <p className="text-xs text-gray-500">
-                      Applied on{' '}
-                      {new Date(app.created_at).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: 'numeric',
-                        minute: '2-digit',
-                      })}
+                      📅 {new Date(app.created_at).toLocaleDateString()}
                     </p>
                   </div>
 
                   {/* Status Badge & Actions */}
-                  <div className="flex flex-col items-end gap-3">
+                  <div className="flex flex-col items-end gap-2">
                     <Badge
                       variant={
                         app.status === 'pending'
@@ -256,24 +220,23 @@ export default async function ApplicationsPage() {
                           ? 'info'
                           : 'default'
                       }
-                      className="text-sm px-3 py-1 capitalize"
+                      className="text-xs px-2 py-0.5 capitalize"
                     >
                       {app.status}
                     </Badge>
 
-                    {/* Message Button - Employers can message applicants */}
                     {!isWorker && (
                       <MessageButton
                         recipientId={app.applicant.id}
                         recipientName={app.applicant.name}
                         variant="outline"
-                        className="text-xs"
+                        className="text-xs px-2 py-1"
                       />
                     )}
 
                     <Link
                       href={`/dashboard/applications/${app.id}`}
-                      className="text-sm text-krewup-blue hover:underline font-medium"
+                      className="text-xs text-krewup-blue hover:underline font-medium"
                     >
                       View Details →
                     </Link>

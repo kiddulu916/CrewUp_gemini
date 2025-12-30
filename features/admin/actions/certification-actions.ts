@@ -18,7 +18,7 @@ export async function approveCertification(certificationId: string) {
   const { data: profile } = await supabase
     .from('profiles')
     .select('is_admin')
-    .eq('user_id', user.id)
+    .eq('id', user.id)
     .single();
 
   if (!profile?.is_admin) {
@@ -56,7 +56,7 @@ export async function approveCertification(certificationId: string) {
     const { error: profileError } = await supabase
       .from('profiles')
       .update({ can_post_jobs: true })
-      .eq('user_id', cert.user_id);
+      .eq('id', cert.user_id);
 
     if (profileError) {
       console.error('Error updating profile:', profileError);
@@ -102,7 +102,7 @@ export async function rejectCertification(
   const { data: profile } = await supabase
     .from('profiles')
     .select('is_admin')
-    .eq('user_id', user.id)
+    .eq('id', user.id)
     .single();
 
   if (!profile?.is_admin) {
@@ -164,7 +164,7 @@ export async function flagCertification(
   const { data: profile } = await supabase
     .from('profiles')
     .select('is_admin')
-    .eq('user_id', user.id)
+    .eq('id', user.id)
     .single();
 
   if (!profile?.is_admin) {

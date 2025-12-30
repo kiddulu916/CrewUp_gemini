@@ -2,19 +2,25 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Card, CardHeader, CardTitle, CardContent, Button, Textarea, Badge } from '@/components/ui';
+import { Card, CardHeader, CardTitle, CardContent, Button, Textarea, Badge, ConfirmDialog } from '@/components/ui';
 import {
   approveCertification,
   rejectCertification,
   flagCertification,
 } from '../actions/certification-actions';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/components/providers/toast-provider';
 
 type CertificationWithProfile = {
   id: string;
   user_id: string;
   credential_category: string;
   certification_type: string;
+  certification_number?: string;
+  issued_by?: string;
+  issuing_state?: string;
+  issue_date?: string;
+  expires_at?: string;
   image_url: string;
   verification_status: string;
   verified_at?: string;
@@ -38,59 +44,63 @@ type Props = {
 
 export function CertificationReviewPanel({ certification, onClose }: Props) {
   const router = useRouter();
+  const toast = useToast();
   const [isZoomed, setIsZoomed] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
   const [flagNotes, setFlagNotes] = useState(certification.verification_notes || '');
   const [isLoading, setIsLoading] = useState(false);
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [showFlagForm, setShowFlagForm] = useState(false);
+  const [showApproveConfirm, setShowApproveConfirm] = useState(false);
+  const [showRejectConfirm, setShowRejectConfirm] = useState(false);
+
+  const handleApproveClick = () => {
+    setShowApproveConfirm(true);
+  };
 
   const handleApprove = async () => {
-    if (!confirm('Are you sure you want to approve this certification?')) {
-      return;
-    }
-
+    setShowApproveConfirm(false);
     setIsLoading(true);
     try {
       const result = await approveCertification(certification.id);
       if (result.success) {
-        alert('Certification approved successfully!');
+        toast.success('Certification approved successfully!');
         router.refresh();
         onClose();
       } else {
-        alert('Failed to approve certification: ' + result.error);
+        toast.error('Failed to approve certification: ' + result.error);
       }
     } catch (error) {
       console.error('Error approving certification:', error);
-      alert('An error occurred while approving the certification');
+      toast.error('An error occurred while approving the certification');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleReject = async () => {
+  const handleRejectClick = () => {
     if (!rejectionReason.trim()) {
-      alert('Please provide a rejection reason');
+      toast.warning('Please provide a rejection reason');
       return;
     }
+    setShowRejectConfirm(true);
+  };
 
-    if (!confirm('Are you sure you want to reject this certification?')) {
-      return;
-    }
-
+  const handleReject = async () => {
+    setShowRejectConfirm(false);
     setIsLoading(true);
     try {
       const result = await rejectCertification(certification.id, rejectionReason);
       if (result.success) {
-        alert('Certification rejected');
+        toast.success('Certification rejected');
         router.refresh();
         onClose();
       } else {
-        alert('Failed to reject certification: ' + result.error);
+        toast.error('Failed to reject certification: ' + result.error);
       }
     } catch (error) {
       console.error('Error rejecting certification:', error);
-      alert('An error occurred while rejecting the certification');
+      toast.error('An error occurred while rejecting the certification');
     } finally {
       setIsLoading(false);
     }
@@ -98,7 +108,7 @@ export function CertificationReviewPanel({ certification, onClose }: Props) {
 
   const handleFlag = async () => {
     if (!flagNotes.trim()) {
-      alert('Please provide flag notes');
+      toast.warning('Please provide flag notes');
       return;
     }
 
@@ -106,15 +116,15 @@ export function CertificationReviewPanel({ certification, onClose }: Props) {
     try {
       const result = await flagCertification(certification.id, flagNotes);
       if (result.success) {
-        alert('Certification flagged for review');
+        toast.success('Certification flagged for review');
         router.refresh();
         setShowFlagForm(false);
       } else {
-        alert('Failed to flag certification: ' + result.error);
+        toast.error('Failed to flag certification: ' + result.error);
       }
     } catch (error) {
       console.error('Error flagging certification:', error);
-      alert('An error occurred while flagging the certification');
+      toast.error('An error occurred while flagging the certification');
     } finally {
       setIsLoading(false);
     }
@@ -230,6 +240,63 @@ export function CertificationReviewPanel({ certification, onClose }: Props) {
           </div>
         </div>
 
+        {/* License/Certification Metadata */}
+        {(certification.certification_number ||
+          certification.issued_by ||
+          certification.issuing_state ||
+          certification.issue_date ||
+          certification.expires_at) && (
+          <div>
+            <h3 className="font-medium text-sm text-gray-700 mb-2">
+              {certification.credential_category === 'license'
+                ? 'License Details'
+                : 'Certification Details'}
+            </h3>
+            <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
+              {certification.certification_number && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">
+                    {certification.credential_category === 'license'
+                      ? 'License Number:'
+                      : 'Certification Number:'}
+                  </span>
+                  <span className="font-medium">
+                    {certification.certification_number}
+                  </span>
+                </div>
+              )}
+              {certification.issued_by && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Issuing Authority:</span>
+                  <span className="font-medium">{certification.issued_by}</span>
+                </div>
+              )}
+              {certification.issuing_state && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Issuing State:</span>
+                  <span className="font-medium">{certification.issuing_state}</span>
+                </div>
+              )}
+              {certification.issue_date && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Date Issued:</span>
+                  <span className="font-medium">
+                    {new Date(certification.issue_date).toLocaleDateString()}
+                  </span>
+                </div>
+              )}
+              {certification.expires_at && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Expiration Date:</span>
+                  <span className="font-medium">
+                    {new Date(certification.expires_at).toLocaleDateString()}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Verification Details (if not pending) */}
         {!isPending && (
           <div>
@@ -277,7 +344,7 @@ export function CertificationReviewPanel({ certification, onClose }: Props) {
             {!showRejectForm && !showFlagForm && (
               <div className="flex gap-3">
                 <Button
-                  onClick={handleApprove}
+                  onClick={handleApproveClick}
                   disabled={isLoading}
                   className="flex-1 bg-green-600 hover:bg-green-700"
                 >
@@ -318,7 +385,7 @@ export function CertificationReviewPanel({ certification, onClose }: Props) {
                 </label>
                 <div className="flex gap-3">
                   <Button
-                    onClick={handleReject}
+                    onClick={handleRejectClick}
                     disabled={isLoading || !rejectionReason.trim()}
                     variant="danger"
                     className="flex-1"
@@ -384,6 +451,27 @@ export function CertificationReviewPanel({ certification, onClose }: Props) {
           </div>
         )}
       </CardContent>
+
+      {/* Confirmation Dialogs */}
+      <ConfirmDialog
+        isOpen={showApproveConfirm}
+        onClose={() => setShowApproveConfirm(false)}
+        onConfirm={handleApprove}
+        title="Approve Certification"
+        message="Are you sure you want to approve this certification? This will verify the credential and update the user's profile."
+        confirmText="Approve"
+        isLoading={isLoading}
+      />
+
+      <ConfirmDialog
+        isOpen={showRejectConfirm}
+        onClose={() => setShowRejectConfirm(false)}
+        onConfirm={handleReject}
+        title="Reject Certification"
+        message="Are you sure you want to reject this certification? The user will be notified with your rejection reason."
+        confirmText="Reject"
+        isLoading={isLoading}
+      />
     </Card>
   );
 }

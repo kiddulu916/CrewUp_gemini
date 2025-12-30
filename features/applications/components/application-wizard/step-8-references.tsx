@@ -108,10 +108,10 @@ export function Step8References({ form }: Props) {
       <div className="space-y-4">
         <div>
           <h3 className="text-lg font-medium text-gray-900 mb-1">
-            Professional References <span className="text-red-500">*</span>
+            Professional References (Optional)
           </h3>
           <p className="text-sm text-gray-600">
-            Provide at least 2 professional references (previous supervisors, coworkers, or clients)
+            You may provide professional references (previous supervisors, coworkers, or clients)
           </p>
         </div>
 
@@ -119,7 +119,7 @@ export function Step8References({ form }: Props) {
           <div className="text-center py-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
             <UserGroupIcon className="mx-auto h-10 w-10 text-gray-400" />
             <p className="mt-2 text-sm text-gray-600">No references added yet</p>
-            <p className="text-xs text-gray-500 mt-1">Add at least 2 references</p>
+            <p className="text-xs text-gray-500 mt-1">References are optional but recommended</p>
           </div>
         )}
 

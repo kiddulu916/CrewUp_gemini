@@ -60,6 +60,7 @@ export default async function ApplicationDetailPage({ params }: Props) {
         job_type,
         location,
         pay_rate,
+        subtrade_pay_rates,
         description,
         required_certs,
         custom_questions,
@@ -235,7 +236,18 @@ export default async function ApplicationDetailPage({ params }: Props) {
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-gray-500">Pay Rate</p>
-                    <p className="text-krewup-orange font-bold">{application.job.pay_rate}</p>
+                    {application.job.subtrade_pay_rates && Object.keys(application.job.subtrade_pay_rates).length > 0 ? (
+                      <div className="space-y-1">
+                        {Object.entries(application.job.subtrade_pay_rates).map(([subtrade, rate]) => (
+                          <div key={subtrade} className="text-sm">
+                            <span className="font-semibold text-gray-700">{subtrade}:</span>{' '}
+                            <span className="text-krewup-orange font-bold">{rate}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-krewup-orange font-bold">{application.job.pay_rate}</p>
+                    )}
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-gray-500">Job Type</p>

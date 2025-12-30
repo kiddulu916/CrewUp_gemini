@@ -21,7 +21,7 @@ export async function getPlatformSettings() {
   const { data: profile } = await supabase
     .from('profiles')
     .select('is_admin')
-    .eq('user_id', user.id)
+    .eq('id', user.id)
     .single();
 
   if (!profile?.is_admin) {
@@ -62,7 +62,7 @@ export async function updatePlatformSetting(
   const { data: profile } = await supabase
     .from('profiles')
     .select('is_admin')
-    .eq('user_id', user.id)
+    .eq('id', user.id)
     .single();
 
   if (!profile?.is_admin) {
@@ -123,7 +123,7 @@ export async function getAdminUsers() {
   const { data: profile } = await supabase
     .from('profiles')
     .select('is_admin')
-    .eq('user_id', user.id)
+    .eq('id', user.id)
     .single();
 
   if (!profile?.is_admin) {
@@ -161,7 +161,7 @@ export async function grantAdminAccess(userId: string, reason: string) {
   const { data: profile } = await supabase
     .from('profiles')
     .select('is_admin')
-    .eq('user_id', user.id)
+    .eq('id', user.id)
     .single();
 
   if (!profile?.is_admin) {
@@ -176,7 +176,7 @@ export async function grantAdminAccess(userId: string, reason: string) {
   const { error: updateError } = await supabase
     .from('profiles')
     .update({ is_admin: true })
-    .eq('user_id', userId);
+    .eq('id', userId);
 
   if (updateError) {
     console.error('Error granting admin access:', updateError);
@@ -217,7 +217,7 @@ export async function revokeAdminAccess(userId: string, reason: string) {
   const { data: profile } = await supabase
     .from('profiles')
     .select('is_admin')
-    .eq('user_id', user.id)
+    .eq('id', user.id)
     .single();
 
   if (!profile?.is_admin) {
@@ -237,7 +237,7 @@ export async function revokeAdminAccess(userId: string, reason: string) {
   const { error: updateError } = await supabase
     .from('profiles')
     .update({ is_admin: false })
-    .eq('user_id', userId);
+    .eq('id', userId);
 
   if (updateError) {
     console.error('Error revoking admin access:', updateError);
@@ -278,7 +278,7 @@ export async function searchUsersForAdmin(query: string) {
   const { data: profile } = await supabase
     .from('profiles')
     .select('is_admin')
-    .eq('user_id', user.id)
+    .eq('id', user.id)
     .single();
 
   if (!profile?.is_admin) {
@@ -323,7 +323,7 @@ export async function getAdminActivityLog(limit: number = 50) {
   const { data: profile } = await supabase
     .from('profiles')
     .select('is_admin')
-    .eq('user_id', user.id)
+    .eq('id', user.id)
     .single();
 
   if (!profile?.is_admin) {

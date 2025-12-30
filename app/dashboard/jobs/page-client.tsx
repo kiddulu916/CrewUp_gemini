@@ -45,7 +45,7 @@ export function JobsPageClient({ initialJobs }: { initialJobs: Job[] }) {
       </div>
 
       {/* Jobs List */}
-      <div className="lg:col-span-3 space-y-4">
+      <div className="lg:col-span-3 space-y-3">
         {isLoading ? (
           <div className="text-center py-12">
             <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-krewup-blue border-r-transparent"></div>

@@ -5,7 +5,7 @@ import { ExperienceItem } from '@/features/profiles/components/experience-item';
 import { EducationItem } from '@/features/profiles/components/education-item';
 import { ProfileViewsList } from '@/features/subscriptions/components/profile-views-list';
 import { InitialsAvatar } from '@/lib/utils/initials-avatar';
-import { CollapsibleSection } from '@/components/common';
+import { CollapsibleSection, LicensePreviewCard } from '@/components/common';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 
@@ -54,6 +54,17 @@ export default async function ProfilePage() {
         .select('*')
         .eq('user_id', user.id)
         .order('graduation_year', { ascending: false, nullsFirst: false })
+    : { data: null };
+
+  // Get contractor license if contractor
+  const { data: contractorLicense } = profile?.role === 'employer' &&
+    profile?.employer_type === 'contractor'
+    ? await supabase
+        .from('certifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('credential_category', 'license')
+        .maybeSingle()
     : { data: null };
 
   return (
@@ -147,6 +158,13 @@ export default async function ProfilePage() {
           </div>
         )}
       </CollapsibleSection>
+
+      {/* Contractor License - Contractors Only */}
+      {profile?.role === 'employer' && profile?.employer_type === 'contractor' && (
+        <CollapsibleSection title="Contractor License" defaultOpen={true}>
+          <LicensePreviewCard license={contractorLicense} />
+        </CollapsibleSection>
+      )}
 
       {/* Who Viewed My Profile - Workers Only */}
       {profile?.role === 'worker' && (

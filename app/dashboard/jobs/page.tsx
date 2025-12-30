@@ -67,11 +67,30 @@ export default async function JobsPage() {
           </p>
         </div>
         {isEmployer && (
-          <Link href="/dashboard/jobs/new">
-            <Button className="shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105">
-              Post a Job
-            </Button>
-          </Link>
+          profile?.can_post_jobs ? (
+            <Link href="/dashboard/jobs/new">
+              <Button className="shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105">
+                Post a Job
+              </Button>
+            </Link>
+          ) : (
+            <div className="relative group">
+              <Button
+                disabled
+                className="cursor-not-allowed opacity-50 shadow-lg"
+              >
+                Post a Job
+              </Button>
+              {/* Tooltip */}
+              <div className="absolute bottom-full mb-2 right-0 hidden group-hover:block z-10">
+                <div className="bg-gray-900 text-white text-sm rounded-lg py-2 px-3 whitespace-nowrap shadow-xl">
+                  License needs to be verified to post jobs
+                  {/* Tooltip arrow */}
+                  <div className="absolute top-full right-4 -mt-1 border-4 border-transparent border-t-gray-900" />
+                </div>
+              </div>
+            </div>
+          )
         )}
       </div>
 
@@ -93,18 +112,18 @@ export default async function JobsPage() {
 
       {/* Jobs List */}
       {jobs && jobs.length > 0 ? (
-        <div className="grid gap-4">
+        <div className="grid gap-3">
           {jobs.map((job: any) => (
             <Link key={job.id} href={`/dashboard/jobs/${job.id}`}>
-              <Card className="hover:border-krewup-blue hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] cursor-pointer border-2">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900">
+              <Card className="hover:border-krewup-blue hover:shadow-lg transition-all duration-200 cursor-pointer border">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 space-y-2">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <h3 className="text-base font-bold text-gray-900">
                           {job.title}
                         </h3>
-                        <Badge variant="info">{job.job_type}</Badge>
+                        <Badge variant="info" className="text-xs px-2 py-0.5">{job.job_type}</Badge>
                         {isEmployer && (
                           <Badge
                             variant={
@@ -114,61 +133,45 @@ export default async function JobsPage() {
                                 ? 'default'
                                 : 'warning'
                             }
+                            className="text-xs px-2 py-0.5"
                           >
                             {job.status}
                           </Badge>
                         )}
                       </div>
 
-                      {job.employer && (
-                        <p className="mb-2 text-sm text-gray-500">
-                          Posted by {job.employer.company_name || job.employer.name}
-                        </p>
-                      )}
-
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <span className="flex items-center gap-1">
-                          <span>💼</span>
-                          {job.trade_selections && job.trade_selections.length > 0
+                      <div className="flex items-center gap-3 text-sm text-gray-600 flex-wrap">
+                        <span>
+                          💼 {job.trade_selections && job.trade_selections.length > 0
                             ? job.trade_selections.map((ts: any) => ts.trade).join(', ')
                             : job.trades && job.trades.length > 0
                             ? job.trades.join(', ')
                             : job.trade}
                         </span>
-                        <span className="flex items-center gap-1">
-                          <span>📍</span>
-                          {job.location}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <span>💰</span>
-                          {job.pay_rate}
-                        </span>
+                        <span className="text-gray-400">•</span>
+                        <span>📍 {job.location}</span>
+                        <span className="text-gray-400">•</span>
+                        <span>📅 {formatRelativeTime(job.created_at)}</span>
                       </div>
 
                       {job.required_certs && job.required_certs.length > 0 && (
-                        <div className="mt-3 flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-1">
                           {job.required_certs.map((cert: string) => (
-                            <span
-                              key={cert}
-                              className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700"
-                            >
-                              {cert}
-                            </span>
+                            <Badge key={cert} variant="warning" className="text-xs px-1.5 py-0.5">
+                              📜 {cert}
+                            </Badge>
                           ))}
                         </div>
                       )}
                     </div>
 
-                    <div className="ml-6 text-right">
-                      <p className="text-sm text-gray-500">
-                        {formatRelativeTime(job.created_at)}
-                      </p>
-                      {isEmployer && (
-                        <p className="mt-1 text-sm font-medium text-gray-900">
-                          {job.application_count || 0} applications
+                    {isEmployer && (
+                      <div className="text-right">
+                        <p className="text-sm font-semibold text-gray-900">
+                          {job.application_count || 0} apps
                         </p>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -184,19 +187,30 @@ export default async function JobsPage() {
             <h3 className="mt-4 text-lg font-semibold text-gray-900">
               {isEmployer ? 'No jobs posted yet' : 'No jobs available'}
             </h3>
-            <p className="mt-2 text-sm text-gray-600">
+            <div className="mt-2 text-sm text-gray-600">
               {isEmployer ? (
                 <>
                   Get started by posting your first job to find skilled workers
                   <br />
-                  <Link href="/dashboard/jobs/new">
-                    <Button className="mt-4">Post a Job</Button>
-                  </Link>
+                  {profile?.can_post_jobs ? (
+                    <Link href="/dashboard/jobs/new">
+                      <Button className="mt-4">Post a Job</Button>
+                    </Link>
+                  ) : (
+                    <div className="mt-4 inline-block">
+                      <Button disabled className="cursor-not-allowed opacity-50">
+                        Post a Job
+                      </Button>
+                      <div className="text-xs text-yellow-700 mt-2">
+                        License verification required
+                      </div>
+                    </div>
+                  )}
                 </>
               ) : (
                 'Check back later for new opportunities'
               )}
-            </p>
+            </div>
           </CardContent>
         </Card>
       )}

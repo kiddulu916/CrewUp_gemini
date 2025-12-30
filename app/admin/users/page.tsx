@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { EmptyState } from '@/components/ui/empty-state';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { useToast } from '@/components/providers/toast-provider';
 import {
   suspendUser,
@@ -65,6 +66,7 @@ export default function UsersPage() {
   const [showSuspendDialog, setShowSuspendDialog] = useState(false);
   const [showBanDialog, setShowBanDialog] = useState(false);
   const [showGrantProDialog, setShowGrantProDialog] = useState(false);
+  const [showUnbanConfirm, setShowUnbanConfirm] = useState(false);
   const [suspendReason, setSuspendReason] = useState('');
   const [suspendDuration, setSuspendDuration] = useState(7);
   const [banReason, setBanReason] = useState('');
@@ -208,13 +210,14 @@ export default function UsersPage() {
     }
   };
 
+  const handleUnbanClick = () => {
+    setShowUnbanConfirm(true);
+  };
+
   const handleUnbanUser = async () => {
     if (!selectedUser) return;
 
-    if (!confirm('Are you sure you want to unban this user?')) {
-      return;
-    }
-
+    setShowUnbanConfirm(false);
     setActionLoading(true);
     try {
       const result = await unbanUser(selectedUser.id);
@@ -363,7 +366,7 @@ export default function UsersPage() {
                       key={user.id}
                       onClick={() => setSelectedUser(user)}
                       className={`w-full text-left p-4 rounded-lg border transition-all ${
-                        selectedUser?.user_id === user.id
+                        selectedUser?.id === user.id
                           ? 'border-blue-500 bg-blue-50'
                           : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                       }`}
@@ -516,7 +519,7 @@ export default function UsersPage() {
                       <Button
                         key="unban-action"
                         variant="primary"
-                        onClick={handleUnbanUser}
+                        onClick={handleUnbanClick}
                         disabled={actionLoading}
                         className="col-span-2"
                       >
@@ -749,6 +752,17 @@ export default function UsersPage() {
           )}
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showUnbanConfirm}
+        onClose={() => setShowUnbanConfirm(false)}
+        onConfirm={handleUnbanUser}
+        title="Unban User"
+        message={`Are you sure you want to unban ${selectedUser?.name}? This will restore full account access.`}
+        confirmText="Unban"
+        isLoading={actionLoading}
+      />
     </div>
   );
 }

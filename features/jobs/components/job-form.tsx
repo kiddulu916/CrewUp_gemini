@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button, Input, Select } from '@/components/ui';
 import { LocationAutocomplete } from '@/components/common/location-autocomplete';
 import { CustomQuestionsBuilder } from './custom-questions-builder';
-import { TRADES, TRADE_SUBCATEGORIES, JOB_TYPES, CERTIFICATIONS } from '@/lib/constants';
+import { TRADES, TRADE_SUBCATEGORIES, JOB_TYPES } from '@/lib/constants';
+import { CERTIFICATION_CATEGORIES, TRADE_TO_CERT_CATEGORY } from '@/lib/constants/certifications';
 import { createJob, type JobData } from '../actions/job-actions';
 
 export function JobForm() {
@@ -26,6 +27,10 @@ export function JobForm() {
     { trade: '', subTrades: [] }
   ]);
   const [selectedCerts, setSelectedCerts] = useState<string[]>([]);
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
+    new Set(['Safety']) // Default "Safety" expanded
+  );
+  const [subTradeRates, setSubTradeRates] = useState<Record<string, string>>({});
   const [customQuestions, setCustomQuestions] = useState<Array<{ question: string; required: boolean }>>([]);
 
   // Pay rate state for conditional logic
@@ -39,8 +44,24 @@ export function JobForm() {
   const isContractJob = ['Contract', '1099'].includes(formData.job_type);
   const isTemporaryOrContract = ['Temporary', 'Contract', '1099'].includes(formData.job_type);
 
-  // Auto-update pay_rate when conditional fields change
+  // Calculate all selected sub-trades
+  const allSubTrades = tradeSelections.flatMap(ts =>
+    ts.subTrades.filter(st => st !== '').map(st => ({
+      trade: ts.trade,
+      subTrade: st
+    }))
+  );
+
+  // Show per-subtrade rates if 2+ sub-trades selected
+  const showPerSubTradeRates = allSubTrades.length >= 2;
+
+  // Auto-update pay_rate when conditional fields change (only for single rate mode)
   useEffect(() => {
+    // Skip auto-update when showing per-subtrade rates
+    if (showPerSubTradeRates) {
+      return;
+    }
+
     if (isHourlyJob && hourlyRate) {
       // Format: "$25/hr (weekly)" or "$25/hr (bi-weekly)" etc.
       updateFormData({ pay_rate: `$${hourlyRate}/hr (${payPeriod})` });
@@ -52,7 +73,7 @@ export function JobForm() {
       // Reset pay_rate if job type is not selected
       updateFormData({ pay_rate: '' });
     }
-  }, [hourlyRate, payPeriod, contractAmount, contractType, formData.job_type, isHourlyJob, isContractJob]);
+  }, [hourlyRate, payPeriod, contractAmount, contractType, formData.job_type, isHourlyJob, isContractJob, showPerSubTradeRates]);
 
   function updateFormData(updates: Partial<JobData>) {
     setFormData((prev) => ({ ...prev, ...updates }));
@@ -73,6 +94,20 @@ export function JobForm() {
     const updated = [...tradeSelections];
     updated[index] = { trade, subTrades: [] }; // Reset sub-trades when trade changes
     setTradeSelections(updated);
+
+    // Auto-deselect invalid certifications when trade changes
+    const selectedTrades = updated.filter(ts => ts.trade !== '').map(ts => ts.trade);
+    if (selectedTrades.length > 0) {
+      // Get relevant certification categories for new trade selection
+      const relevantCategories = Object.entries(CERTIFICATION_CATEGORIES).filter(([category]) =>
+        selectedTrades.some(t => TRADE_TO_CERT_CATEGORY[t] === category) ||
+        category === 'Safety' // Always include Safety
+      );
+      const validCerts = relevantCategories.flatMap(([_, certs]) => [...certs]) as string[];
+
+      // Filter selected certs to only keep valid ones
+      setSelectedCerts(prev => prev.filter(cert => validCerts.includes(cert as any)));
+    }
   }
 
   // Add a sub-trade to a specific trade selection
@@ -91,15 +126,73 @@ export function JobForm() {
 
   // Remove a specific sub-trade
   function removeSubTrade(tradeIndex: number, subTradeIndex: number) {
+    const trade = tradeSelections[tradeIndex].trade;
+    const subTrade = tradeSelections[tradeIndex].subTrades[subTradeIndex];
+
+    // Remove from tradeSelections
     const updated = [...tradeSelections];
     updated[tradeIndex].subTrades = updated[tradeIndex].subTrades.filter((_, i) => i !== subTradeIndex);
     setTradeSelections(updated);
+
+    // Clean up rate for this sub-trade
+    if (trade && subTrade) {
+      const key = `${trade}|${subTrade}`;
+      setSubTradeRates(prev => {
+        const newRates = { ...prev };
+        delete newRates[key];
+        return newRates;
+      });
+    }
   }
 
   function toggleCert(cert: string) {
     setSelectedCerts((prev) =>
       prev.includes(cert) ? prev.filter((c) => c !== cert) : [...prev, cert]
     );
+  }
+
+  function toggleCategory(category: string) {
+    const updated = new Set(expandedCategories);
+    if (updated.has(category)) {
+      updated.delete(category);
+    } else {
+      updated.add(category);
+    }
+    setExpandedCategories(updated);
+  }
+
+  // Get relevant certification categories based on selected trades
+  const selectedTrades = tradeSelections
+    .filter(ts => ts.trade !== '')
+    .map(ts => ts.trade);
+
+  const relevantCertCategories = useMemo(() => {
+    if (selectedTrades.length === 0) {
+      // No trades selected, show all categories
+      return Object.entries(CERTIFICATION_CATEGORIES);
+    }
+
+    // Filter to relevant categories based on selected trades
+    const relevant = Object.entries(CERTIFICATION_CATEGORIES).filter(([category]) =>
+      selectedTrades.some(trade => TRADE_TO_CERT_CATEGORY[trade] === category)
+    );
+
+    // Always include Safety if not already present
+    const hasSafety = relevant.some(([cat]) => cat === 'Safety');
+    if (!hasSafety) {
+      const safetyEntry = ['Safety', CERTIFICATION_CATEGORIES['Safety']] as const;
+      relevant.unshift(safetyEntry as any);
+    }
+
+    return relevant;
+  }, [selectedTrades]);
+
+  function updateSubTradeRate(trade: string, subTrade: string, rate: string) {
+    const key = `${trade}|${subTrade}`;
+    setSubTradeRates(prev => ({
+      ...prev,
+      [key]: rate
+    }));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -121,8 +214,54 @@ export function JobForm() {
       subTrades: ts.subTrades.filter(st => st !== '')
     }));
 
+    // Build pay rate data based on mode
+    let payRateData: { pay_rate: string; subtrade_pay_rates?: Record<string, string> | null } = {
+      pay_rate: formData.pay_rate,
+      subtrade_pay_rates: null,
+    };
+
+    if (showPerSubTradeRates) {
+      // Per-subtrade rates mode: validate all rates are filled
+      const missingRates: string[] = [];
+      allSubTrades.forEach(({ trade, subTrade }) => {
+        const key = `${trade}|${subTrade}`;
+        if (!subTradeRates[key] || subTradeRates[key].trim() === '') {
+          missingRates.push(subTrade);
+        }
+      });
+
+      if (missingRates.length > 0) {
+        setError(`Please enter pay rates for: ${missingRates.join(', ')}`);
+        setIsLoading(false);
+        return;
+      }
+
+      // Build subtrade_pay_rates object with raw numbers
+      const rates: Record<string, string> = {};
+      allSubTrades.forEach(({ trade, subTrade }) => {
+        const key = `${trade}|${subTrade}`;
+        rates[key] = subTradeRates[key];
+      });
+
+      // Build formatted display string
+      const suffix = isHourlyJob
+        ? `/hr (${payPeriod})`
+        : `/${contractType.toLowerCase().replace(' ', '')}`;
+
+      const displayParts = allSubTrades.map(({ subTrade }) => {
+        const key = `${allSubTrades.find(st => st.subTrade === subTrade)!.trade}|${subTrade}`;
+        return `${subTrade}: $${subTradeRates[key]}${suffix}`;
+      });
+
+      payRateData = {
+        pay_rate: displayParts.join(', '),
+        subtrade_pay_rates: rates,
+      };
+    }
+
     const jobData: JobData = {
       ...formData,
+      ...payRateData,
       trade_selections: structuredTradeSelections,
       required_certs: selectedCerts.length > 0 ? selectedCerts : undefined,
       custom_questions: customQuestions.length > 0 ? customQuestions : undefined,
@@ -311,7 +450,132 @@ export function JobForm() {
         </div>
       )}
 
-      {isHourlyJob && (
+      {/* Per-Subtrade Pay Rates (when 2+ sub-trades) */}
+      {showPerSubTradeRates && isHourlyJob && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-gray-900">Pay Rates by Specialty</h3>
+
+          {/* Shared Pay Period */}
+          <Select
+            label="Pay Period (applies to all sub-trades)"
+            options={[
+              { value: 'weekly', label: 'Weekly' },
+              { value: 'bi-weekly', label: 'Bi-Weekly' },
+              { value: 'monthly', label: 'Monthly' },
+            ]}
+            value={payPeriod}
+            onChange={(e) => setPayPeriod(e.target.value)}
+            required
+            disabled={isLoading}
+          />
+
+          {/* Grouped by Trade */}
+          {tradeSelections
+            .filter((ts) => ts.subTrades.some((st) => st !== ''))
+            .map((ts) => (
+              <div
+                key={ts.trade}
+                className="border-2 border-gray-300 rounded-lg p-4 bg-gray-50"
+              >
+                <h4 className="font-semibold text-gray-900 mb-3">{ts.trade}</h4>
+                <div className="space-y-2">
+                  {ts.subTrades
+                    .filter((st) => st !== '')
+                    .map((st) => {
+                      const key = `${ts.trade}|${st}`;
+                      return (
+                        <div key={st} className="flex items-center gap-3">
+                          <span className="text-sm text-gray-700 min-w-[200px]">
+                            • {st}:
+                          </span>
+                          <div className="flex items-center gap-1 flex-1">
+                            <span className="text-gray-700">$</span>
+                            <input
+                              type="number"
+                              value={subTradeRates[key] || ''}
+                              onChange={(e) =>
+                                updateSubTradeRate(ts.trade, st, e.target.value)
+                              }
+                              placeholder="25"
+                              required
+                              disabled={isLoading}
+                              className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-krewup-blue"
+                            />
+                            <span className="text-gray-700 text-sm">/hr</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+            ))}
+        </div>
+      )}
+
+      {showPerSubTradeRates && isContractJob && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-gray-900">Pay Rates by Specialty</h3>
+
+          {/* Shared Contract Type */}
+          <Select
+            label="Payment Type (applies to all sub-trades)"
+            options={[
+              { value: 'Per Contract', label: 'Per Contract' },
+              { value: 'Per Job', label: 'Per Job' },
+            ]}
+            value={contractType}
+            onChange={(e) => setContractType(e.target.value)}
+            required
+            disabled={isLoading}
+          />
+
+          {/* Grouped by Trade */}
+          {tradeSelections
+            .filter((ts) => ts.subTrades.some((st) => st !== ''))
+            .map((ts) => (
+              <div
+                key={ts.trade}
+                className="border-2 border-gray-300 rounded-lg p-4 bg-gray-50"
+              >
+                <h4 className="font-semibold text-gray-900 mb-3">{ts.trade}</h4>
+                <div className="space-y-2">
+                  {ts.subTrades
+                    .filter((st) => st !== '')
+                    .map((st) => {
+                      const key = `${ts.trade}|${st}`;
+                      return (
+                        <div key={st} className="flex items-center gap-3">
+                          <span className="text-sm text-gray-700 min-w-[200px]">
+                            • {st}:
+                          </span>
+                          <div className="flex items-center gap-1 flex-1">
+                            <span className="text-gray-700">$</span>
+                            <input
+                              type="number"
+                              value={subTradeRates[key] || ''}
+                              onChange={(e) =>
+                                updateSubTradeRate(ts.trade, st, e.target.value)
+                              }
+                              placeholder="5000"
+                              required
+                              disabled={isLoading}
+                              className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-krewup-blue"
+                            />
+                            <span className="text-gray-700 text-sm">
+                              /{contractType.toLowerCase().replace(' ', '')}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+            ))}
+        </div>
+      )}
+
+      {/* Single Pay Rate (when 0-1 sub-trades) */}
+      {!showPerSubTradeRates && isHourlyJob && (
         <div className="space-y-4">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <Input
@@ -349,7 +613,7 @@ export function JobForm() {
         </div>
       )}
 
-      {isContractJob && (
+      {!showPerSubTradeRates && isContractJob && (
         <div className="space-y-4">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <Input
@@ -405,23 +669,60 @@ export function JobForm() {
         <label className="block text-sm font-medium text-gray-700 mb-3">
           Required Certifications (Optional)
         </label>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {CERTIFICATIONS.map((cert) => (
-            <label
-              key={cert}
-              className="flex items-center gap-2 rounded-lg border border-gray-200 p-3 cursor-pointer hover:bg-gray-50"
-            >
-              <input
-                type="checkbox"
-                checked={selectedCerts.includes(cert)}
-                onChange={() => toggleCert(cert)}
+        <p className="text-xs text-gray-500 mb-4">
+          {selectedTrades.length === 0
+            ? 'Select trades above to filter relevant certifications'
+            : 'Categories filtered based on selected trades. Safety is always shown.'}
+        </p>
+
+        <div className="space-y-2">
+          {relevantCertCategories.map(([category, certs]) => (
+            <div key={category} className="border border-gray-300 rounded-lg overflow-hidden">
+              {/* Category Header - Clickable to expand/collapse */}
+              <button
+                type="button"
+                onClick={() => toggleCategory(category)}
                 disabled={isLoading}
-                className="h-4 w-4 rounded border-gray-300 text-krewup-blue focus:ring-krewup-blue"
-              />
-              <span className="text-sm text-gray-700">{cert}</span>
-            </label>
+                className="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 transition-colors text-left"
+              >
+                <span className="font-medium text-gray-900">{category}</span>
+                <span className="text-gray-600 text-lg">
+                  {expandedCategories.has(category) ? '▼' : '▶'}
+                </span>
+              </button>
+
+              {/* Certifications Grid - Shown when expanded */}
+              {expandedCategories.has(category) && (
+                <div className="grid grid-cols-2 gap-2 p-3 bg-white border-t border-gray-200">
+                  {certs.map((cert) => (
+                    <label
+                      key={cert}
+                      className="flex items-center gap-2 p-2 rounded hover:bg-gray-50 cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedCerts.includes(cert)}
+                        onChange={() => toggleCert(cert)}
+                        disabled={isLoading}
+                        className="h-4 w-4 rounded border-gray-300 text-krewup-blue focus:ring-krewup-blue"
+                      />
+                      <span className="text-sm text-gray-700">{cert}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
           ))}
         </div>
+
+        {/* Show selected certifications count */}
+        {selectedCerts.length > 0 && (
+          <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <strong>{selectedCerts.length}</strong> certification{selectedCerts.length !== 1 ? 's' : ''} selected
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Custom Screening Questions */}

@@ -87,7 +87,7 @@ export const referenceEntrySchema = z.object({
 });
 
 export const step8Schema = z.object({
-  references: z.array(referenceEntrySchema).min(2, 'At least 2 references required'),
+  references: z.array(referenceEntrySchema).optional(),
   whyInterested: z.string().min(50, 'Please write at least 50 characters'),
   salaryExpectations: z.string().min(1, 'Salary expectations required'),
   howHeardAboutJob: z.string().min(1, 'Please select how you heard about this job'),

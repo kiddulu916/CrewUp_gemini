@@ -1,0 +1,143 @@
+
+Privacy Policy for KrewUp
+
+
+1. Information We Collect
+
+We collect personal and professional data to help you build your construction network. This includes:
+
+Identity Data: Name, age, and professional titles.
+
+Credential Data: Verification status of licenses, OSHA certifications, and insurance certificates. We do not store full copies of credential documents; we retain only the minimum information necessary to confirm verification status.
+
+Professional History: Past projects, photos of work, and references.
+
+
+2. Data Security and Third-Party Infrastructure
+
+We take the security of your professional data seriously.
+
+Infrastructure: KrewUp utilizes Supabase for our backend database and authentication services. Supabase is a secure, enterprise-grade platform. You acknowledge and agree that KrewUp's services depend on third-party infrastructure providers, including Supabase, and that KrewUp shall not be liable for any service interruptions, data loss, security breaches, or other issues arising from the acts, omissions, or failures of such third-party providers. While we select reputable providers and require them to maintain appropriate security standards, we do not control and cannot guarantee the performance, availability, or security of third-party services.
+
+* Encryption Standards: All sensitive user information is fully encrypted in all states:
+
+Data in Transit: Encrypted via SSL/TLS protocols during transfer between your device and our servers. Encryption is implemented using third-party infrastructure, and KrewUp disclaims liability for any vulnerabilities or failures in such third-party encryption services.
+
+Data at Rest: All sensitive records stored in our databases are encrypted using industry-standard AES-256 encryption through our third-party infrastructure provider. KrewUp disclaims liability for any data breaches or security incidents attributable to failures in third-party storage or encryption services.
+
+Force Majeure and Third-Party Service Dependencies: KrewUp shall not be liable for any failure or delay in performing its obligations under these Terms where such failure or delay results from circumstances beyond KrewUp's reasonable control, including but not limited to: (i) outages, failures, or service disruptions of third-party infrastructure providers (including Supabase); (ii) cyberattacks, data breaches, or security incidents affecting third-party providers; (iii) acts of God, natural disasters, pandemics, or public health emergencies; (iv) war, terrorism, civil unrest, or government actions; (v) failures of telecommunications networks or internet service providers; or (vi) any other force majeure event. In the event of such circumstances, KrewUp will use commercially reasonable efforts to resume normal operations as soon as practicable, but makes no guarantees regarding the timing or completeness of service restoration.
+
+Note: We employ industry-standard security measures, including encryption in transit and at rest, regular security audits, and access controls limiting employee access to sensitive data on a need-to-know basis. In the event of a data breach affecting your personal information, we will notify affected users and relevant regulatory authorities in accordance with applicable law. While no method of electronic transmission or storage is completely secure, we are committed to protecting your data and maintaining robust incident response procedures. Users are encouraged to use strong, unique passwords and to notify KrewUp immediately of any suspected security breach.
+
+ 
+3. How We Share Your Information
+
+Public Profiles: Information like your trade, years of experience, and general location are visible to other KrewUp users.
+
+Sensitive Credentials: We share only verification status (e.g., "license verified" or "insurance current") with potential hiring parties—not full license numbers, document copies, or other sensitive credential details. Users may choose to share additional credential information directly with hiring parties outside of the platform, but such sharing is at the user's sole discretion and risk. KrewUp is not responsible for any misuse of credentials shared outside the platform.
+
+Credential Sharing Controls: You may manage your credential sharing preferences at any time through your account settings. Options include: (i) hiding your verification status from your public profile; (ii) requiring your express approval before verification status is shared with any specific hiring party; and (iii) revoking access to previously shared verification information. Changes to your sharing preferences will take effect immediately, though information already shared with other users cannot be recalled.
+
+No Selling of Data: We do not sell your personal information to third-party advertisers.
+
+Third-Party Services: KrewUp integrates with third-party services, including Stripe for payment and subscription processing, and Supabase for backend database and authentication services. We may also link to other third-party services for identity verification or other functions. Your use of such services is subject to their respective terms and privacy policies. For Stripe, please refer to Stripe's privacy policy at stripe.com/privacy. For Supabase, please refer to Supabase's privacy policy at supabase.com/privacy. KrewUp is not responsible for the privacy practices, security measures, or content of any third-party services, and disclaims all liability for any damages or losses arising from your use of such services or any data breaches occurring at such third parties.
+
+* Cookies and Tracking Technologies
+
+KrewUp uses cookies and similar tracking technologies to enhance your experience on our platform.
+
+What Are Cookies: Cookies are small text files placed on your device when you visit our platform. They help us recognise your device and remember your preferences.
+
+Types of Cookies We Use:
+
+Essential Cookies: Required for the platform to function properly, including authentication, security, and load balancing. These cannot be disabled.
+
+Functional Cookies: Remember your preferences and settings to provide a more personalised experience.
+
+Analytics Cookies: Help us understand how users interact with our platform, which pages are most popular, and how we can improve our services. We may use third-party analytics providers such as Google Analytics.
+
+Managing Cookies: You can control cookies through your browser settings. Most browsers allow you to refuse cookies, delete existing cookies, or alert you when a cookie is being sent. Please note that disabling certain cookies may affect the functionality of the platform.
+
+Do Not Track: Some browsers offer a "Do Not Track" feature. Our platform does not currently respond to Do Not Track signals, but you can manage your cookie preferences as described above.
+
+Third-Party Tracking: Some third-party services integrated into our platform may use their own cookies and tracking technologies, subject to their own privacy policies.
+
+
+4. User Rights (GDPR/CCPA Compliance) and Data Subject Request Procedures
+
+Depending on your location, you have the right to:
+
+Request a copy of the data we hold about you (Data Subject Access Request). To submit a request, email [Insert Email Address] with the subject line "Data Access Request" and include your full name, account email address, and a description of the specific data you are requesting. We will verify your identity before processing your request and will provide the requested information in a commonly used electronic format within the timeframes specified for your jurisdiction below.
+
+Request the deletion of your account and all associated data (Right to Erasure/Right to be Forgotten). To submit a deletion request, email [Insert Email Address] with the subject line "Deletion Request" and include your full name and account email address. Upon verification of your identity, we will delete your personal data within thirty (30) days, except where retention is required by law or for legitimate business purposes (such as fraud prevention or legal claims). We will notify you of any data we are required to retain and the legal basis for such retention.
+
+Correct any inaccurate professional or certification information (Right to Rectification). You may update most information directly through your account settings. For corrections that cannot be made through your account, email [Insert Email Address] with the subject line "Data Correction Request," specifying the data to be corrected and providing supporting documentation where applicable. We will process correction requests within thirty (30) days and notify you when the correction has been made.
+
+Request portability of your data in a structured, commonly used, and machine-readable format (such as CSV or JSON), and where technically feasible, request that your data be transmitted directly to another service provider.
+
+Object to processing of your personal data for certain purposes, including direct marketing.
+
+Restrict processing of your personal data in certain circumstances, such as while we verify the accuracy of data you have contested.
+
+* International Data Transfers
+
+KrewUp operates globally, and your personal data may be transferred to and processed in countries other than your country of residence.
+
+Transfer Locations: Your data may be transferred to, stored, and processed in the United States or other countries where KrewUp, its affiliates, or its service providers maintain facilities. These countries may have data protection laws that differ from those in your country.
+
+Safeguards for EEA, UK, and Swiss Users: If you are located in the European Economic Area, United Kingdom, or Switzerland, we will ensure that any transfer of your personal data to countries outside these regions is protected by appropriate safeguards, including: (i) transfers to countries that have been deemed to provide an adequate level of data protection by the relevant authorities; (ii) Standard Contractual Clauses approved by the European Commission or UK Information Commissioner's Office; or (iii) other lawful transfer mechanisms recognised under applicable data protection laws.
+
+Your Consent: By using KrewUp, you acknowledge and consent to the transfer of your personal data to countries outside your country of residence, subject to the safeguards described in this section.
+
+Copies of Safeguards: You may request a copy of the safeguards we use for international data transfers by contacting us at [Insert Email Address].
+
+Withdraw consent at any time where we rely on consent as the legal basis for processing your data, without affecting the lawfulness of processing carried out prior to withdrawal.
+
+To exercise any of these rights, please contact us at [Insert Email Address]. We will respond to verified requests within the timeframes required by applicable law (typically thirty (30) days for GDPR requests and forty-five (45) days for CCPA requests). We may request additional information to verify your identity before fulfilling your request.
+
+* Jurisdiction-Specific Data Subject Request Procedures:
+
+European Economic Area (EEA), United Kingdom, and Switzerland: If you are located in the EEA, UK, or Switzerland, your requests will be processed in accordance with the General Data Protection Regulation (GDPR) or UK GDPR, as applicable. You have the right to lodge a complaint with your local supervisory authority if you believe your rights have been violated. We will respond to your request within thirty (30) days; if an extension is required due to the complexity of the request, we will notify you within the initial period and may extend by up to sixty (60) additional days. We will not charge a fee for processing your request unless it is manifestly unfounded or excessive.
+
+California, United States: If you are a California resident, your requests will be processed in accordance with the California Consumer Privacy Act (CCPA) and California Privacy Rights Act (CPRA). You have the right to request disclosure of the categories and specific pieces of personal information we have collected, the right to request deletion, the right to opt out of the sale or sharing of your personal information, and the right to non-discrimination for exercising your privacy rights. We will respond within forty-five (45) days; if an extension is required, we will notify you and may extend by up to forty-five (45) additional days. You may designate an authorised agent to submit requests on your behalf, provided we can verify your identity and the agent's authority.
+
+Canada: If you are located in Canada, your requests will be processed in accordance with the Personal Information Protection and Electronic Documents Act (PIPEDA) or applicable provincial privacy legislation (such as Alberta's PIPA, British Columbia's PIPA, or Quebec's Law 25). You have the right to access your personal information, request corrections, and withdraw consent to processing (subject to legal or contractual restrictions). We will respond within thirty (30) days; if an extension is required, we will notify you in writing with reasons for the extension. You may file a complaint with the Office of the Privacy Commissioner of Canada or your provincial privacy commissioner if you believe your rights have been violated.
+
+Australia: If you are located in Australia, your requests will be processed in accordance with the Privacy Act 1988 (Cth) and the Australian Privacy Principles (APPs). You have the right to access and correct your personal information. We will respond within a reasonable period (generally thirty (30) days). If we refuse your request, we will provide written reasons. You may lodge a complaint with the Office of the Australian Information Commissioner (OAIC) if you are dissatisfied with our response.
+
+Other Jurisdictions: If you are located in a jurisdiction not specifically listed above, we will process your data subject request in accordance with applicable local law. Please include your country or region of residence in your request so that we may apply the appropriate legal framework and response timeframes. Where local law provides greater protections than outlined in this policy, those protections will apply.
+
+Appeals Process for Denied Requests: If we deny your data subject request in whole or in part, we will provide you with a written explanation of the reasons for the denial, including the specific legal basis or exception relied upon. You may appeal the denial by submitting a written appeal to [Insert Email Address] within thirty (30) days of receiving the denial notice. Your appeal should include: (i) a copy of or reference to your original request; (ii) a copy of or reference to our denial notice; and (iii) a detailed explanation of why you believe the denial was incorrect or the exception does not apply. Appeals will be reviewed by a senior privacy official who was not involved in the initial decision. We will respond to your appeal within thirty (30) days (or within such shorter period as required by applicable law). If we uphold the denial, we will inform you of your right to lodge a complaint with the relevant supervisory authority or data protection regulator in your jurisdiction.
+
+* Automated Decision-Making and Profiling
+
+KrewUp may use automated systems to assist in certain platform functions. This section explains how we use automated decision-making and your rights in relation to such processing.
+
+Types of Automated Processing: We may use automated systems for the following purposes: (i) fraud detection and prevention, including identifying suspicious account activity or credential submissions; (ii) content moderation, including detecting and removing content that violates our Terms of Service; (iii) matching algorithms that suggest potential connections between workers and hiring parties based on skills, location, availability, and other profile information; and (iv) risk scoring to assess account trustworthiness based on verification status, platform history, and user feedback.
+
+No Solely Automated Decisions with Legal or Significant Effects: KrewUp does not make decisions based solely on automated processing that produce legal effects concerning you or similarly significantly affect you without human oversight. Any automated assessments that may impact your account status, visibility, or access to platform features are subject to human review before final action is taken.
+
+Right to Human Review: If you believe an automated decision has adversely affected you, you have the right to: (i) request information about the logic involved in the automated processing; (ii) request human review of the decision by a qualified KrewUp team member; (iii) express your point of view and contest the decision; and (iv) obtain an explanation of the decision reached after human review. To exercise these rights, contact us at [Insert Email Address] with the subject line "Automated Decision Review Request."
+
+Profiling for Platform Improvement: We may analyse aggregated and anonymised user data to improve our matching algorithms and platform features. Such profiling does not result in decisions that affect individual users and is conducted in accordance with applicable data protection laws.
+
+Safeguards: Where we use automated processing, we implement appropriate safeguards, including: (i) regular testing of algorithms for accuracy and bias; (ii) maintaining human oversight of automated systems; (iii) providing clear information to users about how automated systems affect them; and (iv) ensuring users can easily exercise their rights in relation to automated processing.
+
+
+5. Data Retention
+
+We retain your personal and professional data only for as long as necessary to fulfil the purposes for which it was collected, or as required by law.
+
+Account Data: Your account information and profile data are retained for as long as your account remains active. Upon account deletion, we will delete or anonymise your personal data within thirty (30) days, except where retention is required for legal, regulatory, or legitimate business purposes (e.g., resolving disputes or enforcing our Terms).
+
+Verification Records: Records confirming the verification status of licenses, certifications, and insurance are retained for the duration of your account plus seven (7) years thereafter, to comply with potential regulatory requirements and to support the resolution of any disputes that may arise. You may request early deletion of your verification records by submitting a written request to [Insert Email Address]. We will evaluate such requests on a case-by-case basis and may grant early deletion where: (i) there are no pending disputes or legal proceedings involving your account; (ii) applicable law does not require continued retention; and (iii) early deletion would not impair KrewUp's ability to enforce these Terms or protect other users. We will respond to early deletion requests within thirty (30) days. All early deletion requests will be reviewed by KrewUp's designated Data Protection Officer (or equivalent privacy lead). If your request is denied, we will provide you with written reasons for the denial, including the specific legal basis or legitimate interest requiring continued retention. You may appeal any denial by submitting a written appeal within fourteen (14) days of receiving the denial notice. Appeals will be reviewed by a senior member of KrewUp's management who was not involved in the initial decision, and you will receive a final determination within thirty (30) days. KrewUp will maintain a log of all early deletion requests, decisions, and appeals for audit and compliance purposes.
+
+Transaction and Communication Records: Records of transactions, messages, and interactions on the platform are retained for five (5) years from the date of the activity, or longer if required by applicable law.
+
+Anonymised Data: We may retain anonymised or aggregated data that cannot reasonably be used to identify you for analytical and research purposes indefinitely.
+
+
+6. Updates to This Policy
+
+As KrewUp grows, we may update our privacy practices. We will notify you of any material changes via the email address associated with your account or through a prominent notice on the KrewUp dashboard.
+

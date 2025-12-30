@@ -11,6 +11,11 @@ type CertificationWithProfile = {
   user_id: string;
   credential_category: string;
   certification_type: string;
+  certification_number?: string;
+  issued_by?: string;
+  issuing_state?: string;
+  issue_date?: string;
+  expires_at?: string;
   image_url: string;
   verification_status: string;
   verified_at?: string;
