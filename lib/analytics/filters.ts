@@ -4,6 +4,11 @@ import type { PostgrestFilterBuilder } from '@supabase/postgrest-js';
 
 /**
  * Build date range filter for SQL queries
+ *
+ * @param dateRange - The date range value containing start and end dates
+ * @param column - The database column name to filter (unused but kept for backward compatibility)
+ * @returns Object with gte (greater than or equal) and lte (less than or equal) ISO date strings
+ * @throws Error if startDate is after endDate
  */
 export function buildDateRangeFilter(
   dateRange: DateRangeValue,
@@ -11,6 +16,11 @@ export function buildDateRangeFilter(
 ): { gte: string; lte: string } {
   const startDate = dateRange.startDate || new Date();
   const endDate = dateRange.endDate || new Date();
+
+  // Validate that start date is not after end date
+  if (startDate.getTime() > endDate.getTime()) {
+    throw new Error('Start date cannot be after end date');
+  }
 
   return {
     gte: startDate.toISOString(),
@@ -42,9 +52,9 @@ export function getComparisonDates(dateRange: DateRangeValue): {
  * Apply segment filters to Supabase query
  */
 export function applySegmentFilters<T>(
-  query: PostgrestFilterBuilder<any, any, T>,
+  query: PostgrestFilterBuilder<any, any, T, unknown>,
   segment: SegmentValue
-): PostgrestFilterBuilder<any, any, T> {
+): PostgrestFilterBuilder<any, any, T, unknown> {
   let filteredQuery = query;
 
   if (segment.role) {
@@ -68,6 +78,16 @@ export function applySegmentFilters<T>(
 
 /**
  * Calculate percentage change between two values
+ *
+ * Business logic for edge cases:
+ * - When previous value is 0 and current > 0: Returns 100% (representing growth from nothing)
+ * - When previous value is 0 and current = 0: Returns 0% (no change)
+ * - When previous value is 0 and current < 0: Returns 0% (edge case, treated as no baseline)
+ * - For all other cases: Standard percentage change formula
+ *
+ * @param current - The current value
+ * @param previous - The previous value to compare against
+ * @returns The percentage change, where positive indicates growth and negative indicates decline
  */
 export function calculatePercentageChange(
   current: number,
