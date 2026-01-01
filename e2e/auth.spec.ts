@@ -42,14 +42,15 @@ test.describe('Authentication Flows', () => {
     // Submit signup form
     await page.click('button[type="submit"]:has-text("Create account")');
 
-    // Wait for navigation
-    await page.waitForURL('**/*', { timeout: 10000 });
+    // Wait for page to stabilize
+    await page.waitForLoadState('networkidle', { timeout: 15000 });
 
-    const url = page.url();
+    // Check which flow we're in by looking for unique UI elements
+    const isOnboarding = await page.locator('h2:has-text("Welcome to KrewUp!")').isVisible({ timeout: 5000 }).catch(() => false);
 
-    if (url.includes('/onboarding')) {
+    if (isOnboarding) {
       // Email confirmation disabled - user logged in immediately and redirected to onboarding
-      await expect(page).toHaveURL('/onboarding');
+      await expect(page).toHaveURL(/\/onboarding/);
 
       // STEP 1: Personal Information
       // Wait for heading to ensure page loaded
@@ -105,7 +106,7 @@ test.describe('Authentication Flows', () => {
     }
   });
 
-  test('should complete onboarding as employer (contractor) with license', async ({ page }) => {
+  test('should complete onboarding as employer (contractor) without license', async ({ page }) => {
     const email = generateTestEmail();
     const password = 'TestPassword123!';
 
@@ -148,33 +149,13 @@ test.describe('Authentication Flows', () => {
     // Fill company name
     await page.fill('input[placeholder="ABC Construction LLC"]', 'Test Construction LLC');
 
-    // Select trade specialty
-    await page.selectOption('select:has-text("Trade Specialty")', { label: 'Carpenters (Rough)' });
+    // Select trade specialty (select with id "trade-specialty")
+    await page.selectOption('select#trade-specialty', { label: 'Carpenters (Rough)' });
 
-    // License section should now be visible
-    await expect(page.locator('h3:has-text("Contractor License Required")')).toBeVisible();
+    // License section should now be visible but optional
+    await expect(page.locator('h3:has-text("Contractor License (Optional)")')).toBeVisible();
 
-    // Fill license fields
-    await page.fill('input[placeholder*="General Contractor License"]', 'General Contractor License');
-    await page.fill('input[placeholder*="123456"]', 'GC123456');
-    await page.fill('input[placeholder*="California Contractors State License Board"]', 'Illinois Department of Financial and Professional Regulation');
-    await page.fill('input[placeholder*="California"]', 'Illinois');
-
-    // Fill dates
-    const issueDateInput = page.locator('input[type="date"]').first();
-    const expirationDateInput = page.locator('input[type="date"]').last();
-    await issueDateInput.fill('2020-01-15');
-    await expirationDateInput.fill('2026-01-15');
-
-    // Upload license photo (create a small test image)
-    const fileInput = page.locator('input[type="file"]');
-    await fileInput.setInputFiles({
-      name: 'license.png',
-      mimeType: 'image/png',
-      buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64')
-    });
-
-    // Complete setup
+    // Skip license upload - complete setup without license
     await page.click('button:has-text("Complete Setup")');
 
     // Should redirect to dashboard

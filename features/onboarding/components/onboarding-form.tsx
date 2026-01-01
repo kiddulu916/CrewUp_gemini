@@ -546,11 +546,11 @@ export function OnboardingForm({ initialName = '', initialEmail = '' }: Props) {
                 {formData.employer_type === 'contractor' && (
                   <div className="mt-6 p-4 border-2 border-blue-300 bg-blue-50 rounded-lg">
                     <h3 className="font-semibold text-blue-900 mb-1">
-                      Contractor License Required
+                      Contractor License (Optional)
                     </h3>
                     <p className="text-sm text-blue-800 mb-4">
-                      To ensure platform trust and safety, you must upload your contractor license.
-                      You won't be able to post jobs until your license is verified (usually within 24-48 hours).
+                      Upload your contractor license to build trust with workers. You can skip this now and add it later from your profile.
+                      License verification typically takes 24-48 hours.
                     </p>
 
                     <div className="space-y-4 bg-white p-4 rounded-lg">
@@ -562,7 +562,6 @@ export function OnboardingForm({ initialName = '', initialEmail = '' }: Props) {
                         onChange={(e) =>
                           setLicenseData({ ...licenseData, license_type: e.target.value })
                         }
-                        required
                         helperText="Your contractor license classification"
                       />
 
@@ -574,7 +573,6 @@ export function OnboardingForm({ initialName = '', initialEmail = '' }: Props) {
                         onChange={(e) =>
                           setLicenseData({ ...licenseData, license_number: e.target.value })
                         }
-                        required
                         helperText="Your state-issued license number"
                       />
 
@@ -586,7 +584,6 @@ export function OnboardingForm({ initialName = '', initialEmail = '' }: Props) {
                         onChange={(e) =>
                           setLicenseData({ ...licenseData, issuing_authority: e.target.value })
                         }
-                        required
                         helperText="The organization that issued your license"
                       />
 
@@ -598,7 +595,6 @@ export function OnboardingForm({ initialName = '', initialEmail = '' }: Props) {
                         onChange={(e) =>
                           setLicenseData({ ...licenseData, issuing_state: e.target.value })
                         }
-                        required
                         helperText="State that issued your license"
                       />
 
@@ -609,7 +605,6 @@ export function OnboardingForm({ initialName = '', initialEmail = '' }: Props) {
                         onChange={(e) =>
                           setLicenseData({ ...licenseData, issue_date: e.target.value })
                         }
-                        required
                         helperText="When your license was issued"
                       />
 
@@ -620,13 +615,12 @@ export function OnboardingForm({ initialName = '', initialEmail = '' }: Props) {
                         onChange={(e) =>
                           setLicenseData({ ...licenseData, expires_at: e.target.value })
                         }
-                        required
                         helperText="When your license expires"
                       />
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          License Photo <span className="text-red-500">*</span>
+                          License Photo (Optional)
                         </label>
                         <p className="text-xs text-gray-600 mb-3">
                           Upload a clear photo of your contractor license (JPEG, PNG, WebP, or PDF - Max 5MB)
@@ -668,7 +662,6 @@ export function OnboardingForm({ initialName = '', initialEmail = '' }: Props) {
                                   reader.readAsDataURL(file);
                                 }
                               }}
-                              required
                             />
                           </label>
                         ) : (
@@ -730,15 +723,7 @@ export function OnboardingForm({ initialName = '', initialEmail = '' }: Props) {
                     ? !formData.trade
                     : !formData.employer_type ||
                       !formData.company_name ||
-                      !formData.trade ||
-                      (formData.employer_type === 'contractor' &&
-                        (!licenseData.license_type ||
-                          !licenseData.license_number ||
-                          !licenseData.issuing_authority ||
-                          !licenseData.issuing_state ||
-                          !licenseData.issue_date ||
-                          !licenseData.expires_at ||
-                          !licenseFile)))
+                      !formData.trade)
                 }
                 isLoading={isLoading || isUploadingLicense}
                 className="flex-1"
