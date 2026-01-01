@@ -23,11 +23,26 @@ const PRESET_LABELS: Record<DateRangePreset, string> = {
   custom: 'Custom range',
 };
 
+// Helper function to format dates for input without timezone issues
+const formatDateForInput = (date: Date | undefined): string => {
+  if (!date) return '';
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+// Helper function to parse date strings from input without timezone issues
+const parseDateFromInput = (dateString: string): Date => {
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, day);
+};
+
 export function DateRangePicker({ value, onChange }: Props) {
   const handlePresetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const preset = e.target.value as DateRangePreset;
     const today = new Date();
-    const startDate = new Date();
+    const startDate = new Date(today); // Create a new copy to avoid mutation
 
     switch (preset) {
       case 'last7days':
@@ -80,11 +95,11 @@ export function DateRangePicker({ value, onChange }: Props) {
             </label>
             <input
               type="date"
-              value={value.startDate?.toISOString().split('T')[0] || ''}
+              value={formatDateForInput(value.startDate)}
               onChange={(e) =>
                 onChange({
                   ...value,
-                  startDate: new Date(e.target.value),
+                  startDate: parseDateFromInput(e.target.value),
                 })
               }
               className="h-10 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -96,11 +111,11 @@ export function DateRangePicker({ value, onChange }: Props) {
             </label>
             <input
               type="date"
-              value={value.endDate?.toISOString().split('T')[0] || ''}
+              value={formatDateForInput(value.endDate)}
               onChange={(e) =>
                 onChange({
                   ...value,
-                  endDate: new Date(e.target.value),
+                  endDate: parseDateFromInput(e.target.value),
                 })
               }
               className="h-10 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
