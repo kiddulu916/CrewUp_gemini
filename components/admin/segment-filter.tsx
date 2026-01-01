@@ -2,6 +2,15 @@
 
 import React from 'react';
 
+/**
+ * Represents the filter values for user segmentation.
+ *
+ * @typedef {Object} SegmentValue
+ * @property {('worker' | 'employer' | null)} [role] - The user's role filter
+ * @property {('free' | 'pro' | null)} [subscription] - The subscription tier filter
+ * @property {(string | null)} [location] - The location filter (city or state)
+ * @property {('general_contractor' | 'subcontractor' | 'property_owner' | null)} [employerType] - The employer type filter
+ */
 export type SegmentValue = {
   role?: 'worker' | 'employer' | null;
   subscription?: 'free' | 'pro' | null;
@@ -14,6 +23,30 @@ type Props = {
   onChange: (value: SegmentValue) => void;
 };
 
+/**
+ * SegmentFilter - A comprehensive filter component for user segmentation
+ *
+ * Provides filtering capabilities for user segments based on role, subscription tier,
+ * location, and employer type. Supports independent filter selection and preservation
+ * of existing filters when modifying individual values.
+ *
+ * @component
+ * @example
+ * ```tsx
+ * const [filters, setFilters] = useState<SegmentValue>({});
+ *
+ * <SegmentFilter
+ *   value={filters}
+ *   onChange={setFilters}
+ * />
+ * ```
+ *
+ * @param {Props} props - Component props
+ * @param {SegmentValue} props.value - The current filter values
+ * @param {(value: SegmentValue) => void} props.onChange - Callback fired when any filter changes
+ *
+ * @returns {JSX.Element} A filter panel with role, subscription, location, and employer type filters
+ */
 export function SegmentFilter({ value, onChange }: Props) {
   const handleRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const role = e.target.value || null;
