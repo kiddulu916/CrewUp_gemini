@@ -47,3 +47,9 @@ export {
   EmptyCertifications,
   EmptyExperience,
 } from './empty-state';
+
+export { Checkbox } from './checkbox';
+export type { CheckboxProps } from './checkbox';
+
+export { Accordion, AccordionItem } from './accordion';
+export type { AccordionProps, AccordionItemProps } from './accordion';
