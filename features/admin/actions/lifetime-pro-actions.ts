@@ -41,7 +41,23 @@ export async function grantLifetimePro(
     return { success: false, error: 'Invalid user ID' };
   }
 
-  // 4. Grant lifetime Pro
+  // 4. Check target user exists and current state
+  const { data: targetProfile, error: targetError } = await supabase
+    .from('profiles')
+    .select('id, is_lifetime_pro')
+    .eq('id', userId)
+    .single();
+
+  if (targetError || !targetProfile) {
+    return { success: false, error: 'User not found' };
+  }
+
+  // 5. Check if already has lifetime Pro (idempotency)
+  if (targetProfile.is_lifetime_pro) {
+    return { success: false, error: 'User already has lifetime Pro status' };
+  }
+
+  // 6. Grant lifetime Pro
   const { error } = await supabase
     .from('profiles')
     .update({
@@ -56,7 +72,7 @@ export async function grantLifetimePro(
     return { success: false, error: 'Failed to grant lifetime Pro' };
   }
 
-  // 5. Log to admin activity
+  // 7. Log to admin activity
   const { error: logError } = await supabase
     .from('admin_activity_log')
     .insert({
@@ -112,7 +128,23 @@ export async function revokeLifetimePro(
     return { success: false, error: 'Invalid user ID' };
   }
 
-  // 4. Revoke lifetime Pro
+  // 4. Check target user exists and current state
+  const { data: targetProfile, error: targetError } = await supabase
+    .from('profiles')
+    .select('id, is_lifetime_pro')
+    .eq('id', userId)
+    .single();
+
+  if (targetError || !targetProfile) {
+    return { success: false, error: 'User not found' };
+  }
+
+  // 5. Check if already doesn't have lifetime Pro (idempotency)
+  if (!targetProfile.is_lifetime_pro) {
+    return { success: false, error: 'User does not have lifetime Pro status' };
+  }
+
+  // 6. Revoke lifetime Pro
   const { error } = await supabase
     .from('profiles')
     .update({
@@ -127,7 +159,7 @@ export async function revokeLifetimePro(
     return { success: false, error: 'Failed to revoke lifetime Pro' };
   }
 
-  // 5. Log to admin activity
+  // 7. Log to admin activity
   const { error: logError } = await supabase
     .from('admin_activity_log')
     .insert({
