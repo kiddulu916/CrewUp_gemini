@@ -10,7 +10,7 @@ import { hasProAccess } from '@/lib/utils/subscription';
  * Free users: max 5 photos
  * Pro users: unlimited
  */
-export async function uploadPortfolioPhoto(formData: FormData) {
+export async function uploadPortfolioPhoto(formData: FormData): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient(await cookies());
 
   // 1. Get authenticated user
@@ -26,6 +26,8 @@ export async function uploadPortfolioPhoto(formData: FormData) {
     .eq('id', user.id)
     .single();
 
+  // NOTE: Race condition exists here - concurrent uploads could bypass limit
+  // TODO: Add database constraint or use transaction for atomic check-and-insert
   // 3. Check existing photo count
   const { count } = await supabase
     .from('portfolio_images')
@@ -41,6 +43,18 @@ export async function uploadPortfolioPhoto(formData: FormData) {
   const file = formData.get('file') as File;
   if (!file) {
     return { success: false, error: 'No file provided' };
+  }
+
+  // Validate file type
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+  if (!allowedTypes.includes(file.type)) {
+    return { success: false, error: 'Please upload JPEG, PNG, or WebP images only' };
+  }
+
+  // Validate file size (5MB max)
+  const maxSize = 5 * 1024 * 1024;
+  if (file.size > maxSize) {
+    return { success: false, error: 'File size must be under 5MB' };
   }
 
   // 6. Upload to Supabase Storage
@@ -84,8 +98,14 @@ export async function uploadPortfolioPhoto(formData: FormData) {
 /**
  * Delete a portfolio photo
  */
-export async function deletePortfolioPhoto(imageId: string) {
+export async function deletePortfolioPhoto(imageId: string): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient(await cookies());
+
+  // Validate UUID format
+  const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!imageId || !UUID_REGEX.test(imageId)) {
+    return { success: false, error: 'Invalid image ID' };
+  }
 
   // 1. Get authenticated user
   const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -114,9 +134,14 @@ export async function deletePortfolioPhoto(imageId: string) {
   const filePath = urlParts[urlParts.length - 1];
 
   // 5. Delete from storage
-  await supabase.storage
+  const { error: storageError } = await supabase.storage
     .from('portfolio-images')
     .remove([filePath]);
+
+  if (storageError) {
+    console.error('Failed to delete storage file:', storageError);
+    // Continue with DB deletion - orphaned files can be cleaned up later
+  }
 
   // 6. Delete from database
   const { error: deleteError } = await supabase
@@ -135,7 +160,7 @@ export async function deletePortfolioPhoto(imageId: string) {
 /**
  * Reorder portfolio photos (drag and drop)
  */
-export async function reorderPortfolioPhotos(imageIds: string[]) {
+export async function reorderPortfolioPhotos(imageIds: string[]): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient(await cookies());
 
   // 1. Get authenticated user
@@ -144,13 +169,26 @@ export async function reorderPortfolioPhotos(imageIds: string[]) {
     return { success: false, error: 'Not authenticated' };
   }
 
-  // 2. Update display_order for each image
-  for (let i = 0; i < imageIds.length; i++) {
-    await supabase
-      .from('portfolio_images')
-      .update({ display_order: i })
-      .eq('id', imageIds[i])
-      .eq('user_id', user.id); // Verify ownership
+  // Validate input
+  if (!imageIds || imageIds.length === 0) {
+    return { success: false, error: 'No images to reorder' };
+  }
+
+  // 2. Update all images in parallel with error handling
+  const results = await Promise.all(
+    imageIds.map((id, i) =>
+      supabase
+        .from('portfolio_images')
+        .update({ display_order: i })
+        .eq('id', id)
+        .eq('user_id', user.id)
+    )
+  );
+
+  // Check for failures
+  const failed = results.filter(r => r.error);
+  if (failed.length > 0) {
+    return { success: false, error: 'Failed to reorder some images' };
   }
 
   revalidatePath('/dashboard/profile/edit');
