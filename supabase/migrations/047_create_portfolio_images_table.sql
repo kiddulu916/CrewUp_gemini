@@ -8,17 +8,24 @@ CREATE TABLE IF NOT EXISTS portfolio_images (
   user_id uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   image_url text NOT NULL,
   display_order int NOT NULL DEFAULT 0,
-  uploaded_at timestamptz DEFAULT now(),
+  uploaded_at timestamptz NOT NULL DEFAULT now(),
 
   CONSTRAINT unique_user_order UNIQUE(user_id, display_order)
 );
 
--- Index for fast lookups by user
-CREATE INDEX IF NOT EXISTS idx_portfolio_images_user_id
-  ON portfolio_images(user_id);
+-- Index for fast lookups by user with display order
+CREATE INDEX IF NOT EXISTS idx_portfolio_images_user_display_order
+  ON portfolio_images(user_id, display_order);
 
 -- Enable Row Level Security
 ALTER TABLE portfolio_images ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if they exist (for idempotency)
+DROP POLICY IF EXISTS "Portfolio images are publicly viewable" ON portfolio_images;
+DROP POLICY IF EXISTS "Users can insert own portfolio images" ON portfolio_images;
+DROP POLICY IF EXISTS "Users can update own portfolio images" ON portfolio_images;
+DROP POLICY IF EXISTS "Users can delete own portfolio images" ON portfolio_images;
+DROP POLICY IF EXISTS "Admins can delete portfolio images for moderation" ON portfolio_images;
 
 -- RLS Policies
 CREATE POLICY "Portfolio images are publicly viewable"
@@ -27,15 +34,31 @@ CREATE POLICY "Portfolio images are publicly viewable"
 
 CREATE POLICY "Users can insert own portfolio images"
   ON portfolio_images FOR INSERT
+  TO authenticated
   WITH CHECK (auth.uid() = user_id);
 
 CREATE POLICY "Users can update own portfolio images"
   ON portfolio_images FOR UPDATE
-  USING (auth.uid() = user_id);
+  TO authenticated
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
 
 CREATE POLICY "Users can delete own portfolio images"
   ON portfolio_images FOR DELETE
+  TO authenticated
   USING (auth.uid() = user_id);
+
+-- Admin policies for moderation
+CREATE POLICY "Admins can delete portfolio images for moderation"
+  ON portfolio_images FOR DELETE
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM profiles
+      WHERE profiles.id = auth.uid()
+      AND profiles.is_admin = true
+    )
+  );
 
 -- Documentation
 COMMENT ON TABLE portfolio_images IS 'Worker portfolio photos with display order and metadata';
