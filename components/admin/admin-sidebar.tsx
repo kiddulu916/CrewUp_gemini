@@ -7,7 +7,7 @@ const navigation = [
   { name: 'Overview', href: '/admin/dashboard', icon: '📊' },
   { name: 'Certifications', href: '/admin/certifications', icon: '✓' },
   { name: 'Users', href: '/admin/users', icon: '👥' },
-  { name: 'Analytics', href: '/admin/analytics', icon: '📈' },
+  { name: 'Analytics', href: '/admin/analytics/overview', icon: '📈' },
   { name: 'Monitoring', href: '/admin/monitoring', icon: '🔍' },
   { name: 'Moderation', href: '/admin/moderation', icon: '🛡️' },
   { name: 'Settings', href: '/admin/settings', icon: '⚙️' },
