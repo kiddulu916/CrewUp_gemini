@@ -4,7 +4,7 @@ export interface Profile {
   id: string;
   name: string;
   role: 'worker' | 'employer';
-  employer_type?: 'contractor' | 'recruiter';
+  employer_type?: 'contractor' | 'developer' | 'homeowner' | 'recruiter';
   subscription_status: 'free' | 'pro';
   subscription_id?: string;
   trade: string;
@@ -34,10 +34,19 @@ export interface Profile {
   years_of_experience: number;
   trade_skills: string[];
 
+  // Tools
+  has_tools: boolean;
+  tools_owned: string[];
+
   // Emergency contact (for application auto-fill)
   emergency_contact_name?: string;
   emergency_contact_relationship?: string;
   emergency_contact_phone?: string;
+
+  // Lifetime Pro
+  is_lifetime_pro: boolean;
+  lifetime_pro_granted_at?: string;
+  lifetime_pro_granted_by?: string;
 
   created_at: string;
   updated_at: string;
@@ -89,6 +98,14 @@ export interface Certification {
   verified_at?: string;
   expires_at?: string;
   created_at: string;
+}
+
+export interface PortfolioImage {
+  id: string;
+  user_id: string;
+  image_url: string;
+  display_order: number;
+  uploaded_at: string;
 }
 
 // Profile with all related data (for application auto-fill)
