@@ -51,6 +51,7 @@ Thumbs.db
 # Misc
 *.pem
 .cache/
+.worktrees/
 
 # Sentry Config File
 .env.sentry-build-plugin
