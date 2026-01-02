@@ -262,6 +262,9 @@ export function PortfolioManager({ profile }: PortfolioManagerProps) {
     const oldIndex = images.findIndex((img) => img.id === active.id);
     const newIndex = images.findIndex((img) => img.id === over.id);
 
+    // Store previous state for rollback on error
+    const previousImages = queryClient.getQueryData<PortfolioImage[]>(['portfolio-images']);
+
     // Optimistically update UI
     const newImages = arrayMove(images, oldIndex, newIndex);
     queryClient.setQueryData(['portfolio-images'], newImages);
@@ -275,15 +278,19 @@ export function PortfolioManager({ profile }: PortfolioManagerProps) {
       if (result.success) {
         toast.success('Photos reordered successfully');
       } else {
-        // Revert on error
+        // Restore previous state directly on error
         toast.error(result.error || 'Failed to reorder photos');
-        queryClient.invalidateQueries({ queryKey: ['portfolio-images'] });
+        if (previousImages) {
+          queryClient.setQueryData(['portfolio-images'], previousImages);
+        }
       }
     } catch (err) {
       console.error('Reorder error:', err);
       toast.error('Failed to reorder photos');
-      // Revert on error
-      queryClient.invalidateQueries({ queryKey: ['portfolio-images'] });
+      // Restore previous state directly on error
+      if (previousImages) {
+        queryClient.setQueryData(['portfolio-images'], previousImages);
+      }
     } finally {
       setIsReordering(false);
     }

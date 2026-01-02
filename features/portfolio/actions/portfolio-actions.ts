@@ -3,7 +3,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
-import { hasProAccess } from '@/lib/utils/subscription';
 
 /**
  * Upload a portfolio photo
@@ -26,16 +25,17 @@ export async function uploadPortfolioPhoto(formData: FormData): Promise<{ succes
     .eq('id', user.id)
     .single();
 
-  // NOTE: Race condition exists here - concurrent uploads could bypass limit
-  // TODO: Add database constraint or use transaction for atomic check-and-insert
   // 3. Check existing photo count
+  // NOTE: Database trigger will enforce limit atomically to prevent race conditions
   const { count } = await supabase
     .from('portfolio_images')
     .select('*', { count: 'exact', head: true })
     .eq('user_id', user.id);
 
   // 4. Enforce limits (5 for free, unlimited for Pro)
-  if (!hasProAccess(profile) && count && count >= 5) {
+  // Check if user has Pro access (either 'pro' subscription or is_lifetime_pro)
+  const isPro = profile?.subscription_status === 'pro' || profile?.is_lifetime_pro === true;
+  if (!isPro && count && count >= 5) {
     return { success: false, error: 'Free users can upload maximum 5 portfolio photos. Upgrade to Pro for unlimited.' };
   }
 
@@ -163,6 +163,9 @@ export async function deletePortfolioPhoto(imageId: string): Promise<{ success: 
 export async function reorderPortfolioPhotos(imageIds: string[]): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient(await cookies());
 
+  // Validate UUID format for all image IDs
+  const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
   // 1. Get authenticated user
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
@@ -172,6 +175,13 @@ export async function reorderPortfolioPhotos(imageIds: string[]): Promise<{ succ
   // Validate input
   if (!imageIds || imageIds.length === 0) {
     return { success: false, error: 'No images to reorder' };
+  }
+
+  // Validate each image ID is a valid UUID
+  for (const id of imageIds) {
+    if (!id || !UUID_REGEX.test(id)) {
+      return { success: false, error: 'Invalid image ID format' };
+    }
   }
 
   // 2. Update all images in parallel with error handling
