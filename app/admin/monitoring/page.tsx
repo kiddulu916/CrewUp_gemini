@@ -2,6 +2,8 @@ import { Suspense } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, LoadingSpinner } from '@/components/ui';
 import { MetricCard } from '@/components/admin/metric-card';
 import { ErrorRateChart } from '@/components/admin/error-rate-chart';
+import { SegmentFilter } from '@/components/admin/segment-filter';
+import type { SegmentValue } from '@/components/admin/segment-filter';
 import {
   getRecentIssues,
   getErrorRateData,
@@ -9,7 +11,7 @@ import {
   getSentryStats,
 } from '@/features/admin/actions/sentry-actions';
 
-   
+
 
 function getStatusColor(status: string) {
   switch (status) {
@@ -37,10 +39,15 @@ function getLevelColor(level: string) {
   }
 }
 
-async function MonitoringContent() {
+type MonitoringContentProps = {
+  role?: 'worker' | 'employer';
+  subscription?: 'free' | 'pro';
+};
+
+async function MonitoringContent({ role, subscription }: MonitoringContentProps) {
   const [health, issues, errorRateData, stats] = await Promise.all([
-    getSystemHealth(),
-    getRecentIssues(10),
+    getSystemHealth(role, subscription),
+    getRecentIssues(10, role, subscription),
     getErrorRateData(),
     getSentryStats(),
   ]);
@@ -227,13 +234,46 @@ async function MonitoringContent() {
   );
 }
 
-export default function MonitoringPage() {
+type PageProps = {
+  searchParams: {
+    role?: string;
+    subscription?: string;
+  };
+};
+
+export default function MonitoringPage({ searchParams }: PageProps) {
+  // Parse segment filters from searchParams
+  const segment: SegmentValue = {
+    role: searchParams.role as any,
+    subscription: searchParams.subscription as any,
+    location: null,
+    employerType: null,
+  };
+
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold">Monitoring Dashboard</h1>
         <p className="text-gray-600 mt-2">Error tracking and system health</p>
       </div>
+
+      {/* Segment Filter */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Filter by User Segment</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <SegmentFilter
+            value={segment}
+            onChange={() => {}}
+            showLocation={false}
+            showEmployerType={false}
+          />
+          <p className="text-sm text-gray-500 mt-2">
+            Filters errors by user role and subscription tier using Sentry tags
+          </p>
+        </CardContent>
+      </Card>
 
       <Suspense
         fallback={
@@ -242,7 +282,10 @@ export default function MonitoringPage() {
           </div>
         }
       >
-        <MonitoringContent />
+        <MonitoringContent
+          role={segment.role || undefined}
+          subscription={segment.subscription || undefined}
+        />
       </Suspense>
     </div>
   );

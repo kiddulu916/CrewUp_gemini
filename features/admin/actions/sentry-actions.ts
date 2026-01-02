@@ -74,8 +74,16 @@ function getSentryConfig() {
 
 /**
  * Fetch recent issues from Sentry API
+ *
+ * @param limit - Maximum number of issues to fetch
+ * @param role - Optional filter by user role (uses user_role tag)
+ * @param subscriptionStatus - Optional filter by subscription status (uses subscription_tier tag)
  */
-export async function getRecentIssues(limit: number = 10): Promise<SentryIssue[]> {
+export async function getRecentIssues(
+  limit: number = 10,
+  role?: 'worker' | 'employer',
+  subscriptionStatus?: 'free' | 'pro'
+): Promise<SentryIssue[]> {
   if (!isSentryConfigured()) {
     console.warn('Sentry not configured, returning mock data');
     return [];
@@ -87,8 +95,18 @@ export async function getRecentIssues(limit: number = 10): Promise<SentryIssue[]
   }
 
   try {
+    // Build query string with role/subscription filters
+    const queryParts: string[] = [];
+    if (role) {
+      queryParts.push(`user_role:${role}`);
+    }
+    if (subscriptionStatus) {
+      queryParts.push(`subscription_tier:${subscriptionStatus}`);
+    }
+    const queryParam = queryParts.length > 0 ? `&query=${encodeURIComponent(queryParts.join(' '))}` : '';
+
     const response = await fetch(
-      `https://sentry.io/api/0/projects/${config.organization}/${config.project}/issues/?statsPeriod=14d&limit=${limit}`,
+      `https://sentry.io/api/0/projects/${config.organization}/${config.project}/issues/?statsPeriod=14d&limit=${limit}${queryParam}`,
       {
         headers: {
           Authorization: `Bearer ${config.authToken}`,
@@ -178,8 +196,14 @@ export async function getErrorRateData(): Promise<ErrorRateData[]> {
 
 /**
  * Get overall system health status
+ *
+ * @param role - Optional filter by user role
+ * @param subscriptionStatus - Optional filter by subscription status
  */
-export async function getSystemHealth(): Promise<SystemHealthStatus> {
+export async function getSystemHealth(
+  role?: 'worker' | 'employer',
+  subscriptionStatus?: 'free' | 'pro'
+): Promise<SystemHealthStatus> {
   const sentryConfigured = isSentryConfigured();
 
   if (!sentryConfigured) {
@@ -194,7 +218,7 @@ export async function getSystemHealth(): Promise<SystemHealthStatus> {
   }
 
   try {
-    const issues = await getRecentIssues(100);
+    const issues = await getRecentIssues(100, role, subscriptionStatus);
     const unresolvedIssues = issues.filter(i => i.status === 'unresolved');
     const errorRateData = await getErrorRateData();
 
