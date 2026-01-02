@@ -379,3 +379,129 @@ export async function getConversionFunnel(
 
   return stages;
 }
+
+export type SubscriptionMetrics = {
+  freeUsers: number;
+  proUsers: number;
+  conversionRate: number;
+  mrr: number;
+  churnRate: number;
+  comparison: {
+    freeUsersChange: number;
+    proUsersChange: number;
+    conversionRateChange: number;
+    mrrChange: number;
+  } | null;
+};
+
+/**
+ * Get subscription metrics
+ *
+ * Calculates subscription-related business metrics including user counts by tier,
+ * conversion rates, and monthly recurring revenue (MRR).
+ *
+ * Metrics Calculated:
+ * - Free Users: Count of users with 'free' subscription status
+ * - Pro Users: Count of users with 'pro' subscription status
+ * - Conversion Rate: (Pro Users / Total Users) * 100
+ * - MRR: Sum of all active subscription amounts
+ * - Churn Rate: Percentage of users who downgraded/canceled (placeholder: 0)
+ *
+ * Security: Requires admin role authorization
+ * Performance: Applies 10,000 record limit to prevent memory exhaustion
+ *
+ * @param dateRange - Date range filter for user creation dates
+ * @returns Subscription metrics with optional comparison to previous period
+ * @throws Error if user is not authenticated
+ * @throws Error if user is not admin
+ * @throws Error if database queries fail
+ */
+export async function getSubscriptionMetrics(
+  dateRange: DateRangeValue
+): Promise<SubscriptionMetrics> {
+  const supabase = await createClient(await cookies());
+
+  // Admin authorization check
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error('Unauthorized: User not authenticated');
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (profile?.role !== 'admin') {
+    throw new Error('Forbidden: Admin access required');
+  }
+
+  const { gte, lte } = buildDateRangeFilter(dateRange);
+
+  // Get all users created in date range
+  const { data: allUsers, error: usersError } = await supabase
+    .from('profiles')
+    .select('id, subscription_status')
+    .gte('created_at', gte)
+    .lte('created_at', lte)
+    .limit(10000);
+
+  if (usersError) {
+    throw new Error(`Failed to fetch users data: ${usersError.message}`);
+  }
+
+  const freeUsers = allUsers?.filter((u) => u.subscription_status === 'free').length || 0;
+  const proUsers = allUsers?.filter((u) => u.subscription_status === 'pro').length || 0;
+  const totalUsers = allUsers?.length || 0;
+
+  const conversionRate = totalUsers > 0 ? (proUsers / totalUsers) * 100 : 0;
+
+  // Get active subscriptions for MRR calculation
+  const { data: subscriptions, error: subscriptionsError } = await supabase
+    .from('subscriptions')
+    .select('amount')
+    .eq('status', 'active')
+    .limit(10000);
+
+  if (subscriptionsError) {
+    throw new Error(`Failed to fetch subscriptions data: ${subscriptionsError.message}`);
+  }
+
+  const mrr = subscriptions?.reduce((sum, sub) => sum + (sub.amount || 0), 0) || 0;
+
+  // Calculate churn rate (users who canceled in this period)
+  // This requires tracking subscription status changes - simplified for now
+  const churnRate = 0; // TODO: Implement when subscription history tracking is added
+
+  // Get comparison if enabled
+  let comparison = null;
+  if (dateRange.compareEnabled) {
+    const comparisonDates = getComparisonDates(dateRange);
+    const comparisonMetrics = await getSubscriptionMetrics({
+      preset: 'custom',
+      startDate: comparisonDates.startDate,
+      endDate: comparisonDates.endDate,
+      compareEnabled: false,
+    });
+
+    comparison = {
+      freeUsersChange: calculatePercentageChange(freeUsers, comparisonMetrics.freeUsers),
+      proUsersChange: calculatePercentageChange(proUsers, comparisonMetrics.proUsers),
+      conversionRateChange: calculatePercentageChange(
+        conversionRate,
+        comparisonMetrics.conversionRate
+      ),
+      mrrChange: calculatePercentageChange(mrr, comparisonMetrics.mrr),
+    };
+  }
+
+  return {
+    freeUsers,
+    proUsers,
+    conversionRate,
+    mrr,
+    churnRate,
+    comparison,
+  };
+}
