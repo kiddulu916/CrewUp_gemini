@@ -23,7 +23,9 @@
     "lighthouse": "lhci autorun",
     "lighthouse:mobile": "lhci mobile",
     "lighthouse:desktop": "lhci desktop",
-    "test:perf": "npm run lighthouse"
+    "test:perf": "npm run lighthouse",
+    "grant-early-adopter-pro": "tsx scripts/grant-early-adopter-pro.ts",
+    "grant-early-adopter-pro:dry-run": "tsx scripts/grant-early-adopter-pro.ts --dry-run"
   },
   "keywords": [],
   "author": "",
