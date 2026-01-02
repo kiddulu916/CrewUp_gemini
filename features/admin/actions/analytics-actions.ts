@@ -241,13 +241,57 @@ export type ConversionFunnelStage = {
 
 /**
  * Get conversion funnel metrics
- * Stages: Signup → Profile Complete → First Action
+ *
+ * Calculates user progression through the onboarding funnel across three key stages:
+ * 1. Signup - Users who created an account in the date range
+ * 2. Profile Complete - Users who filled required profile fields (name, trade, location)
+ * 3. First Action - Users who posted a job OR submitted an application
+ *
+ * Calculation Logic:
+ * - Signup Count: All users created within the date range, filtered by segment
+ * - Profile Complete: Subset of signups with non-null name, trade, and location
+ * - First Action: Subset of profile-complete users who have at least one job or application
+ *
+ * Metrics per Stage:
+ * - count: Number of users who reached this stage
+ * - percentage: (count / signupCount) * 100 - percentage of total signups
+ * - dropOffRate: Percentage of users from previous stage who didn't progress to current stage
+ *   - Signup: null (first stage, no drop-off)
+ *   - Profile Complete: ((signupCount - profileCompleteCount) / signupCount) * 100
+ *   - First Action: ((profileCompleteCount - firstActionCount) / profileCompleteCount) * 100
+ *
+ * Security: Requires admin role authorization
+ * Performance: Applies 10,000 record limit to prevent memory exhaustion
+ *
+ * @param dateRange - Date range filter for signup creation dates
+ * @param segment - User segment filters (role, subscription, location, employer type)
+ * @returns Array of 3 funnel stages with counts, percentages, and drop-off rates
+ * @throws Error if user is not authenticated
+ * @throws Error if user is not admin
+ * @throws Error if database queries fail
  */
 export async function getConversionFunnel(
   dateRange: DateRangeValue,
   segment: SegmentValue = {}
 ): Promise<ConversionFunnelStage[]> {
   const supabase = await createClient(await cookies());
+
+  // Admin authorization check
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error('Unauthorized: User not authenticated');
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (profile?.role !== 'admin') {
+    throw new Error('Forbidden: Admin access required');
+  }
+
   const { gte, lte } = buildDateRangeFilter(dateRange);
 
   // Stage 1: Signups (users created in date range)
@@ -255,10 +299,16 @@ export async function getConversionFunnel(
     .from('profiles')
     .select('id, role, subscription_status, location, employer_type, name, trade, created_at')
     .gte('created_at', gte)
-    .lte('created_at', lte);
+    .lte('created_at', lte)
+    .limit(10000);
 
   signupQuery = applySegmentFilters(signupQuery, segment);
-  const { data: signups } = await signupQuery;
+  const { data: signups, error: signupsError } = await signupQuery;
+
+  if (signupsError) {
+    throw new Error(`Failed to fetch signups data: ${signupsError.message}`);
+  }
+
   const signupCount = signups?.length || 0;
 
   // Stage 2: Profile Complete (required fields: name, trade, location)
@@ -270,24 +320,34 @@ export async function getConversionFunnel(
   // Stage 3: First Action (posted job OR submitted application)
   const profileCompleteIds = profileComplete.map((u) => u.id);
 
-  const [jobsData, appsData] = await Promise.all([
-    supabase
-      .from('jobs')
-      .select('user_id')
-      .in('user_id', profileCompleteIds)
-      .limit(profileCompleteIds.length),
-    supabase
-      .from('job_applications')
-      .select('user_id')
-      .in('user_id', profileCompleteIds)
-      .limit(profileCompleteIds.length),
-  ]);
+  let firstActionCount = 0;
+  if (profileCompleteIds.length > 0) {
+    const [jobsData, appsData] = await Promise.all([
+      supabase
+        .from('jobs')
+        .select('user_id')
+        .in('user_id', profileCompleteIds)
+        .limit(Math.min(profileCompleteIds.length, 10000)),
+      supabase
+        .from('job_applications')
+        .select('user_id')
+        .in('user_id', profileCompleteIds)
+        .limit(Math.min(profileCompleteIds.length, 10000)),
+    ]);
 
-  const firstActionUserIds = new Set<string>();
-  jobsData.data?.forEach((job) => firstActionUserIds.add(job.user_id));
-  appsData.data?.forEach((app) => firstActionUserIds.add(app.user_id));
+    if (jobsData.error) {
+      throw new Error(`Failed to fetch jobs data: ${jobsData.error.message}`);
+    }
+    if (appsData.error) {
+      throw new Error(`Failed to fetch applications data: ${appsData.error.message}`);
+    }
 
-  const firstActionCount = firstActionUserIds.size;
+    const firstActionUserIds = new Set<string>();
+    jobsData.data?.forEach((job) => firstActionUserIds.add(job.user_id));
+    appsData.data?.forEach((app) => firstActionUserIds.add(app.user_id));
+
+    firstActionCount = firstActionUserIds.size;
+  }
 
   // Calculate percentages and drop-off rates
   const stages: ConversionFunnelStage[] = [
