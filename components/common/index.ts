@@ -4,3 +4,4 @@ export { VerificationBadge } from './verification-badge';
 export type { VerificationStatus } from './verification-badge';
 export { ContractorVerificationBanner } from './contractor-verification-banner';
 export { LicensePreviewCard } from './license-preview-card';
+export { SubscriptionBadge } from './subscription-badge';
