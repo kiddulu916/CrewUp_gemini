@@ -1,8 +1,14 @@
 'use client';
 
+import React from 'react';
 import Link from 'next/link';
 import { Badge, Card, CardContent } from '@/components/ui';
 import { calculateDistance, formatDistance } from '../utils/distance';
+import { useIsPro } from '@/features/subscriptions/hooks/use-subscription';
+import { useIsWorker } from '@/features/auth/hooks/use-auth';
+import { calculateCompatibility, getScoreBadgeColor } from '../utils/compatibility-scoring';
+import type { CompatibilityInput } from '../types/compatibility';
+import type { Certification } from '@/features/profiles/types';
 
 type JobCardProps = {
   job: {
@@ -20,16 +26,68 @@ type JobCardProps = {
     status: string;
   };
   userCoords?: { lat: number; lng: number } | null;
+  currentUser?: {
+    trade?: string | null;
+    sub_trade?: string | null;
+    location?: string | null;
+    coords?: any; // PostGIS point
+    years_of_experience?: number | null;
+    certifications?: Certification[];
+  } | null;
 };
 
-export function JobCard({ job, userCoords }: JobCardProps) {
+export function JobCard({ job, userCoords, currentUser }: JobCardProps) {
   const distance = calculateDistance(userCoords || null, job.coords || null);
   const distanceText = formatDistance(distance);
 
+  const isPro = useIsPro();
+  const isWorker = useIsWorker();
+
+  // Calculate compatibility score for Pro workers only
+  const compatibilityScore = React.useMemo(() => {
+    if (!isPro || !isWorker || !currentUser) return null;
+
+    // Build compatibility input
+    const input: CompatibilityInput = {
+      job: {
+        trade: job.trade,
+        sub_trade: job.sub_trade || null,
+        required_certifications: job.required_certs || [],
+        years_experience_required: null, // Field doesn't exist - always gives full 20 points
+        location: job.location,
+        coords: job.coords,
+      },
+      worker: {
+        trade: currentUser.trade || '',
+        sub_trade: currentUser.sub_trade || null,
+        location: currentUser.location || '',
+        coords: currentUser.coords,
+      },
+      workerCerts: (currentUser.certifications || []).map(c => c.certification_type),
+      workerExperience: currentUser.years_of_experience || 0,
+      distance: distance !== null ? distance : 999,
+    };
+
+    return calculateCompatibility(input);
+  }, [isPro, isWorker, currentUser, job, distance]);
+
+  const badgeColor = compatibilityScore
+    ? getScoreBadgeColor(compatibilityScore.totalScore)
+    : null;
+
   return (
     <Link href={`/dashboard/jobs/${job.id}`}>
-      <Card className="hover:shadow-lg transition-all duration-200 border border-gray-200 hover:border-krewup-blue cursor-pointer">
+      <Card className="hover:shadow-lg transition-all duration-200 border border-gray-200 hover:border-krewup-blue cursor-pointer relative">
         <CardContent className="p-4">
+          {/* Compatibility Badge - Pro Workers Only */}
+          {isPro && isWorker && compatibilityScore && badgeColor && (
+            <div className="absolute top-2 right-2 z-10">
+              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${badgeColor.bg} ${badgeColor.text} shadow-md`}>
+                {compatibilityScore.totalScore}% Match
+              </span>
+            </div>
+          )}
+
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 space-y-2">
               {/* Title & Badges */}

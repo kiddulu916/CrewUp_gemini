@@ -8,6 +8,8 @@ import { MessageButton } from '@/features/messaging/components/message-button';
 import { ApplicationsListWithFilter } from '@/features/applications/components/applications-list-with-filter';
 import { JobViewTracker } from '@/features/jobs/components/job-view-tracker';
 import { JobAnalyticsDashboard } from '@/features/jobs/components/job-analytics-dashboard';
+import { CompatibilityBreakdownWrapper } from '@/features/jobs/components/compatibility-breakdown-wrapper';
+import { calculateDistance } from '@/features/jobs/utils/distance';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 
@@ -33,6 +35,16 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
   if (!profile) {
     redirect('/onboarding');
+  }
+
+  // Fetch certifications for workers
+  let certifications = [];
+  if (profile.role === 'worker') {
+    const { data: certs } = await supabase
+      .from('certifications')
+      .select('*')
+      .eq('user_id', user.id);
+    certifications = certs || [];
   }
 
   // Fetch job with employer details
@@ -61,6 +73,25 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   const isWorker = profile.role === 'worker';
   const isEmployer = profile.role === 'employer';
   const isJobOwner = job.employer_id === user.id;
+
+  // Calculate distance for workers
+  let distance = null;
+  if (isWorker && profile.coords && job.coords) {
+    distance = calculateDistance(
+      { lat: profile.coords.x, lng: profile.coords.y },
+      { lat: job.coords.coordinates[1], lng: job.coords.coordinates[0] }
+    );
+  }
+
+  // Build current user data for compatibility
+  const currentUserData = isWorker ? {
+    trade: profile.trade,
+    sub_trade: profile.sub_trade,
+    location: profile.location,
+    coords: profile.coords,
+    years_of_experience: profile.years_of_experience,
+    certifications: certifications,
+  } : null;
 
   // Check if worker has already applied
   let hasApplied = false;
@@ -305,6 +336,15 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           </div>
         </CardContent>
       </Card>
+
+      {/* Compatibility Breakdown - Pro Workers Only */}
+      {isWorker && currentUserData && (
+        <CompatibilityBreakdownWrapper
+          job={job}
+          currentUser={currentUserData}
+          distance={distance}
+        />
+      )}
 
       {/* Job Analytics (Only for job owner) */}
       {isJobOwner && (
