@@ -207,15 +207,15 @@ export default async function AnalyticsOverviewPage({ searchParams }: Props) {
           />
           <MetricCard
             title="Avg Review Time"
-            value={`${operationalLoad.avgCertReviewTime.toFixed(1)} hours`}
+            value={`${operationalLoad.avgCertificationReviewTime.toFixed(1)} hours`}
           />
           <MetricCard
             title="Moderation Backlog"
-            value={operationalLoad.moderationBacklog}
+            value={operationalLoad.moderationQueueBacklog}
           />
           <MetricCard
             title="Avg Moderation Time"
-            value={`${operationalLoad.avgModerationTime.toFixed(1)} hours`}
+            value={`${operationalLoad.avgModerationResolutionTime.toFixed(1)} hours`}
           />
         </div>
 
@@ -233,9 +233,9 @@ export default async function AnalyticsOverviewPage({ searchParams }: Props) {
                     <div className="flex items-center gap-2">
                       <div
                         className="bg-blue-500 h-4 rounded"
-                        style={{ width: `${(day.pending / 30) * 100}px` }}
+                        style={{ width: `${(day.pendingCerts / 30) * 100}px` }}
                       />
-                      <span className="text-sm font-medium w-8">{day.pending}</span>
+                      <span className="text-sm font-medium w-8">{day.pendingReports}</span>
                     </div>
                   </div>
                 ))}

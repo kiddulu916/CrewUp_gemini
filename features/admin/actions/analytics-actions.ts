@@ -30,6 +30,9 @@ export type ActiveUsersResult = {
     wauChange: number;
     mauChange: number;
   } | null;
+  previousDau?: number;
+  previousWau?: number;
+  previousMau?: number;
 };
 
 export async function getUserGrowthData() {
@@ -392,6 +395,10 @@ export type SubscriptionMetrics = {
     conversionRateChange: number;
     mrrChange: number;
   } | null;
+  previousFreeUsers?: number;
+  previousProUsers?: number;
+  previousConversionRate?: number;
+  previousMrr?: number;
 };
 
 /**
@@ -516,6 +523,7 @@ export type OperationalLoadMetrics = {
     pendingCerts: number;
     pendingReports: number;
   }[];
+
 };
 
 /**
@@ -667,9 +675,9 @@ export async function getOperationalLoad(
 
   return {
     pendingCertifications: pendingCertifications || 0,
-    avgCertificationReviewTime,
+    avgCertificationReviewTime: avgCertificationReviewTime || 0,
     moderationQueueBacklog: moderationQueueBacklog || 0,
-    avgModerationResolutionTime,
+    avgModerationResolutionTime: avgModerationResolutionTime || 0,
     weeklyTrend,
   };
 }
