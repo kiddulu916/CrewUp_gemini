@@ -6,7 +6,7 @@ import { Profile } from '@/lib/types/profile.types';
 import { PortfolioManager } from '@/features/portfolio/components/portfolio-manager';
 import { ToolsSelector } from '@/features/profile/components/tools-selector';
 import { updateToolsOwned } from '@/features/profile/actions/profile-actions';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/components/providers/toast-provider';
 import { Briefcase, Image as ImageIcon, Award, User } from 'lucide-react';
 
 export interface ProfileEditTabsProps {
@@ -31,7 +31,7 @@ const tabs: Tab[] = [
 export function ProfileEditTabs({ profile }: ProfileEditTabsProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { toast } = useToast();
+  const toast = useToast();
   const [activeTab, setActiveTab] = useState<TabId>('basic');
   const [isSavingTools, setIsSavingTools] = useState(false);
 
@@ -55,23 +55,12 @@ export function ProfileEditTabs({ profile }: ProfileEditTabsProps) {
     try {
       const result = await updateToolsOwned(hasTools, toolsOwned);
       if (result.success) {
-        toast({
-          title: 'Success',
-          description: 'Tools updated successfully',
-        });
+        toast.success('Tools updated successfully');
       } else {
-        toast({
-          title: 'Error',
-          description: result.error || 'Failed to update tools',
-          variant: 'destructive',
-        });
+        toast.error(result.error || 'Failed to update tools');
       }
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'An unexpected error occurred',
-        variant: 'destructive',
-      });
+      toast.error('An unexpected error occurred');
     } finally {
       setIsSavingTools(false);
     }
