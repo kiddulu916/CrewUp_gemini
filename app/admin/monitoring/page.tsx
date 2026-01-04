@@ -263,7 +263,9 @@ export default function MonitoringPage({ searchParams }: PageProps) {
           <CardTitle>Filter by User Segment</CardTitle>
         </CardHeader>
         <CardContent>
-          <MonitoringFilters initialValue={segment} />
+          <Suspense fallback={<div className="h-10 bg-gray-100 animate-pulse rounded" />}>
+            <MonitoringFilters initialValue={segment} />
+          </Suspense>
           <p className="text-sm text-gray-500 mt-2">
             Filters errors by user role and subscription tier using Sentry tags
           </p>
