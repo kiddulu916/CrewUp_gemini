@@ -2,8 +2,8 @@ import { Suspense } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, LoadingSpinner } from '@/components/ui';
 import { MetricCard } from '@/components/admin/metric-card';
 import { ErrorRateChart } from '@/components/admin/error-rate-chart';
-import { SegmentFilter } from '@/components/admin/segment-filter';
 import type { SegmentValue } from '@/components/admin/segment-filter';
+import { MonitoringFilters } from '@/components/admin/monitoring-filters';
 import {
   getRecentIssues,
   getErrorRateData,
@@ -263,12 +263,7 @@ export default function MonitoringPage({ searchParams }: PageProps) {
           <CardTitle>Filter by User Segment</CardTitle>
         </CardHeader>
         <CardContent>
-          <SegmentFilter
-            value={segment}
-            onChange={() => {}}
-            showLocation={false}
-            showEmployerType={false}
-          />
+          <MonitoringFilters initialValue={segment} />
           <p className="text-sm text-gray-500 mt-2">
             Filters errors by user role and subscription tier using Sentry tags
           </p>
