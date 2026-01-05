@@ -2,12 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Input, Textarea, Select, Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { LocationAutocomplete, CollapsibleSection } from '@/components/common';
 import { useUpdateProfile } from '../hooks/use-update-profile';
 import { useUserLocation } from '@/hooks/use-user-location';
 import { useToast } from '@/components/providers/toast-provider';
 import { TRADES, TRADE_SUBCATEGORIES, EMPLOYER_TYPES } from '@/lib/constants';
+import { profileSchema, type ProfileSchema } from '../utils/validation';
 import { CertificationForm } from './certification-form';
 import { CertificationItem } from './certification-item';
 import { ExperienceForm } from './experience-form';
@@ -44,16 +47,26 @@ export function ProfileForm({ initialData, certifications = [], workExperience =
   const locationState = useUserLocation();
   const toast = useToast();
 
-  const [formData, setFormData] = useState({
-    name: initialData.name || '',
-    phone: initialData.phone || '',
-    location: initialData.location || '',
-    coords: initialData.coords || null,
-    trade: initialData.trade || '',
-    sub_trade: initialData.sub_trade || '',
-    bio: initialData.bio || '',
-    employer_type: initialData.employer_type || '',
-    company_name: initialData.company_name || '',
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting: isFormSubmitting },
+  } = useForm<ProfileSchema>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      name: initialData.name || '',
+      phone: initialData.phone || '',
+      location: initialData.location || '',
+      coords: initialData.coords || null,
+      trade: initialData.trade || '',
+      sub_trade: initialData.sub_trade || '',
+      bio: initialData.bio || '',
+      employer_type: initialData.employer_type || '',
+      company_name: initialData.company_name || '',
+    },
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -64,21 +77,24 @@ export function ProfileForm({ initialData, certifications = [], workExperience =
   const [showExperienceForm, setShowExperienceForm] = useState(false);
   const [showEducationForm, setShowEducationForm] = useState(false);
 
+  const watchTrade = watch('trade');
+  const watchCoords = watch('coords');
+  const watchBio = watch('bio') || '';
+
   // Update coords when location is fetched
   useEffect(() => {
-    if (locationState.location && !formData.coords) {
+    if (locationState.location && !watchCoords) {
       const coords = locationState.location;
-      setFormData(prev => ({
-        ...prev,
-        coords: coords,
-        // If location text is empty, fill with coords as fallback
-        location: prev.location || `${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`
-      }));
+      setValue('coords', coords);
+      // If location text is empty, fill with coords as fallback
+      const currentLocation = watch('location');
+      if (!currentLocation) {
+        setValue('location', `${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`);
+      }
     }
-  }, [locationState.location, formData.coords]);
+  }, [locationState.location, watchCoords, setValue, watch]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: ProfileSchema) => {
     setError(null);
 
     try {
@@ -95,17 +111,17 @@ export function ProfileForm({ initialData, certifications = [], workExperience =
       }
 
       await updateProfile.mutateAsync({
-        name: formData.name,
-        phone: formData.phone || null,
-        location: formData.location,
-        coords: formData.coords,
-        trade: formData.trade,
-        sub_trade: formData.sub_trade || null,
-        bio: formData.bio,
+        name: data.name,
+        phone: data.phone || null,
+        location: data.location,
+        coords: data.coords,
+        trade: data.trade,
+        sub_trade: data.sub_trade || null,
+        bio: data.bio || null,
         profile_image_url: profileImageUrl,
         ...(initialData.role === 'employer' && {
-          employer_type: formData.employer_type || null,
-          company_name: formData.company_name || null,
+          employer_type: data.employer_type || null,
+          company_name: data.company_name || null,
         }),
       });
 
@@ -141,15 +157,10 @@ export function ProfileForm({ initialData, certifications = [], workExperience =
     }
   };
 
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatPhoneNumber(e.target.value);
-    setFormData({ ...formData, phone: formatted });
-  };
-
-  const availableSubTrades = formData.trade ? TRADE_SUBCATEGORIES[formData.trade] || [] : [];
+  const availableSubTrades = watchTrade ? TRADE_SUBCATEGORIES[watchTrade] || [] : [];
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Basic Information */}
       <CollapsibleSection title="Basic Information" defaultOpen={true}>
         <div className="space-y-4">
@@ -162,73 +173,71 @@ export function ProfileForm({ initialData, certifications = [], workExperience =
                 userName={initialData.name}
                 userId={initialData.id}
                 onImageSelected={(file) => setSelectedProfilePicture(file)}
-                disabled={updateProfile.isPending}
+                disabled={updateProfile.isPending || isFormSubmitting}
               />
             </div>
 
             {/* Name and Email - Right Side */}
             <div className="flex-1 space-y-4">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                  Full Name <span className="text-red-500">*</span>
-                </label>
                 <Input
-                  id="name"
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  label="Full Name"
+                  {...register('name')}
                   placeholder="John Doe"
                   required
                   maxLength={100}
+                  error={errors.name?.message}
+                  disabled={isFormSubmitting}
                 />
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
-                </label>
                 <Input
-                  id="email"
+                  label="Email"
                   type="email"
                   value={initialData.email}
                   disabled
                   className="bg-gray-100 cursor-not-allowed"
+                  helperText="Email cannot be changed"
                 />
-                <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
               </div>
             </div>
           </div>
 
           {/* Phone Number - Full Width */}
           <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-              Phone Number
-            </label>
-            <Input
-              id="phone"
-              type="tel"
-              value={formData.phone}
-              onChange={handlePhoneChange}
-              placeholder="(555) 123-4567"
+            <Controller
+              control={control}
+              name="phone"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  label="Phone Number"
+                  type="tel"
+                  placeholder="(555) 123-4567"
+                  onChange={(e) => {
+                    const formatted = formatPhoneNumber(e.target.value);
+                    field.onChange(formatted);
+                  }}
+                  error={errors.phone?.message}
+                  disabled={isFormSubmitting}
+                />
+              )}
             />
           </div>
 
           {/* Bio - Full Width */}
           <div>
-            <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-1">
-              Bio
-            </label>
             <Textarea
-              id="bio"
-              value={formData.bio}
-              onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+              label="Bio"
+              {...register('bio')}
               placeholder="Tell others about yourself..."
               rows={4}
               maxLength={500}
+              error={errors.bio?.message}
+              disabled={isFormSubmitting}
+              helperText={`${watchBio.length}/500 characters`}
             />
-            <p className="text-xs text-gray-500 mt-1">
-              {formData.bio.length}/500 characters
-            </p>
           </div>
         </div>
       </CollapsibleSection>
@@ -237,33 +246,37 @@ export function ProfileForm({ initialData, certifications = [], workExperience =
       <CollapsibleSection title="Trade Information" defaultOpen={true}>
         <div className="space-y-4">
           <div>
-            <label htmlFor="trade" className="block text-sm font-medium text-gray-700 mb-1.5">
-              Primary Trade <span className="text-red-500">*</span>
-            </label>
-            <Select
-              id="trade"
-              value={formData.trade}
-              onChange={(e) =>
-                setFormData({ ...formData, trade: e.target.value, sub_trade: '' })
-              }
-              options={TRADES.map((trade) => ({ value: trade, label: trade }))}
-              required
+            <Controller
+              control={control}
+              name="trade"
+              render={({ field }) => (
+                <Select
+                  {...field}
+                  label="Primary Trade"
+                  options={TRADES.map((trade) => ({ value: trade, label: trade }))}
+                  required
+                  error={errors.trade?.message}
+                  disabled={isFormSubmitting}
+                  onChange={(e) => {
+                    field.onChange(e.target.value);
+                    setValue('sub_trade', '');
+                  }}
+                />
+              )}
             />
           </div>
 
           {availableSubTrades.length > 0 && (
             <div>
-              <label htmlFor="sub_trade" className="block text-sm font-medium text-gray-700 mb-1.5">
-                Specialty
-              </label>
               <Select
-                id="sub_trade"
-                value={formData.sub_trade}
-                onChange={(e) => setFormData({ ...formData, sub_trade: e.target.value })}
+                label="Specialty"
+                {...register('sub_trade')}
                 options={[
                   { value: '', label: 'No specialty' },
                   ...availableSubTrades.map((subTrade) => ({ value: subTrade, label: subTrade })),
                 ]}
+                error={errors.sub_trade?.message}
+                disabled={isFormSubmitting}
               />
             </div>
           )}
@@ -275,31 +288,22 @@ export function ProfileForm({ initialData, certifications = [], workExperience =
         <CollapsibleSection title="Employer Information" defaultOpen={true}>
           <div className="space-y-4">
             <div>
-              <label htmlFor="company_name" className="block text-sm font-medium text-gray-700 mb-1">
-                Company/Business Name <span className="text-red-500">*</span>
-              </label>
               <Input
-                id="company_name"
-                type="text"
-                value={formData.company_name}
-                onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
+                label="Company/Business Name"
+                {...register('company_name')}
                 placeholder="ABC Construction LLC"
                 required
                 maxLength={100}
+                error={errors.company_name?.message}
+                disabled={isFormSubmitting}
+                helperText="Your business name (will be shown on job postings)"
               />
-              <p className="text-xs text-gray-500 mt-1">
-                Your business name (will be shown on job postings)
-              </p>
             </div>
 
             <div>
-              <label htmlFor="employer_type" className="block text-sm font-medium text-gray-700 mb-1.5">
-                Employer Type
-              </label>
               <Select
-                id="employer_type"
-                value={formData.employer_type}
-                onChange={(e) => setFormData({ ...formData, employer_type: e.target.value })}
+                label="Employer Type"
+                {...register('employer_type')}
                 options={[
                   { value: '', label: 'Select type' },
                   ...EMPLOYER_TYPES.map((type) => ({
@@ -307,11 +311,13 @@ export function ProfileForm({ initialData, certifications = [], workExperience =
                     label: type.charAt(0).toUpperCase() + type.slice(1),
                   })),
                 ]}
+                error={errors.employer_type?.message}
+                disabled={isFormSubmitting}
               />
             </div>
 
             {/* Contractor Licenses (Contractors Only) */}
-            {formData.employer_type === 'contractor' && (
+            {watch('employer_type') === 'contractor' && (
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <div className="flex items-center justify-between mb-4">
                   <div>
@@ -335,7 +341,7 @@ export function ProfileForm({ initialData, certifications = [], workExperience =
                 {showCertificationForm && (
                   <CertificationForm
                     role={initialData.role}
-                    employerType={formData.employer_type}
+                    employerType={watch('employer_type')}
                     onSuccess={() => {
                       setShowCertificationForm(false);
                       router.refresh();
@@ -369,24 +375,29 @@ export function ProfileForm({ initialData, certifications = [], workExperience =
       {/* Location */}
       <CollapsibleSection title="Location" defaultOpen={true}>
         <div className="space-y-4">
-          <LocationAutocomplete
-            label="Address / City"
-            value={formData.location}
-            onChange={(data) => {
-              setFormData({
-                ...formData,
-                location: data.address,
-                coords: data.coords,
-              });
-            }}
-            helperText="Start typing to see address suggestions"
-            required
-            placeholder="Chicago, IL"
+          <Controller
+            control={control}
+            name="location"
+            render={({ field }) => (
+              <LocationAutocomplete
+                label="Address / City"
+                value={field.value}
+                onChange={(data) => {
+                  field.onChange(data.address);
+                  setValue('coords', data.coords);
+                }}
+                helperText="Start typing to see address suggestions"
+                required
+                placeholder="Chicago, IL"
+                error={errors.location?.message}
+                disabled={isFormSubmitting}
+              />
+            )}
           />
 
-          {formData.coords && typeof formData.coords.lat === 'number' && typeof formData.coords.lng === 'number' && (
+          {watchCoords && typeof watchCoords.lat === 'number' && typeof watchCoords.lng === 'number' && (
             <p className="text-xs text-green-600">
-              ✓ Location coordinates saved ({formData.coords.lat.toFixed(4)}, {formData.coords.lng.toFixed(4)})
+              ✓ Location coordinates saved ({watchCoords.lat.toFixed(4)}, {watchCoords.lng.toFixed(4)})
             </p>
           )}
         </div>
@@ -414,7 +425,7 @@ export function ProfileForm({ initialData, certifications = [], workExperience =
             {showCertificationForm && (
               <CertificationForm
                 role={initialData.role}
-                employerType={formData.employer_type}
+                employerType={watch('employer_type')}
                 onSuccess={() => {
                   setShowCertificationForm(false);
                   router.refresh();
@@ -561,10 +572,10 @@ export function ProfileForm({ initialData, certifications = [], workExperience =
         <Button
           type="submit"
           variant="primary"
-          isLoading={updateProfile.isPending}
+          isLoading={updateProfile.isPending || isFormSubmitting}
           className="w-full"
         >
-          {updateProfile.isPending ? 'Saving...' : 'Save Changes'}
+          {updateProfile.isPending || isFormSubmitting ? 'Saving...' : 'Save Changes'}
         </Button>
       </div>
     </form>

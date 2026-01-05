@@ -1,9 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Input, Select } from '@/components/ui';
-import { addEducation, type EducationData } from '../actions/education-actions';
+import { addEducation } from '../actions/education-actions';
 import { useRouter } from 'next/navigation';
+import { educationSchema, type EducationSchema } from '../utils/validation';
 
 const DEGREE_TYPES = [
   'High School Diploma',
@@ -25,52 +28,45 @@ type Props = {
 
 export function EducationForm({ onSuccess, onCancel }: Props) {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const currentYear = new Date().getFullYear();
-
-  const [formData, setFormData] = useState<EducationData>({
-    institution_name: '',
-    degree_type: '',
-    field_of_study: '',
-    graduation_year: undefined,
-    is_currently_enrolled: false,
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<EducationSchema>({
+    resolver: zodResolver(educationSchema),
+    defaultValues: {
+      institution_name: '',
+      degree_type: '',
+      field_of_study: '',
+      graduation_year: undefined,
+      is_currently_enrolled: false,
+    },
   });
 
-  function updateFormData(updates: Partial<EducationData>) {
-    setFormData((prev) => ({ ...prev, ...updates }));
-  }
-
-  async function handleSubmit() {
+  async function onSubmit(data: EducationSchema) {
     setError('');
-    setIsLoading(true);
 
-    const result = await addEducation(formData);
+    const result = await addEducation(data);
 
     if (result.success) {
       router.refresh();
       if (onSuccess) {
         onSuccess();
       } else {
-        // Reset form
-        setFormData({
-          institution_name: '',
-          degree_type: '',
-          field_of_study: '',
-          graduation_year: undefined,
-          is_currently_enrolled: false,
-        });
+        reset();
       }
     } else {
       setError(result.error || 'Failed to add education entry');
     }
-
-    setIsLoading(false);
   }
 
+  const currentYear = new Date().getFullYear();
+
   return (
-    <div className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {error && (
         <div className="rounded-lg bg-red-50 border border-red-200 p-3">
           <p className="text-sm text-red-800">{error}</p>
@@ -80,29 +76,29 @@ export function EducationForm({ onSuccess, onCancel }: Props) {
       <Select
         label="Degree Type"
         options={DEGREE_TYPES.map((type) => ({ value: type, label: type }))}
-        value={formData.degree_type}
-        onChange={(e) => updateFormData({ degree_type: e.target.value })}
+        {...register('degree_type')}
         required
-        disabled={isLoading}
+        error={errors.degree_type?.message}
+        disabled={isSubmitting}
       />
 
       <Input
         label="Institution Name"
         type="text"
         placeholder="e.g., Lincoln Technical Institute"
-        value={formData.institution_name}
-        onChange={(e) => updateFormData({ institution_name: e.target.value })}
+        {...register('institution_name')}
         required
-        disabled={isLoading}
+        error={errors.institution_name?.message}
+        disabled={isSubmitting}
       />
 
       <Input
         label="Field of Study (Optional)"
         type="text"
         placeholder="e.g., HVAC Technology"
-        value={formData.field_of_study}
-        onChange={(e) => updateFormData({ field_of_study: e.target.value })}
-        disabled={isLoading}
+        {...register('field_of_study')}
+        error={errors.field_of_study?.message}
+        disabled={isSubmitting}
       />
 
       <Input
@@ -110,18 +106,17 @@ export function EducationForm({ onSuccess, onCancel }: Props) {
         type="number"
         min="1950"
         max={currentYear + 10}
-        value={formData.graduation_year || ''}
-        onChange={(e) => updateFormData({ graduation_year: e.target.value ? parseInt(e.target.value) : undefined })}
-        disabled={isLoading}
+        {...register('graduation_year', { valueAsNumber: true })}
+        error={errors.graduation_year?.message}
+        disabled={isSubmitting}
       />
 
       <div className="flex items-center gap-2">
         <input
           type="checkbox"
           id="is_currently_enrolled"
-          checked={formData.is_currently_enrolled}
-          onChange={(e) => updateFormData({ is_currently_enrolled: e.target.checked })}
-          disabled={isLoading}
+          {...register('is_currently_enrolled')}
+          disabled={isSubmitting}
           className="rounded border-gray-300 text-krewup-blue focus:ring-krewup-blue"
         />
         <label htmlFor="is_currently_enrolled" className="text-sm text-gray-700">
@@ -130,20 +125,18 @@ export function EducationForm({ onSuccess, onCancel }: Props) {
       </div>
 
       <div className="flex gap-3 pt-4">
-        {onCancel && (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-            disabled={isLoading}
-          >
-            Cancel
-          </Button>
-        )}
-        <Button type="button" onClick={handleSubmit} isLoading={isLoading}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel || (() => router.back())}
+          disabled={isSubmitting}
+        >
+          Cancel
+        </Button>
+        <Button type="submit" isLoading={isSubmitting}>
           Add Education
         </Button>
       </div>
-    </div>
+    </form>
   );
 }

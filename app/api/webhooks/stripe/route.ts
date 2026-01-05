@@ -10,9 +10,6 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// Idempotency: Track processed event IDs to prevent duplicate processing
-const processedEvents = new Set<string>();
-
 /**
  * Stripe webhook handler
  * Note: This route is not functional in static export builds (mobile).
@@ -40,7 +37,13 @@ export async function POST(req: NextRequest) {
   }
 
   // Idempotency check: Return 200 if event already processed
-  if (processedEvents.has(event.id)) {
+  const { data: existingEvent } = await supabaseAdmin
+    .from('stripe_processed_events')
+    .select('id')
+    .eq('id', event.id)
+    .maybeSingle();
+
+  if (existingEvent) {
     console.log(`Event ${event.id} already processed, skipping`);
     return NextResponse.json({ received: true });
   }
@@ -302,7 +305,12 @@ export async function POST(req: NextRequest) {
     }
 
     // Mark event as processed for idempotency
-    processedEvents.add(event.id);
+    await supabaseAdmin
+      .from('stripe_processed_events')
+      .insert({
+        id: event.id,
+        type: event.type,
+      });
 
     return NextResponse.json({ received: true });
   } catch (err) {

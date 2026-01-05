@@ -15,20 +15,10 @@ import * as Sentry from '@sentry/nextjs';
  * @example middleware.ts
  * ```tsx
  * import { updateSession } from '@/lib/supabase/middleware';
- * import { NextResponse, type NextRequest } from 'next/server';
+ * import { type NextRequest } from 'next/server';
  *
  * export async function middleware(request: NextRequest) {
- *   // Refresh auth session
- *   const response = await updateSession(request);
- *
- *   // Optional: Add custom logic here (e.g., redirect based on auth state)
- *   // const supabase = createClient(request);
- *   // const { data: { user } } = await supabase.auth.getUser();
- *   // if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {
- *   //   return NextResponse.redirect(new URL('/login', request.url));
- *   // }
- *
- *   return response;
+ *   return await updateSession(request);
  * }
  *
  * export const config = {
@@ -40,7 +30,7 @@ import * as Sentry from '@sentry/nextjs';
  */
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 /**
  * Check if user has admin access for /admin/* routes
@@ -73,7 +63,7 @@ async function checkAdminAccess(
   return profile?.is_admin === true;
 }
 
-export async function createClient(request: NextRequest) {
+export async function updateSession(request: NextRequest) {
   // Create an unmodified response
   let supabaseResponse = NextResponse.next({
     request: {
@@ -172,12 +162,5 @@ export async function createClient(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard/feed', request.url));
   }
 
-  return supabaseResponse;
-}
-
-export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
-  })
   return supabaseResponse;
 }
