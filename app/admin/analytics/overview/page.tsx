@@ -54,36 +54,16 @@ export default async function AnalyticsOverviewPage({ searchParams }: Props) {
       getOperationalLoad(dateRange),
     ]);
 
-  // Calculate percentage changes for active users
-  const dauChange = activeUsers.previousDau
-    ? ((activeUsers.dau - activeUsers.previousDau) / activeUsers.previousDau) * 100
-    : 0;
-  const wauChange = activeUsers.previousWau
-    ? ((activeUsers.wau - activeUsers.previousWau) / activeUsers.previousWau) * 100
-    : 0;
-  const mauChange = activeUsers.previousMau
-    ? ((activeUsers.mau - activeUsers.previousMau) / activeUsers.previousMau) * 100
-    : 0;
+  // Use percentage changes from comparison data
+  const dauChange = activeUsers.comparison?.dauChange || 0;
+  const wauChange = activeUsers.comparison?.wauChange || 0;
+  const mauChange = activeUsers.comparison?.mauChange || 0;
 
-  // Calculate percentage changes for subscription metrics
-  const freeUsersChange = subscriptionMetrics.previousFreeUsers
-    ? ((subscriptionMetrics.freeUsers - subscriptionMetrics.previousFreeUsers) /
-        subscriptionMetrics.previousFreeUsers) *
-      100
-    : 0;
-  const proUsersChange = subscriptionMetrics.previousProUsers
-    ? ((subscriptionMetrics.proUsers - subscriptionMetrics.previousProUsers) /
-        subscriptionMetrics.previousProUsers) *
-      100
-    : 0;
-  const conversionRateChange = subscriptionMetrics.previousConversionRate
-    ? subscriptionMetrics.conversionRate - subscriptionMetrics.previousConversionRate
-    : 0;
-  const mrrChange = subscriptionMetrics.previousMrr
-    ? ((subscriptionMetrics.mrr - subscriptionMetrics.previousMrr) /
-        subscriptionMetrics.previousMrr) *
-      100
-    : 0;
+  // Use percentage changes from subscription comparison data
+  const freeUsersChange = subscriptionMetrics.comparison?.freeUsersChange || 0;
+  const proUsersChange = subscriptionMetrics.comparison?.proUsersChange || 0;
+  const conversionRateChange = subscriptionMetrics.comparison?.conversionRateChange || 0;
+  const mrrChange = subscriptionMetrics.comparison?.mrrChange || 0;
 
   return (
     <div className="space-y-6">
@@ -207,15 +187,15 @@ export default async function AnalyticsOverviewPage({ searchParams }: Props) {
           />
           <MetricCard
             title="Avg Review Time"
-            value={`${operationalLoad.avgCertReviewTime.toFixed(1)} hours`}
+            value={`${operationalLoad.avgCertificationReviewTime.toFixed(1)} hours`}
           />
           <MetricCard
             title="Moderation Backlog"
-            value={operationalLoad.moderationBacklog}
+            value={operationalLoad.moderationQueueBacklog}
           />
           <MetricCard
             title="Avg Moderation Time"
-            value={`${operationalLoad.avgModerationTime.toFixed(1)} hours`}
+            value={`${operationalLoad.avgModerationResolutionTime.toFixed(1)} hours`}
           />
         </div>
 
@@ -227,18 +207,21 @@ export default async function AnalyticsOverviewPage({ searchParams }: Props) {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {operationalLoad.weeklyTrend.map((day) => (
-                  <div key={day.date} className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">{day.date}</span>
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="bg-blue-500 h-4 rounded"
-                        style={{ width: `${(day.pending / 30) * 100}px` }}
-                      />
-                      <span className="text-sm font-medium w-8">{day.pending}</span>
+                {operationalLoad.weeklyTrend.map((day) => {
+                  const totalPending = day.pendingCerts + day.pendingReports;
+                  return (
+                    <div key={day.date} className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">{day.date}</span>
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="bg-blue-500 h-4 rounded"
+                          style={{ width: `${Math.min((totalPending / 30) * 100, 200)}px` }}
+                        />
+                        <span className="text-sm font-medium w-8">{totalPending}</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </CardContent>
           </Card>

@@ -47,6 +47,8 @@ type Props = {
   helperText?: string;
   required?: boolean;
   placeholder?: string;
+  disabled?: boolean;
+  error?: string;
 };
 
 export function LocationAutocomplete({
@@ -56,6 +58,8 @@ export function LocationAutocomplete({
   helperText,
   required = false,
   placeholder = 'Chicago, IL',
+  disabled = false,
+  error,
 }: Props) {
   const [inputValue, setInputValue] = useState(value);
   const [isLoading, setIsLoading] = useState(false);
@@ -207,13 +211,15 @@ export function LocationAutocomplete({
         }}
         helperText={helperText}
         required={required}
+        disabled={disabled}
+        error={error}
       />
 
       <button
         type="button"
         onClick={handleGetCurrentLocation}
-        disabled={isLoading}
-        className="text-sm text-krewup-blue hover:text-krewup-orange font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled={isLoading || disabled}
+        className="flex items-center gap-1.5 text-xs font-medium text-krewup-blue hover:text-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isLoading ? '📍 Getting location...' : '📍 Use my current location'}
       </button>

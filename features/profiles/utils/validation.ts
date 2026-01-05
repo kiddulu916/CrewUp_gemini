@@ -22,7 +22,7 @@ export const experienceSchema = z.object({
   company_name: z.string().min(1, 'Company name is required').max(100),
   start_date: z.string().min(1, 'Start date is required'),
   end_date: z.string().optional(),
-  is_current: z.boolean().default(false),
+  is_current: z.boolean(),
   description: z.string().max(500).optional(),
 }).refine((data) => data.is_current || !!data.end_date, {
   message: "End date is required if not currently working here",
@@ -34,7 +34,7 @@ export const educationSchema = z.object({
   degree_type: z.string().min(1, 'Degree type is required').max(100),
   field_of_study: z.string().max(100).optional(),
   graduation_year: z.number().optional(),
-  is_currently_enrolled: z.boolean().default(false),
+  is_currently_enrolled: z.boolean(),
 });
 
 export const certificationSchema = z.object({

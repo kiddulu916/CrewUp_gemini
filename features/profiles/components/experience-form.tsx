@@ -23,6 +23,7 @@ export function ExperienceForm({ onSuccess, onCancel }: Props) {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<ExperienceSchema>({
     resolver: zodResolver(experienceSchema),

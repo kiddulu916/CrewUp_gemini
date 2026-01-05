@@ -1,0 +1,27 @@
+name,last_vacuum,last_autovacuum,last_analyze,last_autoanalyze,rowcount,dead_rowcount,autovacuum_threshold,expect_autovacuum,autoanalyze_threshold,expect_autoanalyze
+public.application_drafts,"",2025-12-29 12:24,"",2025-12-29 12:09,             1,             1,            50,no,            50,no
+public.conversations,"","","","",             1,             5,            50,no,            50,no
+public.jobs,"","","","",             1,            13,            50,no,            50,no
+public.notification_preferences,"",2026-01-05 01:04,"",2026-01-05 00:54,             1,             0,            50,no,            50,no
+public.profiles,"",2026-01-05 00:55,"",2026-01-05 00:54,             2,            40,            50,no,            50,no
+public.spatial_ref_sys,"",2025-12-18 07:56,2025-12-18 07:56,2025-12-18 07:56,"         8,500",             0,"         1,750",no,           900,no
+public.admin_activity_log,"","","","",            -1,            13,            50,no,            50,no
+public.analytics_events,"","","","",            -1,             0,            50,no,            50,no
+public.certifications,"","","","",            -1,            13,            50,no,            50,no
+public.content_reports,"","","","",            -1,             0,            50,no,            50,no
+public.education,"","","","",            -1,             5,            50,no,            50,no
+public.endorsement_requests,"","","","",            -1,             0,            50,no,            50,no
+public.endorsements,"","","","",            -1,             0,            50,no,            50,no
+public.experiences,"","","","",            -1,             8,            50,no,            50,no
+public.job_applications,"","","","",            -1,             6,            50,no,            50,no
+public.job_views,"","","","",            -1,             0,            50,no,            50,no
+public.messages,"","","","",            -1,            21,            50,no,            50,no
+public.notifications,"","","","",            -1,             0,            50,no,            50,no
+public.platform_settings,"","","","",            -1,             0,            50,no,            50,no
+public.portfolio_images,"","","","",            -1,             0,            50,no,            50,no
+public.professional_references,"","","","",            -1,             3,            50,no,            50,no
+public.profile_views,"","","","",            -1,             2,            50,no,            50,no
+public.proximity_alerts,"","","","",            -1,             0,            50,no,            50,no
+public.subscriptions,"","","","",            -1,            25,            50,no,            50,no
+public.user_moderation_actions,"","","","",            -1,            10,            50,no,            50,no
+public.work_experience,"","","","",            -1,             3,            50,no,            50,no
