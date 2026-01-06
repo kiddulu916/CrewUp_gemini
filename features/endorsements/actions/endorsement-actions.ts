@@ -48,7 +48,7 @@ export async function requestEndorsement(
 
     // Check if user is Pro worker
     const { data: profile } = await supabase
-      .from('profiles')
+      .from('users')
       .select('subscription_status, role, name, email')
       .eq('id', user.id)
       .single();
@@ -79,7 +79,7 @@ export async function requestEndorsement(
 
     // Find employer by email
     const { data: employer } = await supabase
-      .from('profiles')
+      .from('users')
       .select('id, name, role')
       .eq('email', employerEmail.toLowerCase())
       .eq('role', 'employer')
@@ -201,7 +201,7 @@ export async function approveEndorsement(
 
     // Get employer profile
     const { data: employer } = await supabase
-      .from('profiles')
+      .from('users')
       .select('name, employer_type')
       .eq('id', user.id)
       .single();

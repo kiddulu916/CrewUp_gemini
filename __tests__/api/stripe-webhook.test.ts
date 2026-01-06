@@ -46,7 +46,7 @@ describe('Stripe Webhook API', () => {
     testUserId = authData.user!.id;
 
     const { error: profileError } = await testDb
-      .from('profiles')
+      .from('users')
       .upsert({
         id: testUserId,
         email: testEmail,
@@ -73,7 +73,7 @@ describe('Stripe Webhook API', () => {
     // Cleanup
     await testDb.from('stripe_processed_events').delete().like('id', 'evt_test_%');
     await testDb.from('subscriptions').delete().eq('user_id', testUserId);
-    await testDb.from('profiles').delete().eq('id', testUserId);
+    await testDb.from('users').delete().eq('id', testUserId);
     await testDb.auth.admin.deleteUser(testUserId);
   });
 
@@ -150,7 +150,7 @@ describe('Stripe Webhook API', () => {
 
     // Verify profile update
     const { data: profile } = await testDb
-      .from('profiles')
+      .from('users')
       .select('subscription_status, is_profile_boosted')
       .eq('id', testUserId)
       .single();
@@ -229,7 +229,7 @@ describe('Stripe Webhook API', () => {
     if (insertError) throw insertError;
 
     // Also set profile to pro
-    await testDb.from('profiles').update({ subscription_status: 'pro', is_profile_boosted: true }).eq('id', testUserId);
+    await testDb.from('users').update({ subscription_status: 'pro', is_profile_boosted: true }).eq('id', testUserId);
 
     const mockEvent = {
       id: `evt_test_delete_${Date.now()}`,
@@ -258,7 +258,7 @@ describe('Stripe Webhook API', () => {
 
     // Verify profile updated
     const { data: profile } = await testDb
-      .from('profiles')
+      .from('users')
       .select('subscription_status, is_profile_boosted')
       .eq('id', testUserId)
       .single();

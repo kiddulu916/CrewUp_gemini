@@ -31,12 +31,6 @@ test.describe('Job Posting and Feed', () => {
       location: 'Chicago, IL',
     });
 
-    // Grant posting permissions to employer
-    await testDb
-      .from('profiles')
-      .update({ can_post_jobs: true })
-      .eq('id', employer.id);
-
     worker = await createTestUser({
       email: generateTestEmail(),
       password: 'TestPassword123!',
@@ -309,7 +303,7 @@ test.describe('Job Posting and Feed', () => {
   });
 
   test('contractor without license verification cannot post jobs', async ({ page }) => {
-    // Create contractor without can_post_jobs
+    // Create contractor
     const contractor = await createTestUser({
       email: generateTestEmail(),
       password: 'TestPassword123!',
@@ -317,13 +311,14 @@ test.describe('Job Posting and Feed', () => {
       name: 'Test Contractor',
       trade: 'Carpenters (Rough)',
       location: 'Chicago, IL',
+      employerType: 'contractor',
     });
 
-    // Set employer_type to contractor and can_post_jobs to false
+    // Set has_cl to false
     await testDb
-      .from('profiles')
-      .update({ employer_type: 'contractor', can_post_jobs: false })
-      .eq('id', contractor.id);
+      .from('contractors')
+      .update({ has_cl: false })
+      .eq('user_id', contractor.id);
 
     await loginAsUser(page, contractor);
     await page.goto('/dashboard/jobs/new');

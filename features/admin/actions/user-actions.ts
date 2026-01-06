@@ -23,7 +23,7 @@ export async function suspendUser(
 
   // Verify admin status
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('id', user.id)
     .single();
@@ -96,7 +96,7 @@ export async function banUser(userId: string, reason: string) {
 
   // Verify admin status
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('id', user.id)
     .single();
@@ -158,7 +158,7 @@ export async function unbanUser(userId: string) {
 
   // Verify admin status
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('id', user.id)
     .single();
@@ -215,7 +215,7 @@ export async function grantProSubscription(userId: string, reason: string) {
 
   // Verify admin status
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('id', user.id)
     .single();
@@ -226,7 +226,7 @@ export async function grantProSubscription(userId: string, reason: string) {
 
   // Update user's subscription status
   const { error: updateError } = await supabase
-    .from('profiles')
+    .from('users')
     .update({
       subscription_status: 'pro',
     })
@@ -288,7 +288,7 @@ export async function revokeProSubscription(userId: string, reason: string) {
 
   // Verify admin status
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('id', user.id)
     .single();
@@ -299,7 +299,7 @@ export async function revokeProSubscription(userId: string, reason: string) {
 
   // Update user's subscription status
   const { error: updateError } = await supabase
-    .from('profiles')
+    .from('users')
     .update({
       subscription_status: 'free',
     })
@@ -353,7 +353,7 @@ export async function getUserModerationHistory(userId: string) {
 
   // Verify admin status
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('id', user.id)
     .single();
@@ -367,7 +367,7 @@ export async function getUserModerationHistory(userId: string) {
     .select(
       `
       *,
-      actioned_by_profile:profiles!actioned_by(name)
+      actioned_by_profile:users!actioned_by(name)
     `
     )
     .eq('user_id', userId)

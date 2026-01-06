@@ -339,7 +339,7 @@ export async function uploadPortfolioPhoto(formData: FormData) {
 
   // Get user's subscription status and current photo count
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('subscription_status, role, is_lifetime_pro')
     .eq('id', user.id)
     .single();
@@ -516,7 +516,7 @@ export async function updateToolsOwned(data: {
   }
 
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('role')
     .eq('id', user.id)
     .single();
@@ -529,7 +529,7 @@ export async function updateToolsOwned(data: {
   const toolsToSave = data.has_tools ? data.tools_owned : [];
 
   const { error } = await supabase
-    .from('profiles')
+    .from('users')
     .update({
       has_tools: data.has_tools,
       tools_owned: toolsToSave,
@@ -580,7 +580,7 @@ export async function grantLifetimePro(userId: string) {
 
   // Verify admin
   const { data: adminProfile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('id', user.id)
     .single();
@@ -590,7 +590,7 @@ export async function grantLifetimePro(userId: string) {
   }
 
   const { error } = await supabase
-    .from('profiles')
+    .from('users')
     .update({
       is_lifetime_pro: true,
       lifetime_pro_granted_at: new Date().toISOString(),
@@ -622,7 +622,7 @@ export async function revokeLifetimePro(userId: string) {
   }
 
   const { data: adminProfile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('id', user.id)
     .single();
@@ -632,7 +632,7 @@ export async function revokeLifetimePro(userId: string) {
   }
 
   const { error } = await supabase
-    .from('profiles')
+    .from('users')
     .update({
       is_lifetime_pro: false,
       lifetime_pro_granted_at: null,
@@ -688,7 +688,7 @@ async function grantEarlyAdopterPro() {
 
   // Get first 50 workers by created_at
   const { data: workers } = await supabase
-    .from('profiles')
+    .from('users')
     .select('id, created_at')
     .eq('role', 'worker')
     .order('created_at', { ascending: true })
@@ -696,7 +696,7 @@ async function grantEarlyAdopterPro() {
 
   if (workers && workers.length > 0) {
     const { error } = await supabase
-      .from('profiles')
+      .from('users')
       .update({
         is_lifetime_pro: true,
         lifetime_pro_granted_at: new Date().toISOString(),
@@ -713,7 +713,7 @@ async function grantEarlyAdopterPro() {
   // Repeat for each employer type
   for (const employerType of ['contractor', 'developer', 'homeowner', 'recruiter'] as const) {
     const { data: employers } = await supabase
-      .from('profiles')
+      .from('users')
       .select('id, created_at')
       .eq('role', 'employer')
       .eq('employer_type', employerType)
@@ -722,7 +722,7 @@ async function grantEarlyAdopterPro() {
 
     if (employers && employers.length > 0) {
       const { error } = await supabase
-        .from('profiles')
+        .from('users')
         .update({
           is_lifetime_pro: true,
           lifetime_pro_granted_at: new Date().toISOString(),
@@ -1017,7 +1017,7 @@ export default async function ProfileEditPage() {
   if (!user) redirect('/login');
 
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('*')
     .eq('id', user.id)
     .single();
@@ -1056,7 +1056,7 @@ Find the `handleCheckoutComplete` function and add check before updating subscri
 ```typescript
 // Check if user is lifetime Pro
 const { data: profile } = await supabase
-  .from('profiles')
+  .from('users')
   .select('is_lifetime_pro')
   .eq('id', userId)
   .single();

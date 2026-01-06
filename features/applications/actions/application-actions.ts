@@ -37,7 +37,7 @@ export async function createApplication(
 
     // Check if user is a worker
     const { data: profile } = await supabase
-      .from('profiles')
+      .from('users')
       .select('role')
       .eq('id', user.id)
       .single();
@@ -200,7 +200,7 @@ export async function getJobApplications(jobId: string) {
       .select(
         `
         *,
-        applicant:profiles!applicant_id(
+        applicant:users!applicant_id(
           id,
           name,
           trade,
@@ -269,7 +269,7 @@ export async function submitApplication(
 
     // Check if user is a worker
     const { data: profile } = await supabase
-      .from('profiles')
+      .from('users')
       .select('role')
       .eq('id', user.id)
       .single();

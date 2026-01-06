@@ -28,7 +28,7 @@ export default async function ApplicationDetailPage({ params }: Props) {
 
   // Fetch current user's profile
   const { data: currentProfile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('*')
     .eq('id', user.id)
     .single();
@@ -42,7 +42,7 @@ export default async function ApplicationDetailPage({ params }: Props) {
     .from('job_applications')
     .select(`
       *,
-      applicant:profiles!applicant_id(
+      applicant:users!applicant_id(
         id,
         name,
         trade,
@@ -67,7 +67,7 @@ export default async function ApplicationDetailPage({ params }: Props) {
         required_certs,
         custom_questions,
         employer_id,
-        employer:profiles!employer_id(
+        employer:users!employer_id(
           id,
           name,
           company_name,

@@ -32,7 +32,7 @@ export function useMessages(conversationId: string) {
       const messagesWithSenders = await Promise.all(
         (data || []).map(async (message: any) => {
           const { data: sender } = await supabase
-            .from('profiles')
+            .from('users')
             .select('id, name, profile_image_url')
             .eq('id', message.sender_id)
             .single();

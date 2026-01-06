@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
 
         // Update profiles.subscription_status to 'pro' and activate profile boost
         const { data: profile } = await supabaseAdmin
-          .from('profiles')
+          .from('users')
           .select('role, is_lifetime_pro')
           .eq('id', userId)
           .single();
@@ -132,7 +132,7 @@ export async function POST(req: NextRequest) {
           }
 
           const { error: profileError } = await supabaseAdmin
-            .from('profiles')
+            .from('users')
             .update(profileUpdate)
             .eq('id', userId);
 
@@ -215,7 +215,7 @@ export async function POST(req: NextRequest) {
         // Renew profile boost if subscription is active and for workers
         if (subscription.status === 'active') {
           const { data: profile } = await supabaseAdmin
-            .from('profiles')
+            .from('users')
             .select('role, is_lifetime_pro')
             .eq('id', existingSubscription.user_id)
             .single();
@@ -225,7 +225,7 @@ export async function POST(req: NextRequest) {
             console.log(`User ${existingSubscription.user_id} has lifetime Pro - skipping subscription renewal updates`);
           } else if (profile?.role === 'worker') {
             await supabaseAdmin
-              .from('profiles')
+              .from('users')
               .update({
                 is_profile_boosted: true,
                 boost_expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
@@ -279,7 +279,7 @@ export async function POST(req: NextRequest) {
         // Update profiles.subscription_status back to 'free' and remove profile boost
         // BUT protect lifetime Pro users - they keep Pro access even after canceling
         const { data: profile } = await supabaseAdmin
-          .from('profiles')
+          .from('users')
           .select('is_lifetime_pro')
           .eq('id', existingSubscription.user_id)
           .single();
@@ -288,7 +288,7 @@ export async function POST(req: NextRequest) {
           console.log(`User ${existingSubscription.user_id} has lifetime Pro - keeping Pro access despite cancellation`);
         } else {
           const { error: profileError } = await supabaseAdmin
-            .from('profiles')
+            .from('users')
             .update({
               subscription_status: 'free',
               is_profile_boosted: false,

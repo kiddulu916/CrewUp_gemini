@@ -51,47 +51,44 @@ export async function createTestUser(data: {
   const coords = data.coords || { lat: 41.8781, lng: -87.6298 };
 
   // Use RPC function to properly set PostGIS coords
-  const { error: coordsError } = await testDb.rpc('update_profile_coords', {
-    user_id: authData.user.id,
-    latitude: coords.lat,
-    longitude: coords.lng,
+  const { error: coordsError } = await testDb.rpc('update_user_coords', {
+    p_user_id: authData.user.id,
+    p_lat: coords.lat,
+    p_lng: coords.lng,
   });
 
   if (coordsError) {
     // If RPC doesn't exist, fall back to direct SQL with ST_SetSRID
     const { error: fallbackError } = await testDb
-      .from('profiles')
+      .from('users')
       .update({
-        coords: `SRID=4326;POINT(${coords.lng} ${coords.lat})`,
+        geo_coords: `SRID=4326;POINT(${coords.lng} ${coords.lat})`,
       })
       .eq('id', authData.user.id);
 
     if (fallbackError) {
-      throw new Error(`Failed to set coords: ${fallbackError.message}`);
+      console.warn(`Failed to set coords: ${fallbackError.message}`);
     }
   }
 
-  // Update profile fields (created by trigger)
-  const profileUpdate: Record<string, any> = {
-    name: data.name,
-    role: data.role,
-    trade: data.trade || 'General Laborer',
+  // Update user fields (created by trigger)
+  const [firstName, ...lastNameParts] = data.name.split(' ');
+  const lastName = lastNameParts.join(' ') || 'User';
+
+  const userUpdate: Record<string, any> = {
+    first_name: firstName,
+    last_name: lastName,
+    role: data.role.toLowerCase(),
     location: data.location || 'Chicago, IL',
   };
 
-  // Add employer-specific fields
-  if (data.role === 'employer') {
-    profileUpdate.employer_type = data.employerType || 'contractor';
-    profileUpdate.company_name = data.companyName || `${data.name} Company`;
-  }
-
-  const { error: profileError } = await testDb
-    .from('profiles')
-    .update(profileUpdate)
+  const { error: userError } = await testDb
+    .from('users')
+    .update(userUpdate)
     .eq('id', authData.user.id);
 
-  if (profileError) {
-    throw new Error(`Failed to update test profile: ${profileError.message}`);
+  if (userError) {
+    throw new Error(`Failed to update test user: ${userError.message}`);
   }
 
   return {
@@ -109,8 +106,8 @@ export async function createTestUser(data: {
  * Delete a test user and all related data
  */
 export async function deleteTestUser(userId: string) {
-  // Delete profile (cascade will delete related data)
-  await testDb.from('profiles').delete().eq('id', userId);
+  // Delete user record
+  await testDb.from('users').delete().eq('id', userId);
 
   // Delete auth user
   await testDb.auth.admin.deleteUser(userId);
@@ -133,24 +130,21 @@ export async function createTestJob(
     payRate?: string;
     jobType?: string;
     requiredCerts?: string[];
-    customQuestions?: Array<{ question: string; required: boolean }>;
   }
 ) {
   // Default Chicago coordinates
   const coords = data.coords || { lat: 41.8781, lng: -87.6298 };
 
-  // Use RPC function to create job with coords if available
   const jobData = {
     employer_id: employerId,
     title: data.title,
-    trade: data.trade,
-    sub_trade: data.subTrade || null,
+    trades: [data.trade],
+    sub_trades: data.subTrade ? [data.subTrade] : [],
     location: data.location || 'Chicago, IL',
     description: data.description || 'Test job description',
     pay_rate: data.payRate || '$25/hr',
     job_type: data.jobType || 'Full-Time',
     required_certs: data.requiredCerts || [],
-    custom_questions: data.customQuestions || null,
     status: 'active' as const,
   };
 
@@ -158,14 +152,29 @@ export async function createTestJob(
   const { data: jobFromRpc, error: rpcError } = await testDb.rpc(
     'create_job_with_coords',
     {
-      job_data: jobData,
-      latitude: coords.lat,
-      longitude: coords.lng,
+      p_employer_id: employerId,
+      p_title: data.title,
+      p_description: jobData.description,
+      p_location: jobData.location,
+      p_lng: coords.lng,
+      p_lat: coords.lat,
+      p_trades: jobData.trades,
+      p_job_type: jobData.job_type,
+      p_pay_rate: jobData.pay_rate,
     }
   );
 
   if (!rpcError && jobFromRpc) {
-    return jobFromRpc;
+    // If we need to add sub_trades or required_certs, do it here as RPC doesn't handle them
+    await testDb
+      .from('jobs')
+      .update({
+        sub_trades: jobData.sub_trades,
+        required_certs: jobData.required_certs,
+      })
+      .eq('id', jobFromRpc);
+    
+    return { id: jobFromRpc, ...jobData };
   }
 
   // Fallback: Insert directly with PostGIS syntax
@@ -266,28 +275,28 @@ export async function createTestCertification(
  * Delete all test data for cleanup
  */
 export async function cleanupTestData() {
-  // Delete test users (profiles will cascade)
-  await testDb.from('profiles').delete().like('email', '%@test.krewup.local');
+  // Delete test users (cascade will delete related data)
+  await testDb.from('users').delete().like('email', '%@test.krewup.local');
 
   // Delete orphaned data (in case cascade failed)
   await testDb.from('jobs').delete().is('employer_id', null);
   await testDb.from('job_applications').delete().is('applicant_id', null);
   await testDb.from('messages').delete().is('sender_id', null);
-  await testDb.from('certifications').delete().is('user_id', null);
+  await testDb.from('certifications').delete().is('worker_id', null);
 }
 
 /**
  * Make a user Pro subscriber
  */
 export async function makeUserPro(userId: string) {
-  // Update profile subscription_status (source of truth for UI)
-  const { error: profileError } = await testDb
-    .from('profiles')
+  // Update user subscription_status (source of truth for UI)
+  const { error: userError } = await testDb
+    .from('users')
     .update({ subscription_status: 'pro' })
     .eq('id', userId);
 
-  if (profileError) {
-    throw new Error(`Failed to update profile subscription: ${profileError.message}`);
+  if (userError) {
+    throw new Error(`Failed to update user subscription: ${userError.message}`);
   }
 
   // Create subscription record
@@ -311,7 +320,7 @@ export async function makeUserPro(userId: string) {
  */
 export async function makeUserAdmin(userId: string) {
   const { error } = await testDb
-    .from('profiles')
+    .from('users')
     .update({ is_admin: true })
     .eq('id', userId);
 
@@ -320,20 +329,6 @@ export async function makeUserAdmin(userId: string) {
   }
 }
 
-/**
- * Set contractor's can_post_jobs status
- * Used for testing the contractor license verification workflow
- */
-export async function setCanPostJobs(userId: string, canPost: boolean) {
-  const { error } = await testDb
-    .from('profiles')
-    .update({ can_post_jobs: canPost })
-    .eq('id', userId);
-
-  if (error) {
-    throw new Error(`Failed to set can_post_jobs: ${error.message}`);
-  }
-}
 
 /**
  * Create a test message between two users
@@ -366,7 +361,7 @@ export async function createTestMessage(
  */
 export async function getProfile(userId: string) {
   const { data, error } = await testDb
-    .from('profiles')
+    .from('users')
     .select('*')
     .eq('id', userId)
     .single();

@@ -13,7 +13,7 @@ import { cookies } from 'next/headers';
  *
  * export default async function ProfilePage() {
  *   const supabase = await createClient();
- *   const { data: profile } = await supabase.from('profiles').select('*').single();
+ *   const { data: profile } = await supabase.from('users').select('*').single();
  *   return <div>{profile.name}</div>;
  * }
  * ```
@@ -25,7 +25,7 @@ import { cookies } from 'next/headers';
  *
  * export async function updateProfile(formData: FormData) {
  *   const supabase = await createClient();
- *   await supabase.from('profiles').update({ name: formData.get('name') });
+ *   await supabase.from('users').update({ name: formData.get('name') });
  * }
  * ```
  */

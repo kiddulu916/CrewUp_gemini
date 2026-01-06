@@ -56,7 +56,7 @@ export async function GET(request: Request) {
       .from('proximity_alerts')
       .select(`
         *,
-        user:profiles!user_id(id, coords, name)
+        user:users!user_id(id, coords, name)
       `)
       .eq('is_active', true);
 

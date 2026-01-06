@@ -12,8 +12,8 @@ import { sortJobsByDistance } from '@/features/jobs/utils/distance';
 type Job = {
   id: string;
   title: string;
-  trade: string;
-  sub_trade?: string | null;
+  trades: string[];
+  sub_trades?: string[] | null;
   job_type: string;
   location: string;
   coords?: { lat: number; lng: number } | string | null;

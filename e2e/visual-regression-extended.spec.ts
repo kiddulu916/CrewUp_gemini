@@ -520,7 +520,7 @@ test.describe('Visual Regression Tests - Admin Pages', () => {
     });
 
     // Grant admin privileges
-    await testDb.from('profiles').update({ is_admin: true }).eq('id', admin.id);
+    await testDb.from('users').update({ is_admin: true }).eq('id', admin.id);
 
     worker = await createTestUser({
       email: generateTestEmail(),

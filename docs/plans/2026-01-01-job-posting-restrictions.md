@@ -32,7 +32,7 @@
 **Current code (line 66-70):**
 ```typescript
 const { data: profile } = await supabase
-  .from('profiles')
+  .from('users')
   .select('role, subscription_status')
   .eq('id', user.id)
   .single();
@@ -41,7 +41,7 @@ const { data: profile } = await supabase
 **New code:**
 ```typescript
 const { data: profile } = await supabase
-  .from('profiles')
+  .from('users')
   .select('role, subscription_status, employer_type')
   .eq('id', user.id)
   .single();

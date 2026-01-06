@@ -670,7 +670,7 @@ export async function getActiveUsers(
 
   // Get user profiles with segment filters
   let profileQuery = supabase
-    .from('profiles')
+    .from('users')
     .select('id, role, subscription_status, location, employer_type, created_at')
     .in('id', Array.from(allUserIds));
 
@@ -796,7 +796,7 @@ export async function getConversionFunnel(
 
   // Stage 1: Signups (users created in date range)
   let signupQuery = supabase
-    .from('profiles')
+    .from('users')
     .select('id, role, subscription_status, location, employer_type, name, trade, created_at')
     .gte('created_at', gte)
     .lte('created_at', lte);
@@ -910,7 +910,7 @@ export async function getSubscriptionMetrics(
 
   // Get all users created in date range
   const { data: allUsers } = await supabase
-    .from('profiles')
+    .from('users')
     .select('id, subscription_status')
     .gte('created_at', gte)
     .lte('created_at', lte);
@@ -1134,7 +1134,7 @@ export async function updateSession(request: NextRequest) {
   if (user) {
     // Fetch full profile for additional context
     const { data: profile } = await supabase
-      .from('profiles')
+      .from('users')
       .select('role, subscription_status, location, employer_type')
       .eq('id', user.id)
       .single();

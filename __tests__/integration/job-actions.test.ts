@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { createClient } from '@supabase/supabase-js';
 import {
   createJob,
@@ -7,6 +7,15 @@ import {
   getJob,
   getJobs,
 } from '@/features/jobs/actions/job-actions';
+
+// Mock next/headers
+vi.mock('next/headers', () => ({
+  cookies: vi.fn().mockImplementation(() => ({
+    get: vi.fn(),
+    set: vi.fn(),
+    getAll: vi.fn().mockReturnValue([]),
+  })),
+}));
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -26,12 +35,12 @@ describe('Job Server Actions Integration Tests', () => {
     employerId = employerAuth.user!.id;
 
     await testDb
-      .from('profiles')
+      .from('users')
       .update({
-        name: 'Test Employer',
-        role: 'Employer',
-        trade: 'General Contractor',
-        coords: 'POINT(-87.6298 41.8781)', // Chicago
+        first_name: 'Test',
+        last_name: 'Employer',
+        role: 'employer',
+        geo_coords: 'POINT(-87.6298 41.8781)', // Chicago
       })
       .eq('id', employerId);
 
@@ -44,12 +53,12 @@ describe('Job Server Actions Integration Tests', () => {
     workerId = workerAuth.user!.id;
 
     await testDb
-      .from('profiles')
+      .from('users')
       .update({
-        name: 'Test Worker',
-        role: 'Worker',
-        trade: 'Carpenter',
-        coords: 'POINT(-87.6298 41.8781)',
+        first_name: 'Test',
+        last_name: 'Worker',
+        role: 'worker',
+        geo_coords: 'POINT(-87.6298 41.8781)',
       })
       .eq('id', workerId);
   });
@@ -57,8 +66,8 @@ describe('Job Server Actions Integration Tests', () => {
   afterEach(async () => {
     // Cleanup
     await testDb.from('jobs').delete().eq('employer_id', employerId);
-    await testDb.from('profiles').delete().eq('id', employerId);
-    await testDb.from('profiles').delete().eq('id', workerId);
+    await testDb.from('users').delete().eq('id', employerId);
+    await testDb.from('users').delete().eq('id', workerId);
     await testDb.auth.admin.deleteUser(employerId);
     await testDb.auth.admin.deleteUser(workerId);
   });
@@ -67,8 +76,8 @@ describe('Job Server Actions Integration Tests', () => {
     it('should create job with hourly pay rate', async () => {
       const result = await createJob({
         title: 'Carpentry Work Needed',
-        trade: 'Carpenter',
-        sub_trade: 'Rough Frame',
+        trades: ['Carpenter'],
+        sub_trades: ['Rough Frame'],
         job_type: 'Full-Time',
         location: 'Chicago, IL',
         coords: { lat: 41.8781, lng: -87.6298 },
@@ -94,7 +103,7 @@ describe('Job Server Actions Integration Tests', () => {
     it('should create job with contract pay rate', async () => {
       const result = await createJob({
         title: 'Kitchen Remodel',
-        trade: 'Carpenter',
+        trades: ['Carpenter'],
         job_type: 'Contract',
         location: 'Chicago, IL',
         coords: { lat: 41.8781, lng: -87.6298 },
@@ -116,7 +125,7 @@ describe('Job Server Actions Integration Tests', () => {
     it('should validate required fields', async () => {
       const result = await createJob({
         title: '', // Empty title should fail
-        trade: 'Carpenter',
+        trades: ['Carpenter'],
         job_type: 'Full-Time',
         location: 'Chicago, IL',
         coords: { lat: 41.8781, lng: -87.6298 },
@@ -131,7 +140,7 @@ describe('Job Server Actions Integration Tests', () => {
     it('should store PostGIS coordinates correctly', async () => {
       const result = await createJob({
         title: 'Test Job',
-        trade: 'Carpenter',
+        trades: ['Carpenter'],
         job_type: 'Full-Time',
         location: 'New York, NY',
         coords: { lat: 40.7128, lng: -74.006 },
@@ -161,7 +170,7 @@ describe('Job Server Actions Integration Tests', () => {
         .insert({
           employer_id: employerId,
           title: 'Test Job',
-          trade: 'Carpenter',
+          trades: ['Carpenter'],
           job_type: 'Full-Time',
           location: 'Chicago, IL',
           coords: 'POINT(-87.6298 41.8781)',
@@ -183,7 +192,7 @@ describe('Job Server Actions Integration Tests', () => {
         {
           employer_id: employerId,
           title: 'Carpenter Job',
-          trade: 'Carpenter',
+          trades: ['Carpenter'],
           job_type: 'Full-Time',
           location: 'Chicago, IL',
           coords: 'POINT(-87.6298 41.8781)',
@@ -193,7 +202,7 @@ describe('Job Server Actions Integration Tests', () => {
         {
           employer_id: employerId,
           title: 'Electrician Job',
-          trade: 'Electrician',
+          trades: ['Electrician'],
           job_type: 'Contract',
           location: 'Chicago, IL',
           coords: 'POINT(-87.6298 41.8781)',
@@ -209,7 +218,7 @@ describe('Job Server Actions Integration Tests', () => {
 
       expect(result.success).toBe(true);
       expect(result.data?.length).toBeGreaterThan(0);
-      expect(result.data?.every((job) => job.trade === 'Carpenter')).toBe(true);
+      expect(result.data?.every((job) => job.trades.includes('Carpenter'))).toBe(true);
     });
 
     it('should calculate distance from user location', async () => {
@@ -217,7 +226,7 @@ describe('Job Server Actions Integration Tests', () => {
       await testDb.from('jobs').insert({
         employer_id: employerId,
         title: 'Distance Test',
-        trade: 'Carpenter',
+        trades: ['Carpenter'],
         job_type: 'Full-Time',
         location: 'Chicago, IL',
         coords: 'POINT(-87.6298 41.8781)',
@@ -245,7 +254,7 @@ describe('Job Server Actions Integration Tests', () => {
         .insert({
           employer_id: employerId,
           title: 'Original Title',
-          trade: 'Carpenter',
+          trades: ['Carpenter'],
           job_type: 'Full-Time',
           location: 'Chicago, IL',
           coords: 'POINT(-87.6298 41.8781)',
@@ -282,7 +291,7 @@ describe('Job Server Actions Integration Tests', () => {
         .insert({
           employer_id: employerId,
           title: 'Protected Job',
-          trade: 'Carpenter',
+          trades: ['Carpenter'],
           job_type: 'Full-Time',
           location: 'Chicago, IL',
           coords: 'POINT(-87.6298 41.8781)',
@@ -307,7 +316,7 @@ describe('Job Server Actions Integration Tests', () => {
         .insert({
           employer_id: employerId,
           title: 'Job to Delete',
-          trade: 'Carpenter',
+          trades: ['Carpenter'],
           job_type: 'Full-Time',
           location: 'Chicago, IL',
           coords: 'POINT(-87.6298 41.8781)',

@@ -62,17 +62,35 @@ export function useAuth() {
       if (!user) return null;
 
       // Fetch full profile
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select(`
+          *,
+          workers (
+            trade, 
+            sub_trade, 
+            is_profile_boosted
+          )
+        `)
         .eq('id', user.id)
         .single();
 
-      if (profileError) throw profileError;
+      if (userError) throw userError;
+
+      const userFull = userData as any;
+      const worker = userFull.workers?.[0];
+
+      const profile: Profile = {
+        ...userFull,
+        name: `${userFull.first_name} ${userFull.last_name}`.trim(),
+        trade: worker?.trade || 'General Laborer',
+        sub_trade: worker?.sub_trade,
+        is_profile_boosted: worker?.is_profile_boosted || false,
+      };
 
       return {
         user: user as AuthUser,
-        profile: profile as Profile,
+        profile,
       };
     },
     staleTime: 1000 * 60 * 5, // 5 minutes

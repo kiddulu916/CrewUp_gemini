@@ -14,8 +14,8 @@ type JobCardProps = {
   job: {
     id: string;
     title: string;
-    trade: string;
-    sub_trade?: string | null;
+    trades: string[];
+    sub_trades?: string[] | null;
     job_type: string;
     location: string;
     coords?: { lat: number; lng: number } | string | null;
@@ -50,8 +50,8 @@ export function JobCard({ job, userCoords, currentUser }: JobCardProps) {
     // Build compatibility input
     const input: CompatibilityInput = {
       job: {
-        trade: job.trade,
-        sub_trade: job.sub_trade || null,
+        trade: job.trades[0] || '',
+        sub_trade: job.sub_trades?.[0] || null,
         required_certifications: job.required_certs || [],
         years_experience_required: null, // Field doesn't exist - always gives full 20 points
         location: job.location,
@@ -96,14 +96,16 @@ export function JobCard({ job, userCoords, currentUser }: JobCardProps) {
                   {job.title}
                 </h3>
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <Badge variant="default" className="bg-krewup-blue text-white text-xs px-2 py-0.5">
-                    {job.trade}
-                  </Badge>
-                  {job.sub_trade && (
-                    <Badge variant="info" className="border-krewup-blue text-krewup-blue text-xs px-2 py-0.5">
-                      {job.sub_trade}
+                  {job.trades.map(trade => (
+                    <Badge key={trade} variant="default" className="bg-krewup-blue text-white text-xs px-2 py-0.5">
+                      {trade}
                     </Badge>
-                  )}
+                  ))}
+                  {job.sub_trades?.map(subTrade => (
+                    <Badge key={subTrade} variant="info" className="border-krewup-blue text-krewup-blue text-xs px-2 py-0.5">
+                      {subTrade}
+                    </Badge>
+                  ))}
                   <Badge variant="default" className="text-xs px-2 py-0.5">{job.job_type}</Badge>
                   <Badge
                     variant={job.status === 'active' ? 'success' : job.status === 'filled' ? 'default' : 'warning'}

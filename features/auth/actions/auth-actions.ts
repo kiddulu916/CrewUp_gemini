@@ -91,7 +91,7 @@ export async function signUp(
   // Check if email already exists in profiles
   // Note: Supabase auth.signUp() may not always prevent duplicates if email confirmation is disabled
   const { data: existingProfile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('email')
     .eq('email', email.toLowerCase())
     .maybeSingle();

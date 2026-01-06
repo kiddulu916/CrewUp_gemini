@@ -46,8 +46,8 @@ export function useConversations() {
 
           // Fetch the other participant's profile
           const { data: otherParticipant, error: profileError } = await supabase
-            .from('profiles')
-            .select('id, name, profile_image_url')
+            .from('users')
+            .select('id, first_name, last_name, profile_image_url')
             .eq('id', otherParticipantId)
             .single();
 
@@ -62,6 +62,13 @@ export function useConversations() {
               unreadCount: 0,
             };
           }
+
+          // Transform otherParticipant to include name field
+          const participantWithLegacyName = {
+            id: otherParticipant.id,
+            name: `${otherParticipant.first_name} ${otherParticipant.last_name}`.trim(),
+            profile_image_url: otherParticipant.profile_image_url,
+          };
 
           // Get last message (use maybeSingle to handle case with no messages)
           const { data: lastMessageData } = await supabase

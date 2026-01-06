@@ -28,7 +28,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   }
 
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('*')
     .eq('id', user.id)
     .single();
@@ -52,7 +52,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
     .from('jobs')
     .select(`
       *,
-      employer:profiles!employer_id(
+      employer:users!employer_id(
         id,
         name,
         company_name,
@@ -113,7 +113,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
       .from('job_applications')
       .select(`
         *,
-        applicant:profiles!applicant_id(
+        applicant:users!applicant_id(
           id,
           name,
           trade,

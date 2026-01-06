@@ -22,7 +22,7 @@ export async function activateProfileBoost() {
 
     // Check if user is Pro
     const { data: profile, error: profileError } = await supabase
-      .from('profiles')
+      .from('users')
       .select('subscription_status, is_profile_boosted, boost_expires_at')
       .eq('id', user.id)
       .single();
@@ -52,7 +52,7 @@ export async function activateProfileBoost() {
     expiresAt.setDate(expiresAt.getDate() + 7);
 
     const { error: updateError } = await supabase
-      .from('profiles')
+      .from('users')
       .update({
         is_profile_boosted: true,
         boost_expires_at: expiresAt.toISOString(),
@@ -89,7 +89,7 @@ export async function deactivateProfileBoost() {
     }
 
     const { error: updateError } = await supabase
-      .from('profiles')
+      .from('users')
       .update({
         is_profile_boosted: false,
         boost_expires_at: null,
@@ -126,7 +126,7 @@ export async function getBoostStatus() {
     }
 
     const { data: profile, error } = await supabase
-      .from('profiles')
+      .from('users')
       .select('subscription_status, is_profile_boosted, boost_expires_at')
       .eq('id', user.id)
       .single();

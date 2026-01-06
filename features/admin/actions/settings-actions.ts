@@ -19,7 +19,7 @@ export async function getPlatformSettings() {
 
   // Verify admin status
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('id', user.id)
     .single();
@@ -60,7 +60,7 @@ export async function updatePlatformSetting(
 
   // Verify admin status
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('id', user.id)
     .single();
@@ -121,7 +121,7 @@ export async function getAdminUsers() {
 
   // Verify admin status
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('id', user.id)
     .single();
@@ -131,7 +131,7 @@ export async function getAdminUsers() {
   }
 
   const { data, error } = await supabase
-    .from('profiles')
+    .from('users')
     .select('user_id, name, email, is_admin, created_at')
     .eq('is_admin', true)
     .order('name', { ascending: true });
@@ -159,7 +159,7 @@ export async function grantAdminAccess(userId: string, reason: string) {
 
   // Verify admin status
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('id', user.id)
     .single();
@@ -174,7 +174,7 @@ export async function grantAdminAccess(userId: string, reason: string) {
 
   // Update user to admin
   const { error: updateError } = await supabase
-    .from('profiles')
+    .from('users')
     .update({ is_admin: true })
     .eq('id', userId);
 
@@ -215,7 +215,7 @@ export async function revokeAdminAccess(userId: string, reason: string) {
 
   // Verify admin status
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('id', user.id)
     .single();
@@ -235,7 +235,7 @@ export async function revokeAdminAccess(userId: string, reason: string) {
 
   // Update user to remove admin
   const { error: updateError } = await supabase
-    .from('profiles')
+    .from('users')
     .update({ is_admin: false })
     .eq('id', userId);
 
@@ -276,7 +276,7 @@ export async function searchUsersForAdmin(query: string) {
 
   // Verify admin status
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('id', user.id)
     .single();
@@ -292,7 +292,7 @@ export async function searchUsersForAdmin(query: string) {
   const searchTerm = `%${query.toLowerCase()}%`;
 
   const { data, error } = await supabase
-    .from('profiles')
+    .from('users')
     .select('user_id, name, email, role, is_admin')
     .eq('is_admin', false)
     .or(`name.ilike.${searchTerm},email.ilike.${searchTerm}`)
@@ -321,7 +321,7 @@ export async function getAdminActivityLog(limit: number = 50) {
 
   // Verify admin status
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('id', user.id)
     .single();
@@ -335,7 +335,7 @@ export async function getAdminActivityLog(limit: number = 50) {
     .select(
       `
       *,
-      admin:profiles!admin_activity_log_admin_id_fkey(name, email)
+      admin:users!admin_activity_log_admin_id_fkey(name, email)
     `
     )
     .order('created_at', { ascending: false })

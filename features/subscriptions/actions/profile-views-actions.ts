@@ -75,7 +75,7 @@ export async function getMyProfileViews(): Promise<ProfileViewsResult> {
 
     // Check if user is Pro
     const { data: profile } = await supabase
-      .from('profiles')
+      .from('users')
       .select('subscription_status, role')
       .eq('id', user.id)
       .single();
@@ -94,7 +94,7 @@ export async function getMyProfileViews(): Promise<ProfileViewsResult> {
       .select(`
         id,
         viewed_at,
-        viewer:profiles!viewer_id(
+        viewer:users!viewer_id(
           id,
           name,
           employer_type,

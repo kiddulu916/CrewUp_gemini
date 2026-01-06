@@ -14,7 +14,7 @@ export default async function AdminDashboardPage() {
     { count: pendingCerts },
     { count: proSubs },
   ] = await Promise.all([
-    supabase.from('profiles').select('*', { count: 'exact', head: true }),
+    supabase.from('users').select('*', { count: 'exact', head: true }),
     supabase
       .from('jobs')
       .select('*', { count: 'exact', head: true })

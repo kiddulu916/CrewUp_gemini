@@ -38,7 +38,7 @@ export async function addCertification(data: CertificationData): Promise<Certifi
 
   // Get user's profile to determine role and employer_type
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('role, employer_type')
     .eq('id', user.id)
     .single();

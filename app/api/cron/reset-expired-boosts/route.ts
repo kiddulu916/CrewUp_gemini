@@ -27,7 +27,7 @@ export async function GET(request: Request) {
 
     // Find all profiles with expired boosts
     const { data: expiredBoosts, error: fetchError } = await supabaseAdmin
-      .from('profiles')
+      .from('users')
       .select('id, name, boost_expires_at')
       .eq('is_profile_boosted', true)
       .lt('boost_expires_at', now);
@@ -51,7 +51,7 @@ export async function GET(request: Request) {
 
     // Reset expired boosts
     const { error: updateError } = await supabaseAdmin
-      .from('profiles')
+      .from('users')
       .update({
         is_profile_boosted: false,
         boost_expires_at: null,

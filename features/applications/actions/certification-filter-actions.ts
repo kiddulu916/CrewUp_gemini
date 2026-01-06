@@ -29,7 +29,7 @@ export async function getFilteredApplications(
 
     // Check if user is Pro employer
     const { data: profile } = await supabase
-      .from('profiles')
+      .from('users')
       .select('subscription_status, role')
       .eq('id', user.id)
       .single();
@@ -59,7 +59,7 @@ export async function getFilteredApplications(
       .select(
         `
         *,
-        worker:profiles!applicant_id(
+        worker:users!applicant_id(
           id,
           name,
           trade,

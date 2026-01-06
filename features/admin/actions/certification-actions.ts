@@ -16,7 +16,7 @@ export async function approveCertification(certificationId: string) {
 
   // Verify admin status
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('id', user.id)
     .single();
@@ -54,7 +54,7 @@ export async function approveCertification(certificationId: string) {
   // If it's a contractor license, enable job posting
   if (cert.credential_category === 'license') {
     const { error: profileError } = await supabase
-      .from('profiles')
+      .from('users')
       .update({ can_post_jobs: true })
       .eq('id', cert.user_id);
 
@@ -100,7 +100,7 @@ export async function rejectCertification(
 
   // Verify admin status
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('id', user.id)
     .single();
@@ -162,7 +162,7 @@ export async function flagCertification(
 
   // Verify admin status
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('id', user.id)
     .single();

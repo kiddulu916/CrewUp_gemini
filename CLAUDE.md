@@ -225,7 +225,7 @@ export async function myAction(data: FormData): Promise<{ success: boolean; erro
 
   // 3. Perform authorization checks if needed
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('role, subscription_status')
     .eq('id', user.id)
     .single();
@@ -377,7 +377,7 @@ await supabase.rpc('create_job_with_coords', {
 ```typescript
 // In Server Action
 const { data: profile } = await supabase
-  .from('profiles')
+  .from('users')
   .select('subscription_status')
   .eq('id', user.id)
   .single();

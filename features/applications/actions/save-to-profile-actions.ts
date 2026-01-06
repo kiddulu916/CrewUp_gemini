@@ -31,7 +31,7 @@ export async function saveApplicationDataToProfile(
   try {
     // 1. Update profile table
     const { error: profileError } = await supabase
-      .from('profiles')
+      .from('users')
       .update({
         name: formData.fullName,
         phone: formData.phoneNumber,

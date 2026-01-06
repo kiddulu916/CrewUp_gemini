@@ -36,7 +36,7 @@ export async function getUserGrowthData() {
   const supabase = await createClient(await cookies());
 
   const { data } = await supabase
-    .from('profiles')
+    .from('users')
     .select('created_at')
     .order('created_at', { ascending: true });
 
@@ -147,7 +147,7 @@ export async function getActiveUsers(
 
   // Get user profiles with segment filters
   let profileQuery = supabase
-    .from('profiles')
+    .from('users')
     .select('id, role, subscription_status, location, employer_type, created_at')
     .in('id', Array.from(allUserIds))
     .limit(10000);
@@ -283,7 +283,7 @@ export async function getConversionFunnel(
   }
 
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('role')
     .eq('id', user.id)
     .single();
@@ -296,7 +296,7 @@ export async function getConversionFunnel(
 
   // Stage 1: Signups (users created in date range)
   let signupQuery = supabase
-    .from('profiles')
+    .from('users')
     .select('id, role, subscription_status, location, employer_type, name, trade, created_at')
     .gte('created_at', gte)
     .lte('created_at', lte)
@@ -428,7 +428,7 @@ export async function getSubscriptionMetrics(
   }
 
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('role')
     .eq('id', user.id)
     .single();
@@ -441,7 +441,7 @@ export async function getSubscriptionMetrics(
 
   // Get all users created in date range
   const { data: allUsers, error: usersError } = await supabase
-    .from('profiles')
+    .from('users')
     .select('id, subscription_status')
     .gte('created_at', gte)
     .lte('created_at', lte)
@@ -552,7 +552,7 @@ export async function getOperationalLoad(
   }
 
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('role')
     .eq('id', user.id)
     .single();

@@ -161,18 +161,19 @@ export const TRADE_SUBCATEGORIES: Record<string, readonly string[]> = {
 export const ROLES = ['Worker', 'Employer'] as const;
 
 // Employer types
-export const EMPLOYER_TYPES = ['contractor', 'recruiter', 'developer'] as const;
+export const EMPLOYER_TYPES = ['contractor', 'recruiter', 'developer', 'homeowner'] as const;
 
 export type EmployerType = (typeof EMPLOYER_TYPES)[number];
 
 // Allowed employer types for job posting
-export const ALLOWED_JOB_POSTING_EMPLOYER_TYPES = ['contractor', 'developer'] as const;
+export const ALLOWED_JOB_POSTING_EMPLOYER_TYPES = ['contractor', 'developer', 'homeowner'] as const;
 
 // Add human-readable labels
 export const EMPLOYER_TYPE_LABELS: Record<EmployerType, string> = {
   contractor: 'Contractor',
   recruiter: 'Recruiter',
-  developer: 'Developer/Home Owner',
+  developer: 'Developer',
+  homeowner: 'Home Owner',
 };
 
 // Subscription levels

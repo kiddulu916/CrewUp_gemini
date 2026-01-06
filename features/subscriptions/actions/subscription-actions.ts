@@ -30,7 +30,7 @@ export async function getMySubscription(): Promise<SubscriptionResult> {
 
   // Get profile subscription status (source of truth for UI)
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('subscription_status')
     .eq('id', user.id)
     .single();

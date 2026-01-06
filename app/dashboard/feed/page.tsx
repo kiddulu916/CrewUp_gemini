@@ -20,7 +20,7 @@ export default async function FeedPage() {
   if (!user) return null;
 
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('*, is_admin')
     .eq('id', user.id)
     .single();

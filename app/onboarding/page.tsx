@@ -24,7 +24,7 @@ export default async function OnboardingPage() {
 
   // Get user's profile to check if onboarding is needed
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('*')
     .eq('id', user.id)
     .single();

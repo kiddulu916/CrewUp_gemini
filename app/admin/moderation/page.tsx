@@ -31,9 +31,9 @@ export default async function ModerationPage({
       action_taken,
       admin_notes,
       created_at,
-      reporter:profiles!reporter_id(name, email),
-      reported_user:profiles!reported_user_id(name, email, id),
-      reviewed_by_profile:profiles!reviewed_by(name)
+      reporter:users!reporter_id(name, email),
+      reported_user:users!reported_user_id(name, email, id),
+      reviewed_by_profile:users!reviewed_by(name)
     `
     )
     .order('created_at', { ascending: false });

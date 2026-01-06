@@ -36,7 +36,7 @@ describe('Profile Server Actions Integration Tests', () => {
 
     // Update profile
     await testDb
-      .from('profiles')
+      .from('users')
       .update({
         name: 'Test User',
         role: 'Worker',
@@ -47,7 +47,7 @@ describe('Profile Server Actions Integration Tests', () => {
 
   afterEach(async () => {
     // Cleanup
-    await testDb.from('profiles').delete().eq('id', testUserId);
+    await testDb.from('users').delete().eq('id', testUserId);
     await testDb.auth.admin.deleteUser(testUserId);
   });
 
@@ -65,7 +65,7 @@ describe('Profile Server Actions Integration Tests', () => {
 
       // Verify in database
       const { data } = await testDb
-        .from('profiles')
+        .from('users')
         .select('*')
         .eq('id', testUserId)
         .single();

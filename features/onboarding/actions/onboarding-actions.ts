@@ -52,7 +52,7 @@ export async function completeOnboarding(data: OnboardingData): Promise<Onboardi
 
   // Check if profile exists
   const { data: existingProfile, error: checkError } = await supabase
-    .from('profiles')
+    .from('users')
     .select('id')
     .eq('id', user.id)
     .maybeSingle();
@@ -63,7 +63,7 @@ export async function completeOnboarding(data: OnboardingData): Promise<Onboardi
   if (!existingProfile) {
     console.log('[onboarding] Profile does not exist, creating it...');
     const { error: insertError } = await supabase
-      .from('profiles')
+      .from('users')
       .insert({
         id: user.id,
         email: user.email || data.email,
@@ -112,7 +112,7 @@ export async function completeOnboarding(data: OnboardingData): Promise<Onboardi
     // Then update company_name separately (not in the RPC function)
     if (data.role === 'employer' && data.company_name) {
       const { error: companyError } = await supabase
-        .from('profiles')
+        .from('users')
         .update({ company_name: data.company_name })
         .eq('id', user.id);
 
@@ -152,7 +152,7 @@ export async function completeOnboarding(data: OnboardingData): Promise<Onboardi
     }
 
     const { error: updateError } = await supabase
-      .from('profiles')
+      .from('users')
       .update(updateData)
       .eq('id', user.id);
 
@@ -181,7 +181,7 @@ export async function completeOnboarding(data: OnboardingData): Promise<Onboardi
 
     // Set can_post_jobs to false until license verified
     const { error: postJobsError } = await supabase
-      .from('profiles')
+      .from('users')
       .update({ can_post_jobs: false })
       .eq('id', user.id);
 
@@ -195,7 +195,7 @@ export async function completeOnboarding(data: OnboardingData): Promise<Onboardi
 
   // Verify the profile was updated correctly
   const { data: updatedProfile, error: verifyError } = await supabase
-    .from('profiles')
+    .from('users')
     .select('name, role, trade, location, phone, email')
     .eq('id', user.id)
     .single();

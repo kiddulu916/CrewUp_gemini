@@ -28,7 +28,7 @@ export async function loadProfileDataForApplication(): Promise<ProfileDataResult
   try {
     // Load profile
     const { data: profile, error: profileError } = await supabase
-      .from('profiles')
+      .from('users')
       .select('*')
       .eq('id', user.id)
       .single();

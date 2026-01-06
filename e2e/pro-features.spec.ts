@@ -110,7 +110,7 @@ test.describe('Pro Features', () => {
     test('should show boost expiry countdown', async ({ page }) => {
       // Set boost in database with 7 days remaining
       await testDb
-        .from('profiles')
+        .from('users')
         .update({
           is_profile_boosted: true,
           boost_expires_at: new Date(
@@ -133,7 +133,7 @@ test.describe('Pro Features', () => {
     test('should allow deactivating active boost', async ({ page }) => {
       // Set active boost
       await testDb
-        .from('profiles')
+        .from('users')
         .update({
           is_profile_boosted: true,
           boost_expires_at: new Date(

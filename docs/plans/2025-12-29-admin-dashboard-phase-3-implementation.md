@@ -282,7 +282,7 @@ export async function getAdminActivityHistory(
       target_type,
       details,
       created_at,
-      admin:profiles!admin_user_id(name, email)
+      admin:users!admin_user_id(name, email)
     `
     )
     .order('created_at', { ascending: false })
@@ -673,7 +673,7 @@ export async function POST(request: Request) {
     }
 
     const { data: profile } = await supabase
-      .from('profiles')
+      .from('users')
       .select('is_admin')
       .eq('id', user.id)
       .single();

@@ -55,7 +55,7 @@ async function checkAdminAccess(
 
   // Check if user has admin flag
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('user_id', user.id)
     .single();
@@ -106,7 +106,7 @@ export async function updateSession(request: NextRequest) {
   if (user) {
     // Fetch full profile for additional context
     const { data: profile } = await supabase
-      .from('profiles')
+      .from('users')
       .select('role, subscription_status, location, employer_type')
       .eq('id', user.id)
       .single();

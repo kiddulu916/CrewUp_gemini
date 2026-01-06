@@ -39,7 +39,7 @@ export async function updateProfile(data: ProfileUpdateData): Promise<ProfileRes
 
   // Get current profile to check role
   const { data: currentProfile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('role')
     .eq('id', user.id)
     .single();
@@ -74,7 +74,7 @@ export async function updateProfile(data: ProfileUpdateData): Promise<ProfileRes
 
     if (Object.keys(extraUpdates).length > 0) {
       const { error: extraError } = await supabase
-        .from('profiles')
+        .from('users')
         .update(extraUpdates)
         .eq('id', user.id);
 
@@ -112,7 +112,7 @@ export async function updateProfile(data: ProfileUpdateData): Promise<ProfileRes
     }
 
     const { error: updateError } = await supabase
-      .from('profiles')
+      .from('users')
       .update(updateData)
       .eq('id', user.id);
 
@@ -146,7 +146,7 @@ export async function updateProfileLocation(data: {
 
   // Get current profile data first
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('*')
     .eq('id', user.id)
     .single();
@@ -215,7 +215,7 @@ export async function updateToolsOwned(
 
   // 3. Verify user is a worker
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('role')
     .eq('id', user.id)
     .single();
@@ -226,7 +226,7 @@ export async function updateToolsOwned(
 
   // 4. Update tools
   const { error } = await supabase
-    .from('profiles')
+    .from('users')
     .update({
       has_tools: hasTools,
       tools_owned: uniqueTools

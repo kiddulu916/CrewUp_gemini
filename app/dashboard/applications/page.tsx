@@ -19,7 +19,7 @@ export default async function ApplicationsPage() {
   }
 
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('*')
     .eq('id', user.id)
     .single();
@@ -49,7 +49,7 @@ export default async function ApplicationsPage() {
           subtrade_pay_rates,
           job_type,
           status,
-          employer:profiles!employer_id(
+          employer:users!employer_id(
             id,
             name,
             employer_type
@@ -66,7 +66,7 @@ export default async function ApplicationsPage() {
       .from('job_applications')
       .select(`
         *,
-        applicant:profiles!applicant_id(
+        applicant:users!applicant_id(
           id,
           name,
           trade,

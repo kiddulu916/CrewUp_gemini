@@ -440,7 +440,7 @@ export async function previewSegment(filters: SegmentValue): Promise<{ count: nu
   const supabase = await createClient(await cookies());
 
   let query = supabase
-    .from('profiles')
+    .from('users')
     .select('*', { count: 'exact', head: true });
 
   if (filters.role) {

@@ -25,7 +25,7 @@ export async function grantLifetimePro(
 
   // 2. Verify admin status
   const { data: adminProfile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('id', user.id)
     .single();
@@ -43,7 +43,7 @@ export async function grantLifetimePro(
 
   // 4. Check target user exists and current state
   const { data: targetProfile, error: targetError } = await supabase
-    .from('profiles')
+    .from('users')
     .select('id, is_lifetime_pro')
     .eq('id', userId)
     .single();
@@ -59,7 +59,7 @@ export async function grantLifetimePro(
 
   // 6. Grant lifetime Pro
   const { error } = await supabase
-    .from('profiles')
+    .from('users')
     .update({
       is_lifetime_pro: true,
       lifetime_pro_granted_at: new Date().toISOString(),
@@ -112,7 +112,7 @@ export async function revokeLifetimePro(
 
   // 2. Verify admin status
   const { data: adminProfile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('id', user.id)
     .single();
@@ -130,7 +130,7 @@ export async function revokeLifetimePro(
 
   // 4. Check target user exists and current state
   const { data: targetProfile, error: targetError } = await supabase
-    .from('profiles')
+    .from('users')
     .select('id, is_lifetime_pro')
     .eq('id', userId)
     .single();
@@ -146,7 +146,7 @@ export async function revokeLifetimePro(
 
   // 6. Revoke lifetime Pro
   const { error } = await supabase
-    .from('profiles')
+    .from('users')
     .update({
       is_lifetime_pro: false,
       lifetime_pro_granted_at: null,

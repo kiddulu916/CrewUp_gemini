@@ -30,7 +30,7 @@ export async function applyToJob(
 
   // Verify user is a worker
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('role')
     .eq('id', user.id)
     .single();

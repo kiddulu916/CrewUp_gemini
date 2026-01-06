@@ -77,7 +77,7 @@ export async function getCohortAnalysis(
 
   // Get users grouped by signup week
   let userQuery = supabase
-    .from('profiles')
+    .from('users')
     .select('id, created_at, role, subscription_status, location, employer_type')
     .gte('created_at', gte)
     .lte('created_at', lte)
@@ -255,7 +255,7 @@ export async function getUserJourneyMetrics(
 
   // Get all users in date range
   let userQuery = supabase
-    .from('profiles')
+    .from('users')
     .select('id, created_at, role, name, trade, location, subscription_status, employer_type')
     .gte('created_at', gte)
     .lte('created_at', lte);
@@ -467,7 +467,7 @@ export async function getGeographicInsights(
 
   // Get user distribution by location
   const { data: users } = await supabase
-    .from('profiles')
+    .from('users')
     .select('location')
     .gte('created_at', gte)
     .lte('created_at', lte);
@@ -596,7 +596,7 @@ export async function getSubscriptionIntelligence(
 
   // Get all users and their subscription status
   const { data: users } = await supabase
-    .from('profiles')
+    .from('users')
     .select('id, subscription_status, role, created_at')
     .gte('created_at', gte)
     .lte('created_at', lte);

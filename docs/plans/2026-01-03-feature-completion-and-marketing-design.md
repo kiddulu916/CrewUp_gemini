@@ -599,7 +599,7 @@ export async function actionName(params: any) {
 
     // 2. Pro verification (if Pro feature)
     const { data: profile } = await supabase
-      .from('profiles')
+      .from('users')
       .select('role, subscription_status')
       .eq('id', user.id)
       .single();

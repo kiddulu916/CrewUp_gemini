@@ -85,7 +85,7 @@ export async function updateProfile(data: ProfileUpdateData): Promise<ProfileRes
   // Only update if there are fields to update
   if (Object.keys(updateData).length > 0) {
     const { error: updateError } = await supabase
-      .from('profiles')
+      .from('users')
       .update(updateData)
       .eq('id', user.id);
 
@@ -97,7 +97,7 @@ export async function updateProfile(data: ProfileUpdateData): Promise<ProfileRes
 
   // Fetch updated profile
   const { data: profile, error: fetchError } = await supabase
-    .from('profiles')
+    .from('users')
     .select('*')
     .eq('id', user.id)
     .single();
@@ -128,7 +128,7 @@ export async function getMyProfile(): Promise<ProfileResult> {
   }
 
   const { data: profile, error } = await supabase
-    .from('profiles')
+    .from('users')
     .select('*')
     .eq('id', user.id)
     .single();

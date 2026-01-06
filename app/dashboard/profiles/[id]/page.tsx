@@ -35,7 +35,7 @@ export default async function PublicProfilePage({ params }: Props) {
 
   // Fetch the profile
   const { data: profile, error } = await supabase
-    .from('profiles')
+    .from('users')
     .select('*')
     .eq('id', profileId)
     .single();

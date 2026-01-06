@@ -19,11 +19,8 @@ export type CustomQuestion = {
 
 export type JobData = {
   title: string;
-  trade: string;
-  sub_trade?: string;
-  trades?: string[]; // Deprecated: use trade_selections
-  sub_trades?: string[]; // Deprecated: use trade_selections
-  trade_selections?: TradeSelection[]; // New: structured trade selections
+  trades: string[];
+  sub_trades?: string[];
   job_type: string;
   description: string;
   location: string;
@@ -31,10 +28,8 @@ export type JobData = {
   pay_rate: string;
   pay_min?: number;
   pay_max?: number;
-  subtrade_pay_rates?: Record<string, string> | null; // Per-subtrade rates (when 2+ subtrades)
   required_certs?: string[];
-  time_length?: string;
-  custom_questions?: CustomQuestion[]; // Pro feature
+  status?: 'active' | 'filled' | 'closed' | 'draft';
 };
 
 export type JobResult = {
@@ -65,7 +60,7 @@ export async function createJob(data: JobData): Promise<JobResult> {
 
   // Verify user is an employer
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('role, subscription_status, employer_type')
     .eq('id', user.id)
     .single();
@@ -76,18 +71,11 @@ export async function createJob(data: JobData): Promise<JobResult> {
   }
 
   // Step 2: Must be allowed employer type
-  if (!profile?.employer_type || !ALLOWED_JOB_POSTING_EMPLOYER_TYPES.includes(profile.employer_type)) {
+  if (!profile?.employer_type || !ALLOWED_JOB_POSTING_EMPLOYER_TYPES.includes(profile.employer_type as any)) {
     return {
       success: false,
       error: 'Only contractors and developers can post jobs'
     };
-  }
-
-  // Validate Pro features
-  if (data.custom_questions && data.custom_questions.length > 0) {
-    if (profile.subscription_status !== 'pro') {
-      return { success: false, error: 'Custom screening questions require a Pro subscription' };
-    }
   }
 
   // If coords are provided, use the Postgres function for proper PostGIS conversion
@@ -95,23 +83,13 @@ export async function createJob(data: JobData): Promise<JobResult> {
     const { data: jobId, error: createError } = await supabase.rpc('create_job_with_coords', {
       p_employer_id: user.id,
       p_title: data.title,
-      p_trade: data.trade_selections?.[0]?.trade || data.trades?.[0] || data.trade,
-      p_job_type: data.job_type,
       p_description: data.description,
       p_location: data.location,
       p_lng: data.coords.lng,
       p_lat: data.coords.lat,
+      p_trades: data.trades,
+      p_job_type: data.job_type,
       p_pay_rate: data.pay_rate,
-      p_sub_trade: data.sub_trades?.[0] || data.sub_trade || null,
-      p_pay_min: data.pay_min || null,
-      p_pay_max: data.pay_max || null,
-      p_subtrade_pay_rates: data.subtrade_pay_rates || null,
-      p_required_certs: data.required_certs || null,
-      p_time_length: data.time_length || null,
-      p_trades: data.trade_selections?.map(ts => ts.trade) || data.trades || [data.trade],
-      p_sub_trades: data.trade_selections?.flatMap(ts => ts.subTrades) || data.sub_trades || (data.sub_trade ? [data.sub_trade] : []),
-      p_trade_selections: data.trade_selections || null,
-      p_custom_questions: data.custom_questions || null,
     });
 
     if (createError) {
@@ -133,22 +111,16 @@ export async function createJob(data: JobData): Promise<JobResult> {
       .insert({
         employer_id: user.id,
         title: data.title,
-        trade: data.trade_selections?.[0]?.trade || data.trades?.[0] || data.trade,
-        sub_trade: data.trade_selections?.[0]?.subTrades?.[0] || data.sub_trades?.[0] || data.sub_trade,
-        trades: data.trade_selections?.map(ts => ts.trade) || data.trades || [data.trade],
-        sub_trades: data.trade_selections?.flatMap(ts => ts.subTrades) || data.sub_trades || (data.sub_trade ? [data.sub_trade] : []),
-        trade_selections: data.trade_selections || null,
+        trades: data.trades,
+        sub_trades: data.sub_trades || [],
         job_type: data.job_type,
         description: data.description,
         location: data.location,
         pay_rate: data.pay_rate,
         pay_min: data.pay_min,
         pay_max: data.pay_max,
-        subtrade_pay_rates: data.subtrade_pay_rates || null,
         required_certs: data.required_certs || [],
-        time_length: data.time_length || null,
-        custom_questions: data.custom_questions || null,
-        status: 'active',
+        status: data.status || 'active',
       })
       .select()
       .single();
@@ -334,11 +306,11 @@ export async function getJobs(filters?: {
 
   // Apply filters
   if (filters?.trade) {
-    query = query.eq('trade', filters.trade);
+    query = query.contains('trades', [filters.trade]);
   }
 
   if (filters?.subTrade) {
-    query = query.eq('sub_trade', filters.subTrade);
+    query = query.contains('sub_trades', [filters.subTrade]);
   }
 
   if (filters?.jobType) {

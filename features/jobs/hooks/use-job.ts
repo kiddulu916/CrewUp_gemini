@@ -15,7 +15,7 @@ export function useJob(jobId: string | undefined) {
         .from('jobs')
         .select(`
           *,
-          profiles!jobs_employer_id_fkey (
+          users!jobs_employer_id_fkey (
             company_name,
             name
           )

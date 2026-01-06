@@ -98,7 +98,7 @@ export function ApplicationWizardContainer({ jobId, jobTitle }: Props) {
           trades,
           trade_selections,
           custom_questions,
-          employer:profiles!employer_id(subscription_status)
+          employer:users!employer_id(subscription_status)
         `)
         .eq('id', jobId)
         .single();

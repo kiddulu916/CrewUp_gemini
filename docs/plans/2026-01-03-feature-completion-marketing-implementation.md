@@ -1014,7 +1014,7 @@ export async function getCandidateAnalytics(
 
     // 2. Pro + Employer verification
     const { data: profile } = await supabase
-      .from('profiles')
+      .from('users')
       .select('role, subscription_status')
       .eq('id', user.id)
       .single();
@@ -1409,7 +1409,7 @@ export default async function AnalyticsPage() {
   }
 
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('role, subscription_status')
     .eq('id', user.id)
     .single();

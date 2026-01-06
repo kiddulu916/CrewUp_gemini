@@ -107,7 +107,7 @@ async function grantToWorkers(supabase: ReturnType<typeof createServiceClient>):
 
   // Fetch first 50 workers by created_at
   const { data: workers, error: fetchError } = await supabase
-    .from('profiles')
+    .from('users')
     .select('id, name, email, created_at, is_lifetime_pro, lifetime_pro_granted_at')
     .eq('role', 'worker')
     .order('created_at', { ascending: true })
@@ -141,7 +141,7 @@ async function grantToWorkers(supabase: ReturnType<typeof createServiceClient>):
     } else {
       // Update profile
       const { error: updateError } = await supabase
-        .from('profiles')
+        .from('users')
         .update({
           is_lifetime_pro: true,
           lifetime_pro_granted_at: new Date().toISOString(),
@@ -185,7 +185,7 @@ async function grantToEmployerType(
 
   // Fetch first N employers by created_at
   const { data: employers, error: fetchError } = await supabase
-    .from('profiles')
+    .from('users')
     .select('id, name, email, created_at, is_lifetime_pro, lifetime_pro_granted_at')
     .eq('role', 'employer')
     .eq('employer_type', employerType)
@@ -220,7 +220,7 @@ async function grantToEmployerType(
     } else {
       // Update profile
       const { error: updateError } = await supabase
-        .from('profiles')
+        .from('users')
         .update({
           is_lifetime_pro: true,
           lifetime_pro_granted_at: new Date().toISOString(),

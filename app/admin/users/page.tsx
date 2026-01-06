@@ -90,7 +90,7 @@ export default function UsersPage() {
     try {
       const supabase = createClient();
       const { data, error } = await supabase
-        .from('profiles')
+        .from('users')
         .select('*')
         .order('created_at', { ascending: false });
 

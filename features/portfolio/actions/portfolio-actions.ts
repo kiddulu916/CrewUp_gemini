@@ -20,7 +20,7 @@ export async function uploadPortfolioPhoto(formData: FormData): Promise<{ succes
 
   // 2. Get user profile
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('subscription_status, is_lifetime_pro')
     .eq('id', user.id)
     .single();

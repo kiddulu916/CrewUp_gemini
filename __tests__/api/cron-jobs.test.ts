@@ -20,7 +20,7 @@ describe('Cron Job APIs', () => {
       testUserId = authData.user!.id;
 
       await testDb
-        .from('profiles')
+        .from('users')
         .update({
           name: 'Boost Test User',
           role: 'Worker',
@@ -30,7 +30,7 @@ describe('Cron Job APIs', () => {
     });
 
     afterEach(async () => {
-      await testDb.from('profiles').delete().eq('id', testUserId);
+      await testDb.from('users').delete().eq('id', testUserId);
       await testDb.auth.admin.deleteUser(testUserId);
     });
 
@@ -38,7 +38,7 @@ describe('Cron Job APIs', () => {
       // Set expired boost
       const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
       await testDb
-        .from('profiles')
+        .from('users')
         .update({
           is_profile_boosted: true,
           boost_expires_at: yesterday.toISOString(),
@@ -47,7 +47,7 @@ describe('Cron Job APIs', () => {
 
       // Manually reset expired boosts (simulating cron job)
       await testDb
-        .from('profiles')
+        .from('users')
         .update({
           is_profile_boosted: false,
           boost_expires_at: null,
@@ -57,7 +57,7 @@ describe('Cron Job APIs', () => {
 
       // Verify boost was reset
       const { data } = await testDb
-        .from('profiles')
+        .from('users')
         .select('is_profile_boosted, boost_expires_at')
         .eq('id', testUserId)
         .single();
@@ -70,7 +70,7 @@ describe('Cron Job APIs', () => {
       // Set future expiry
       const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
       await testDb
-        .from('profiles')
+        .from('users')
         .update({
           is_profile_boosted: true,
           boost_expires_at: tomorrow.toISOString(),
@@ -79,7 +79,7 @@ describe('Cron Job APIs', () => {
 
       // Query should not affect active boosts
       const { data } = await testDb
-        .from('profiles')
+        .from('users')
         .select('is_profile_boosted, boost_expires_at')
         .eq('id', testUserId)
         .single();
@@ -104,7 +104,7 @@ describe('Cron Job APIs', () => {
       workerId = workerAuth.user!.id;
 
       await testDb
-        .from('profiles')
+        .from('users')
         .update({
           name: 'Alert Worker',
           role: 'Worker',
@@ -123,7 +123,7 @@ describe('Cron Job APIs', () => {
       employerId = employerAuth.user!.id;
 
       await testDb
-        .from('profiles')
+        .from('users')
         .update({
           name: 'Alert Employer',
           role: 'Employer',
@@ -135,8 +135,8 @@ describe('Cron Job APIs', () => {
     afterEach(async () => {
       await testDb.from('proximity_alerts').delete().eq('user_id', workerId);
       await testDb.from('jobs').delete().eq('employer_id', employerId);
-      await testDb.from('profiles').delete().eq('id', workerId);
-      await testDb.from('profiles').delete().eq('id', employerId);
+      await testDb.from('users').delete().eq('id', workerId);
+      await testDb.from('users').delete().eq('id', employerId);
       await testDb.auth.admin.deleteUser(workerId);
       await testDb.auth.admin.deleteUser(employerId);
     });
@@ -182,7 +182,7 @@ describe('Cron Job APIs', () => {
 
       // Query for nearby jobs (simulating cron job logic)
       const { data } = await testDb.from('proximity_alerts')
-        .select('*, profiles!inner(*)')
+        .select('*, users!inner(*)')
         .eq('is_active', true)
         .eq('user_id', workerId);
 

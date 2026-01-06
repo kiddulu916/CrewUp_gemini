@@ -66,7 +66,7 @@ export default async function JobsPage() {
 
   // Fetch profile with coords
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('trade, sub_trade, location, coords, years_of_experience')
     .eq('id', user.id)
     .single();
@@ -92,7 +92,7 @@ export default async function JobsPage() {
       required_certs,
       created_at,
       status,
-      employer:profiles!employer_id(name, company_name)
+      employer:users!employer_id(name, company_name)
     `)
     .eq('status', 'active')
     .order('created_at', { ascending: false });

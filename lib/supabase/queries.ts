@@ -25,7 +25,7 @@ export async function getCurrentUserProfile(supabase: SupabaseClient) {
   }
 
   return supabase
-    .from('profiles')
+    .from('users')
     .select('*')
     .eq('id', user.id)
     .single();
@@ -36,7 +36,7 @@ export async function getCurrentUserProfile(supabase: SupabaseClient) {
  */
 export async function hasProSubscription(supabase: SupabaseClient, userId: string) {
   const { data } = await supabase
-    .from('profiles')
+    .from('users')
     .select('subscription_status')
     .eq('id', userId)
     .single();
@@ -117,7 +117,7 @@ export async function getConversationMessages(
     .select(
       `
       *,
-      sender:profiles!sender_id(id, name, profile_image_url)
+      sender:users!sender_id(id, name, profile_image_url)
     `
     )
     .eq('conversation_id', conversationId)
@@ -187,7 +187,7 @@ export async function getJobApplications(
     .select(
       `
       *,
-      worker:profiles!applicant_id(
+      worker:users!applicant_id(
         id,
         name,
         trade,

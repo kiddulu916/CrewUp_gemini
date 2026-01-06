@@ -22,7 +22,7 @@ export default async function JobsPage() {
   if (!user) return null;
 
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('*')
     .eq('id', user.id)
     .single();
@@ -37,7 +37,7 @@ export default async function JobsPage() {
         .select(
           `
           *,
-          employer:profiles!employer_id(name, company_name, trade, location)
+          employer:users!employer_id(first_name, last_name, location)
         `
         )
         .eq('employer_id', user.id)
@@ -48,7 +48,7 @@ export default async function JobsPage() {
         .select(
           `
           *,
-          employer:profiles!employer_id(name, company_name, trade, location)
+          employer:users!employer_id(first_name, last_name, location)
         `
         )
         .eq('status', 'active')
@@ -128,11 +128,9 @@ export default async function JobsPage() {
 
                         <div className="flex items-center gap-3 text-sm text-gray-600 flex-wrap">
                           <span>
-                            💼 {job.trade_selections && job.trade_selections.length > 0
-                              ? job.trade_selections.map((ts: any) => ts.trade).join(', ')
-                              : job.trades && job.trades.length > 0
+                            💼 {job.trades && job.trades.length > 0
                               ? job.trades.join(', ')
-                              : job.trade}
+                              : 'No trades specified'}
                           </span>
                           <span className="text-gray-400">•</span>
                           <span>📍 {job.location}</span>
@@ -187,7 +185,9 @@ export default async function JobsPage() {
         <JobsPageClient 
           initialJobs={jobs?.map((job: any) => ({
             ...job,
-            employer_name: job.employer?.company_name || job.employer?.name || 'Unknown Employer'
+            employer_name: job.employer 
+              ? `${job.employer.first_name} ${job.employer.last_name}`.trim() 
+              : 'Unknown Employer'
           })) || []} 
         />
       )}

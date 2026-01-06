@@ -20,7 +20,7 @@ import { createBrowserClient } from '@supabase/ssr';
  *
  *   useEffect(() => {
  *     const loadProfile = async () => {
- *       const { data } = await supabase.from('profiles').select('*').single();
+ *       const { data } = await supabase.from('users').select('*').single();
  *       setProfile(data);
  *     };
  *     loadProfile();

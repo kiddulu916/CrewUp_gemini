@@ -23,7 +23,7 @@ export default async function NewJobPage() {
   }
 
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('role, employer_type, can_post_jobs')
     .eq('id', user.id)
     .single();

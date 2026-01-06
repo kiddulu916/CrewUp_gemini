@@ -19,7 +19,7 @@ export async function getContentReports(status?: string) {
 
   // Verify admin status
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('id', user.id)
     .single();
@@ -33,9 +33,9 @@ export async function getContentReports(status?: string) {
     .select(
       `
       *,
-      reporter:profiles!content_reports_reporter_id_fkey(name, email),
-      reported_user:profiles!content_reports_reported_user_id_fkey(name, email),
-      reviewed_by_profile:profiles!content_reports_reviewed_by_fkey(name)
+      reporter:users!content_reports_reporter_id_fkey(name, email),
+      reported_user:users!content_reports_reported_user_id_fkey(name, email),
+      reviewed_by_profile:users!content_reports_reviewed_by_fkey(name)
     `
     )
     .order('created_at', { ascending: false });
@@ -69,7 +69,7 @@ export async function getReportedContent(contentType: string, contentId: string)
 
   // Verify admin status
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('id', user.id)
     .single();
@@ -89,7 +89,7 @@ export async function getReportedContent(contentType: string, contentId: string)
         .select(
           `
           *,
-          employer:profiles!jobs_employer_id_fkey(name, email)
+          employer:users!jobs_employer_id_fkey(name, email)
         `
         )
         .eq('id', contentId)
@@ -100,7 +100,7 @@ export async function getReportedContent(contentType: string, contentId: string)
 
     case 'profile':
       const profileResult = await supabase
-        .from('profiles')
+        .from('users')
         .select('*')
         .eq('id', contentId)
         .single();
@@ -114,8 +114,8 @@ export async function getReportedContent(contentType: string, contentId: string)
         .select(
           `
           *,
-          sender:profiles!messages_sender_id_fkey(name, email),
-          recipient:profiles!messages_recipient_id_fkey(name, email)
+          sender:users!messages_sender_id_fkey(name, email),
+          recipient:users!messages_recipient_id_fkey(name, email)
         `
         )
         .eq('id', contentId)
@@ -156,7 +156,7 @@ export async function removeContent(
 
   // Verify admin status
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('id', user.id)
     .single();
@@ -259,7 +259,7 @@ export async function warnUser(
 
   // Verify admin status
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('id', user.id)
     .single();
@@ -348,7 +348,7 @@ export async function suspendUserFromReport(
 
   // Verify admin status
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('id', user.id)
     .single();
@@ -445,7 +445,7 @@ export async function banUserFromReport(
 
   // Verify admin status
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('id', user.id)
     .single();
@@ -528,7 +528,7 @@ export async function dismissReport(reportId: string, adminNotes: string) {
 
   // Verify admin status
   const { data: profile } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('id', user.id)
     .single();

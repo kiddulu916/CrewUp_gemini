@@ -61,7 +61,7 @@ export default async function ConversationPage({ params }: Props) {
 
   // Fetch other participant's profile
   const { data: otherProfile, error: profileError } = await supabase
-    .from('profiles')
+    .from('users')
     .select('id, name, profile_image_url')
     .eq('id', otherParticipantId)
     .single();
