@@ -11,6 +11,7 @@ import Link from 'next/link';
 type CertificationItemProps = {
   cert: {
     id: string;
+    credential_category: 'license' | 'certification';
     certification_type: string;
     certification_number?: string | null;
     issued_by?: string | null;
@@ -31,7 +32,7 @@ export function CertificationItem({ cert }: CertificationItemProps) {
     setIsDeleting(true);
 
     try {
-      const result = await deleteCertification(cert.id);
+      const result = await deleteCertification(cert.id, cert.credential_category);
 
       if (result.success) {
         toast.success('Certification deleted successfully');

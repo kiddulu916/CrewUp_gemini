@@ -13,7 +13,7 @@ export function useWorkExperience(userId: string) {
       const supabase = createClient();
 
       const { data, error } = await supabase
-        .from('work_experience')
+        .from('experiences')
         .select('*')
         .eq('user_id', userId)
         .order('start_date', { ascending: false });

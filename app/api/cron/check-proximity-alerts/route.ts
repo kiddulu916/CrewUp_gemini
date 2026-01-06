@@ -28,7 +28,14 @@ export async function GET(request: Request) {
     // Get new jobs from last 10 minutes
     const { data: newJobs, error: jobsError } = await supabaseAdmin
       .from('jobs')
-      .select('id, title, trade, location, coords, employer_name')
+      .select(`
+        id, 
+        title, 
+        trades, 
+        location, 
+        coords, 
+        employer:users!employer_id(first_name, last_name)
+      `)
       .gte('created_at', tenMinutesAgo)
       .eq('status', 'active');
 
@@ -56,7 +63,7 @@ export async function GET(request: Request) {
       .from('proximity_alerts')
       .select(`
         *,
-        user:users!user_id(id, coords, name)
+        user:users!user_id(id, geo_coords, first_name, last_name)
       `)
       .eq('is_active', true);
 
@@ -86,17 +93,18 @@ export async function GET(request: Request) {
       if (!job.coords) continue; // Skip jobs without coordinates
 
       for (const alert of alerts) {
-        if (!alert.user?.coords) continue; // Skip users without coordinates
+        if (!alert.user?.geo_coords) continue; // Skip users without coordinates
 
-        // Check if job trade matches alert trades
-        if (!alert.trades.includes(job.trade)) continue;
+        // Check if any job trade matches alert trades
+        const hasMatchingTrade = job.trades.some((t: string) => alert.trades.includes(t));
+        if (!hasMatchingTrade) continue;
 
         // Calculate distance using PostGIS
         const { data: distanceResult } = await supabaseAdmin.rpc(
           'st_distance',
           {
             geog1: job.coords,
-            geog2: alert.user.coords,
+            geog2: alert.user.geo_coords,
           }
         );
 
@@ -104,17 +112,20 @@ export async function GET(request: Request) {
 
         // If within radius, create notification
         if (distanceKm <= alert.radius_km) {
+          const employer = job.employer as any;
+          const employerName = employer ? `${employer.first_name} ${employer.last_name}`.trim() : 'Unknown';
+
           const { error: notifError } = await supabaseAdmin
             .from('notifications')
             .insert({
               user_id: alert.user_id,
               type: 'new_job',
               title: 'New Job Nearby',
-              message: `${job.title} posted ${Math.round(distanceKm * 10) / 10} km away by ${job.employer_name}`,
+              message: `${job.title} posted ${Math.round(distanceKm * 10) / 10} km away by ${employerName}`,
               data: {
                 job_id: job.id,
                 job_title: job.title,
-                trade: job.trade,
+                trades: job.trades,
                 location: job.location,
                 distance_km: Math.round(distanceKm * 10) / 10,
               },

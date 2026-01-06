@@ -30,24 +30,16 @@ export async function saveApplicationDataToProfile(
 
   try {
     // 1. Update profile table
+    const [firstName, ...lastNameParts] = formData.fullName.trim().split(' ');
+    const lastName = lastNameParts.join(' ') || '';
+
     const { error: profileError } = await supabase
       .from('users')
       .update({
-        name: formData.fullName,
+        first_name: firstName,
+        last_name: lastName,
         phone: formData.phoneNumber,
-        address_street: formData.address.street,
-        address_city: formData.address.city,
-        address_state: formData.address.state,
-        address_zip_code: formData.address.zipCode,
-        authorized_to_work: formData.authorizedToWork,
-        has_drivers_license: formData.hasDriversLicense,
-        license_class: formData.licenseClass || null,
-        has_reliable_transportation: formData.hasReliableTransportation,
-        years_of_experience: formData.yearsOfExperience,
-        trade_skills: formData.tradeSkills,
-        emergency_contact_name: formData.emergencyContact.name,
-        emergency_contact_relationship: formData.emergencyContact.relationship,
-        emergency_contact_phone: formData.emergencyContact.phone,
+        bio: formData.bio || null,
         updated_at: new Date().toISOString(),
       })
       .eq('id', user.id);
@@ -57,18 +49,37 @@ export async function saveApplicationDataToProfile(
       return { success: false, error: 'Failed to update profile' };
     }
 
-    // 2. Upsert work experience
+    // 2. Update worker table
+    const { error: workerError } = await supabase
+      .from('workers')
+      .update({
+        years_of_experience: formData.yearsOfExperience,
+        trade_skills: formData.tradeSkills,
+        authorized_to_work: formData.authorizedToWork,
+        has_dl: formData.hasDriversLicense,
+        dl_class: formData.licenseClass || null,
+        reliable_transportation: formData.hasReliableTransportation,
+        emergency_contact_name: formData.emergencyContact.name,
+        emergency_contact_relationship: formData.emergencyContact.relationship,
+        emergency_contact_phone: formData.emergencyContact.phone,
+      })
+      .eq('user_id', user.id);
+
+    if (workerError) {
+      console.error('Worker profile update error:', workerError);
+    }
+
+    // 3. Upsert work experience
     if (formData.workHistory && formData.workHistory.length > 0) {
       const workExpData = formData.workHistory.map((exp) => ({
-        id: exp.id.startsWith('temp-') ? undefined : exp.id, // Skip temp IDs
+        id: exp.id.startsWith('temp-') ? undefined : exp.id,
         user_id: user.id,
         job_title: exp.jobTitle,
-        company_name: exp.companyName,
+        company: exp.companyName,
         start_date: exp.startDate,
         end_date: exp.endDate || null,
         is_current: exp.isCurrent,
-        responsibilities: exp.responsibilities,
-        reason_for_leaving: exp.reasonForLeaving || null,
+        description: exp.responsibilities,
       }));
 
       // Delete existing work experience not in the list
@@ -78,18 +89,16 @@ export async function saveApplicationDataToProfile(
 
       if (existingIds.length > 0) {
         await supabase
-          .from('work_experience')
+          .from('experiences')
           .delete()
           .eq('user_id', user.id)
           .not('id', 'in', `(${existingIds.join(',')})`);
       } else {
-        // If no existing IDs, delete all (they're all new)
-        await supabase.from('work_experience').delete().eq('user_id', user.id);
+        await supabase.from('experiences').delete().eq('user_id', user.id);
       }
 
-      // Upsert all work experience
       const { error: workExpError } = await supabase
-        .from('work_experience')
+        .from('experiences')
         .upsert(workExpData, { onConflict: 'id', ignoreDuplicates: false });
 
       if (workExpError) {
@@ -97,16 +106,16 @@ export async function saveApplicationDataToProfile(
       }
     }
 
-    // 3. Upsert education
+    // 4. Upsert education
     if (formData.education && formData.education.length > 0) {
       const educationData = formData.education.map((edu) => ({
         id: edu.id.startsWith('temp-') ? undefined : edu.id,
         user_id: user.id,
-        institution_name: edu.institutionName,
-        degree_type: edu.degreeType,
+        institution: edu.institutionName,
+        degree: edu.degreeType,
         field_of_study: edu.fieldOfStudy,
-        graduation_year: edu.graduationYear,
-        is_currently_enrolled: edu.isCurrentlyEnrolled,
+        start_date: null, // No start_date in form?
+        end_date: edu.graduationYear ? `${edu.graduationYear}-01-01` : null,
       }));
 
       // Delete existing education not in the list
@@ -122,7 +131,6 @@ export async function saveApplicationDataToProfile(
         await supabase.from('education').delete().eq('user_id', user.id);
       }
 
-      // Upsert all education
       const { error: educationError } = await supabase
         .from('education')
         .upsert(educationData, { onConflict: 'id', ignoreDuplicates: false });

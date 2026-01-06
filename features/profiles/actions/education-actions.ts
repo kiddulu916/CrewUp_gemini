@@ -5,11 +5,11 @@ import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 
 export type EducationData = {
-  institution_name: string;
-  degree_type: string;
+  institution: string;
+  degree?: string;
   field_of_study?: string;
-  graduation_year?: number;
-  is_currently_enrolled?: boolean;
+  start_date?: string;
+  end_date?: string;
 };
 
 export type EducationResult = {
@@ -34,12 +34,8 @@ export async function addEducation(data: EducationData): Promise<EducationResult
   }
 
   // Validate required fields
-  if (!data.institution_name || data.institution_name.trim().length === 0) {
+  if (!data.institution || data.institution.trim().length === 0) {
     return { success: false, error: 'Institution name is required' };
-  }
-
-  if (!data.degree_type || data.degree_type.trim().length === 0) {
-    return { success: false, error: 'Degree type is required' };
   }
 
   // Insert education entry
@@ -47,11 +43,11 @@ export async function addEducation(data: EducationData): Promise<EducationResult
     .from('education')
     .insert({
       user_id: user.id,
-      institution_name: data.institution_name.trim(),
-      degree_type: data.degree_type.trim(),
+      institution: data.institution.trim(),
+      degree: data.degree?.trim() || null,
       field_of_study: data.field_of_study?.trim() || null,
-      graduation_year: data.graduation_year || null,
-      is_currently_enrolled: data.is_currently_enrolled || false,
+      start_date: data.start_date || null,
+      end_date: data.end_date || null,
     })
     .select()
     .single();
@@ -115,7 +111,7 @@ export async function getMyEducation(): Promise<EducationResult> {
     .from('education')
     .select('*')
     .eq('user_id', user.id)
-    .order('graduation_year', { ascending: false, nullsFirst: false });
+    .order('end_date', { ascending: false, nullsFirst: false });
 
   if (error) {
     console.error('Get education error:', error);

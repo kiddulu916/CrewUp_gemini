@@ -6,7 +6,7 @@ import { cookies } from 'next/headers';
 
 export type ExperienceData = {
   job_title: string;
-  company_name: string;
+  company: string;
   start_date: string;
   end_date?: string | null;
   is_current?: boolean;
@@ -39,7 +39,7 @@ export async function addExperience(data: ExperienceData): Promise<ExperienceRes
     return { success: false, error: 'Job title is required' };
   }
 
-  if (!data.company_name || data.company_name.trim().length === 0) {
+  if (!data.company || data.company.trim().length === 0) {
     return { success: false, error: 'Company name is required' };
   }
 
@@ -58,11 +58,11 @@ export async function addExperience(data: ExperienceData): Promise<ExperienceRes
 
   // Insert experience
   const { data: experience, error: insertError } = await supabase
-    .from('work_experience')
+    .from('experiences')
     .insert({
       user_id: user.id,
       job_title: data.job_title.trim(),
-      company_name: data.company_name.trim(),
+      company: data.company.trim(),
       start_date: data.start_date,
       end_date: data.is_current ? null : (data.end_date || null),
       is_current: data.is_current || false,
@@ -104,7 +104,7 @@ export async function deleteExperience(experienceId: string): Promise<Experience
 
   // Delete only if owned by user
   const { error } = await supabase
-    .from('work_experience')
+    .from('experiences')
     .delete()
     .eq('id', experienceId)
     .eq('user_id', user.id);
@@ -134,7 +134,7 @@ export async function getMyExperience(): Promise<ExperienceResult> {
   }
 
   const { data, error } = await supabase
-    .from('work_experience')
+    .from('experiences')
     .select('*')
     .eq('user_id', user.id)
     .order('start_date', { ascending: false });

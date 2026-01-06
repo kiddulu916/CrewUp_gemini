@@ -10,7 +10,7 @@ import {
 
 // Mock next/headers
 vi.mock('next/headers', () => ({
-  cookies: vi.fn().mockImplementation(() => ({
+  cookies: vi.fn().mockImplementation(() => Promise.resolve({
     get: vi.fn(),
     set: vi.fn(),
     getAll: vi.fn().mockReturnValue([]),

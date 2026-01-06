@@ -27,9 +27,13 @@ export async function loadProfileDataForApplication(): Promise<ProfileDataResult
 
   try {
     // Load profile
-    const { data: profile, error: profileError } = await supabase
+    const { data: profileData, error: profileError } = await supabase
       .from('users')
-      .select('*')
+      .select(`
+        *,
+        workers(trade, sub_trade, years_of_experience),
+        contractors(company_name)
+      `)
       .eq('id', user.id)
       .single();
 
@@ -37,19 +41,39 @@ export async function loadProfileDataForApplication(): Promise<ProfileDataResult
       return { success: false, error: 'Failed to load profile' };
     }
 
+    const profile = {
+      ...profileData,
+      name: `${profileData.first_name} ${profileData.last_name}`.trim(),
+      trade: profileData.workers?.[0]?.trade,
+      sub_trade: profileData.workers?.[0]?.sub_trade,
+      company_name: profileData.contractors?.[0]?.company_name,
+    };
+
     // Load work experience
-    const { data: workExperience = [] } = await supabase
-      .from('work_experience')
+    const { data: workExperienceData = [] } = await supabase
+      .from('experiences')
       .select('*')
       .eq('user_id', user.id)
       .order('start_date', { ascending: false });
 
+    const workExperience = (workExperienceData || []).map(exp => ({
+      ...exp,
+      company_name: exp.company, // Map for backward compatibility
+    }));
+
     // Load education
-    const { data: education = [] } = await supabase
+    const { data: educationData = [] } = await supabase
       .from('education')
       .select('*')
       .eq('user_id', user.id)
-      .order('graduation_year', { ascending: false });
+      .order('end_date', { ascending: false, nullsFirst: false });
+
+    const education = (educationData || []).map(edu => ({
+      ...edu,
+      institution_name: edu.institution,
+      degree_type: edu.degree,
+      graduation_year: edu.end_date ? new Date(edu.end_date).getFullYear() : null,
+    }));
 
     // Load professional references
     const { data: professionalReferences = [] } = await supabase
@@ -58,11 +82,17 @@ export async function loadProfileDataForApplication(): Promise<ProfileDataResult
       .eq('user_id', user.id);
 
     // Load certifications
-    const { data: certifications = [] } = await supabase
+    const { data: certificationsData = [] } = await supabase
       .from('certifications')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('worker_id', user.id)
       .order('created_at', { ascending: false });
+
+    const certifications = (certificationsData || []).map(c => ({
+      ...c,
+      certification_type: c.name,
+      is_verified: c.verification_status === 'verified',
+    }));
 
     return {
       success: true,

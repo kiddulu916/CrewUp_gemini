@@ -27,45 +27,57 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase
     .from('users')
-    .select('*')
+    .select(`
+      *,
+      workers(trade, sub_trade, years_of_experience),
+      contractors(company_name)
+    `)
     .eq('id', user.id)
     .single();
 
+  // Map to common format for UI
+  const profileWithMeta = profile ? {
+    ...profile,
+    name: `${profile.first_name} ${profile.last_name}`.trim(),
+    trade: profile.workers?.[0]?.trade,
+    sub_trade: profile.workers?.[0]?.sub_trade,
+    company_name: profile.contractors?.[0]?.company_name,
+  } : null;
+
   // Get certifications if worker
-  const { data: certifications } = profile?.role === 'worker'
+  const { data: certifications } = profileWithMeta?.role === 'worker'
     ? await supabase
         .from('certifications')
-        .select('id, certification_type, certification_number, issued_by, expires_at, is_verified, verification_status, rejection_reason, created_at')
-        .eq('user_id', user.id)
+        .select('*')
+        .eq('worker_id', user.id)
         .order('created_at', { ascending: false })
     : { data: null };
 
   // Get work experience if worker
-  const { data: workExperience } = profile?.role === 'worker'
+  const { data: workExperience } = profileWithMeta?.role === 'worker'
     ? await supabase
-        .from('work_experience')
+        .from('experiences')
         .select('*')
         .eq('user_id', user.id)
         .order('start_date', { ascending: false })
     : { data: null };
 
   // Get education if worker
-  const { data: education } = profile?.role === 'worker'
+  const { data: education } = profileWithMeta?.role === 'worker'
     ? await supabase
         .from('education')
         .select('*')
         .eq('user_id', user.id)
-        .order('graduation_year', { ascending: false, nullsFirst: false })
+        .order('end_date', { ascending: false, nullsFirst: false })
     : { data: null };
 
   // Get contractor license if contractor
-  const { data: contractorLicense } = profile?.role === 'employer' &&
-    profile?.employer_type === 'contractor'
+  const { data: contractorLicense } = profileWithMeta?.role === 'employer' &&
+    profileWithMeta?.employer_type === 'contractor'
     ? await supabase
-        .from('certifications')
+        .from('licenses')
         .select('*')
-        .eq('user_id', user.id)
-        .eq('credential_category', 'license')
+        .eq('contractor_id', user.id)
         .maybeSingle()
     : { data: null };
 
@@ -88,95 +100,95 @@ export default async function ProfilePage() {
       <CollapsibleSection
         title="Basic Information"
         defaultOpen={true}
-        badge={profile?.subscription_status === 'pro' ? <Badge variant="pro">Pro Member</Badge> : undefined}
+        badge={profileWithMeta?.subscription_status === 'pro' ? <Badge variant="pro">Pro Member</Badge> : undefined}
       >
         <div className="flex items-start gap-6">
           {/* Profile Picture */}
-          {profile?.profile_image_url ? (
+          {profileWithMeta?.profile_image_url ? (
             <img
-              src={profile.profile_image_url}
-              alt={profile.name}
+              src={profileWithMeta.profile_image_url}
+              alt={profileWithMeta.name}
               className="w-24 h-24 rounded-full object-cover border-4 border-gray-200 shrink-0"
             />
           ) : (
-            <InitialsAvatar name={profile?.name || ''} userId={profile?.id || ''} size="lg" />
+            <InitialsAvatar name={profileWithMeta?.name || ''} userId={profileWithMeta?.id || ''} size="lg" />
           )}
 
           {/* Info Grid */}
           <div className="flex-1 grid grid-cols-2 gap-4">
             <div>
               <p className="text-sm font-medium text-gray-500">Name</p>
-              <p className="mt-1 text-base text-gray-900">{profile?.name}</p>
+              <p className="mt-1 text-base text-gray-900">{profileWithMeta?.name}</p>
             </div>
-            {profile?.role === 'employer' && profile?.company_name && (
+            {profileWithMeta?.role === 'employer' && profileWithMeta?.company_name && (
               <div>
                 <p className="text-sm font-medium text-gray-500">Company Name</p>
-                <p className="mt-1 text-base text-gray-900">{profile.company_name}</p>
+                <p className="mt-1 text-base text-gray-900">{profileWithMeta.company_name}</p>
               </div>
             )}
             <div>
               <p className="text-sm font-medium text-gray-500">Email</p>
-              <p className="mt-1 text-base text-gray-900">{profile?.email}</p>
+              <p className="mt-1 text-base text-gray-900">{profileWithMeta?.email}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">Role</p>
-              <p className="mt-1 text-base text-gray-900 capitalize">{profile?.role}</p>
+              <p className="mt-1 text-base text-gray-900 capitalize">{profileWithMeta?.role}</p>
             </div>
-            {profile?.employer_type && (
+            {profileWithMeta?.employer_type && (
               <div>
                 <p className="text-sm font-medium text-gray-500">Employer Type</p>
                 <p className="mt-1 text-base text-gray-900 capitalize">
-                  {profile.employer_type}
+                  {profileWithMeta.employer_type}
                 </p>
               </div>
             )}
             <div>
               <p className="text-sm font-medium text-gray-500">Trade</p>
-              <p className="mt-1 text-base text-gray-900">{profile?.trade}</p>
+              <p className="mt-1 text-base text-gray-900">{profileWithMeta?.trade}</p>
             </div>
-            {profile?.sub_trade && (
+            {profileWithMeta?.sub_trade && (
               <div>
                 <p className="text-sm font-medium text-gray-500">Specialty</p>
-                <p className="mt-1 text-base text-gray-900">{profile.sub_trade}</p>
+                <p className="mt-1 text-base text-gray-900">{profileWithMeta.sub_trade}</p>
               </div>
             )}
             <div>
               <p className="text-sm font-medium text-gray-500">Location</p>
-              <p className="mt-1 text-base text-gray-900">{profile?.location}</p>
+              <p className="mt-1 text-base text-gray-900">{profileWithMeta?.location}</p>
             </div>
-            {profile?.phone && (
+            {profileWithMeta?.phone && (
               <div>
                 <p className="text-sm font-medium text-gray-500">Phone</p>
-                <p className="mt-1 text-base text-gray-900">{profile.phone}</p>
+                <p className="mt-1 text-base text-gray-900">{profileWithMeta.phone}</p>
               </div>
             )}
           </div>
         </div>
 
-        {profile?.bio && (
+        {profileWithMeta?.bio && (
           <div className="mt-6">
             <p className="text-sm font-medium text-gray-500">Bio</p>
-            <p className="mt-2 text-base text-gray-700">{profile.bio}</p>
+            <p className="mt-2 text-base text-gray-700">{profileWithMeta.bio}</p>
           </div>
         )}
       </CollapsibleSection>
 
       {/* Contractor License - Contractors Only */}
-      {profile?.role === 'employer' && profile?.employer_type === 'contractor' && (
+      {profileWithMeta?.role === 'employer' && profileWithMeta?.employer_type === 'contractor' && (
         <CollapsibleSection title="Contractor License" defaultOpen={true}>
           <LicensePreviewCard license={contractorLicense} />
         </CollapsibleSection>
       )}
 
       {/* Who Viewed My Profile - Workers Only */}
-      {profile?.role === 'worker' && (
+      {profileWithMeta?.role === 'worker' && (
         <CollapsibleSection title="Who Viewed My Profile" defaultOpen={true}>
           <ProfileViewsList />
         </CollapsibleSection>
       )}
 
       {/* Certifications - Workers Only */}
-      {profile?.role === 'worker' && (
+      {profileWithMeta?.role === 'worker' && (
         <CollapsibleSection
           title="Certifications"
           defaultOpen={true}

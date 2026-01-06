@@ -62,16 +62,19 @@ export async function completeOnboarding(data: OnboardingData): Promise<Onboardi
   // If profile doesn't exist, create it first
   if (!existingProfile) {
     console.log('[onboarding] Profile does not exist, creating it...');
+    const [firstName, ...lastNameParts] = data.name.trim().split(' ');
+    const lastName = lastNameParts.join(' ') || '';
+
     const { error: insertError } = await supabase
       .from('users')
       .insert({
         id: user.id,
         email: user.email || data.email,
-        name: data.name,
+        first_name: firstName,
+        last_name: lastName,
         role: data.role,
         subscription_status: 'free',
-        trade: data.trade || 'General Laborer',
-        location: data.location || 'Update your location',
+        location: data.location || 'Update Location',
         bio: data.bio || `${data.role === 'worker' ? 'Skilled' : 'Hiring'} professional`,
         phone: data.phone,
       });
@@ -87,77 +90,78 @@ export async function completeOnboarding(data: OnboardingData): Promise<Onboardi
   const location = data.location || 'United States';
   const coords = data.coords;
 
-  // If coords are provided, use the Postgres function for proper PostGIS conversion
+  // 1. Update users table
+  const [firstName, ...lastNameParts] = data.name.trim().split(' ');
+  const lastName = lastNameParts.join(' ') || '';
+
+  const userUpdate: any = {
+    first_name: firstName,
+    last_name: lastName,
+    phone: data.phone,
+    email: data.email,
+    role: data.role,
+    location: location,
+    bio: data.bio || `${data.role === 'worker' ? 'Skilled' : 'Hiring'} ${data.trade} professional`,
+    employer_type: data.role === 'employer' ? data.employer_type || null : null,
+  };
+
+  const { error: userError } = await supabase
+    .from('users')
+    .update(userUpdate)
+    .eq('id', user.id);
+
+  if (userError) {
+    return { success: false, error: userError.message };
+  }
+
+  // 2. Update role-specific tables
+  if (data.role === 'worker') {
+    const { error: workerError } = await supabase
+      .from('workers')
+      .update({
+        trade: data.trade || 'General Laborer',
+        sub_trade: data.sub_trade || null,
+      })
+      .eq('user_id', user.id);
+
+    if (workerError) {
+      console.error('[onboarding] Worker table update error:', workerError);
+    }
+  } else if (data.role === 'employer') {
+    if (data.employer_type === 'contractor') {
+      const { error: contractorError } = await supabase
+        .from('contractors')
+        .update({
+          company_name: data.company_name || null,
+        })
+        .eq('user_id', user.id);
+
+      if (contractorError) {
+        console.error('[onboarding] Contractor table update error:', contractorError);
+      }
+    } else if (data.employer_type === 'recruiter') {
+      const { error: recruiterError } = await supabase
+        .from('recruiters')
+        .update({
+          company_name: data.company_name || null,
+        })
+        .eq('user_id', user.id);
+
+      if (recruiterError) {
+        console.error('[onboarding] Recruiter table update error:', recruiterError);
+      }
+    }
+  }
+
+  // 3. Handle coords update separately with PostGIS
   if (coords && typeof coords.lat === 'number' && typeof coords.lng === 'number') {
-    // First, update the profile with coords using the RPC function
-    const { error: coordsError } = await supabase.rpc('update_profile_coords', {
-      p_user_id: user.id,
-      p_name: data.name,
-      p_phone: data.phone,
-      p_email: data.email,
-      p_role: data.role,
-      p_trade: data.trade,
-      p_location: location,
-      p_lng: coords.lng,
-      p_lat: coords.lat,
-      p_bio: data.bio || `${data.role === 'worker' ? 'Skilled' : 'Hiring'} ${data.trade} professional`,
-      p_sub_trade: data.sub_trade || null,
-      p_employer_type: data.role === 'employer' ? data.employer_type || null : null,
+    const { error: coordsError } = await supabase.rpc('sql', {
+      query: `UPDATE users SET geo_coords = ST_SetSRID(ST_MakePoint($1, $2), 4326) WHERE id = $3`,
+      params: [coords.lng, coords.lat, user.id]
     });
 
     if (coordsError) {
-      return { success: false, error: coordsError.message };
-    }
-
-    // Then update company_name separately (not in the RPC function)
-    if (data.role === 'employer' && data.company_name) {
-      const { error: companyError } = await supabase
-        .from('users')
-        .update({ company_name: data.company_name })
-        .eq('id', user.id);
-
-      if (companyError) {
-        return { success: false, error: companyError.message };
-      }
-    }
-  } else {
-    // If no coords provided, do a regular update without coords
-    const updateData: any = {
-      name: data.name,
-      phone: data.phone,
-      email: data.email,
-      role: data.role,
-      trade: data.trade,
-      location: location,
-      bio: data.bio || `${data.role === 'worker' ? 'Skilled' : 'Hiring'} ${data.trade} professional`,
-    };
-
-    // Only set employer_type for employers
-    if (data.role === 'employer' && data.employer_type) {
-      updateData.employer_type = data.employer_type;
-    } else {
-      updateData.employer_type = null;
-    }
-
-    // Only set company_name for employers
-    if (data.role === 'employer' && data.company_name) {
-      updateData.company_name = data.company_name;
-    } else {
-      updateData.company_name = null;
-    }
-
-    // Only set sub_trade if provided
-    if (data.sub_trade) {
-      updateData.sub_trade = data.sub_trade;
-    }
-
-    const { error: updateError } = await supabase
-      .from('users')
-      .update(updateData)
-      .eq('id', user.id);
-
-    if (updateError) {
-      return { success: false, error: updateError.message };
+      console.error('Coords update error:', coordsError);
     }
   }
 
@@ -179,35 +183,28 @@ export async function completeOnboarding(data: OnboardingData): Promise<Onboardi
       return { success: false, error: certResult.error || 'Failed to save license' };
     }
 
-    // Set can_post_jobs to false until license verified
-    const { error: postJobsError } = await supabase
-      .from('users')
-      .update({ can_post_jobs: false })
-      .eq('id', user.id);
-
-    if (postJobsError) {
-      console.error('[onboarding] Error setting can_post_jobs:', postJobsError);
-      return { success: false, error: 'Failed to update job posting permissions' };
-    }
-
-    console.log('[onboarding] Contractor license saved, can_post_jobs set to false');
+    console.log('[onboarding] Contractor license saved');
   }
 
   // Verify the profile was updated correctly
   const { data: updatedProfile, error: verifyError } = await supabase
     .from('users')
-    .select('name, role, trade, location, phone, email')
+    .select('first_name, last_name, role, location, phone, email')
     .eq('id', user.id)
     .single();
+
+  const profile = updatedProfile ? {
+    ...updatedProfile,
+    name: `${updatedProfile.first_name} ${updatedProfile.last_name}`.trim()
+  } : null;
 
   console.log('[onboarding-actions] Profile updated successfully');
   console.log('[onboarding-actions] User ID:', user.id);
   console.log('[onboarding-actions] Verify error:', verifyError);
-  console.log('[onboarding-actions] Updated profile data:', updatedProfile);
+  console.log('[onboarding-actions] Updated profile data:', profile);
   console.log('[onboarding-actions] Checking onboarding completion:');
-  console.log('  - Name starts with User-?:', updatedProfile?.name?.startsWith('User-'));
-  console.log('  - Location is "Update your location"?:', updatedProfile?.location === 'Update your location');
-  console.log('  - Trade is "General Laborer"?:', updatedProfile?.trade === 'General Laborer');
+  console.log('  - Name starts with User-?:', profile?.name?.startsWith('User-'));
+  console.log('  - Location is "Update Location"?:', profile?.location === 'Update Location');
 
   revalidatePath('/', 'layout');
   return { success: true };

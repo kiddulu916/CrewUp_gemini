@@ -70,30 +70,11 @@ export default async function JobsPage() {
           </p>
         </div>
         {isEmployer && (
-          profile?.can_post_jobs ? (
-            <Link href="/dashboard/jobs/new">
-              <Button className="shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105">
-                Post a Job
-              </Button>
-            </Link>
-          ) : (
-            <div className="relative group">
-              <Button
-                disabled
-                className="cursor-not-allowed opacity-50 shadow-lg"
-              >
-                Post a Job
-              </Button>
-              {/* Tooltip */}
-              <div className="absolute bottom-full mb-2 right-0 hidden group-hover:block z-10">
-                <div className="bg-gray-900 text-white text-sm rounded-lg py-2 px-3 whitespace-nowrap shadow-xl">
-                  License needs to be verified to post jobs
-                  {/* Tooltip arrow */}
-                  <div className="absolute top-full right-4 -mt-1 border-4 border-transparent border-t-gray-900" />
-                </div>
-              </div>
-            </div>
-          )
+          <Link href="/dashboard/jobs/new">
+            <Button className="shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105">
+              Post a Job
+            </Button>
+          </Link>
         )}
       </div>
 
@@ -162,20 +143,9 @@ export default async function JobsPage() {
               <div className="mt-2 text-sm text-gray-600">
                 Get started by posting your first job to find skilled workers
                 <br />
-                {profile?.can_post_jobs ? (
-                  <Link href="/dashboard/jobs/new">
-                    <Button className="mt-4">Post a Job</Button>
-                  </Link>
-                ) : (
-                  <div className="mt-4 inline-block">
-                    <Button disabled className="cursor-not-allowed opacity-50">
-                      Post a Job
-                    </Button>
-                    <div className="text-xs text-yellow-700 mt-2">
-                      License verification required
-                    </div>
-                  </div>
-                )}
+                <Link href="/dashboard/jobs/new">
+                  <Button className="mt-4">Post a Job</Button>
+                </Link>
               </div>
             </CardContent>
           </Card>

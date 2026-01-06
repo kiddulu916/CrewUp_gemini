@@ -27,8 +27,12 @@ export async function GET(request: Request) {
 
     // Find all profiles with expired boosts
     const { data: expiredBoosts, error: fetchError } = await supabaseAdmin
-      .from('users')
-      .select('id, name, boost_expires_at')
+      .from('workers')
+      .select(`
+        user_id, 
+        boost_expires_at,
+        users!user_id(first_name, last_name)
+      `)
       .eq('is_profile_boosted', true)
       .lt('boost_expires_at', now);
 
@@ -51,7 +55,7 @@ export async function GET(request: Request) {
 
     // Reset expired boosts
     const { error: updateError } = await supabaseAdmin
-      .from('users')
+      .from('workers')
       .update({
         is_profile_boosted: false,
         boost_expires_at: null,
@@ -72,7 +76,10 @@ export async function GET(request: Request) {
       success: true,
       message: `Reset ${expiredBoosts.length} expired boosts`,
       count: expiredBoosts.length,
-      profiles: expiredBoosts.map((p) => ({ id: p.id, name: p.name })),
+      profiles: expiredBoosts.map((p: any) => ({ 
+        id: p.user_id, 
+        name: `${p.users?.first_name} ${p.users?.last_name}`.trim() 
+      })),
     });
   } catch (error) {
     console.error('Cron job error:', error);

@@ -57,32 +57,31 @@ export async function updateProfile(data: ProfileUpdateData): Promise<ProfileRes
 
   // Handle coords update separately if provided with valid lat/lng
   if (data.coords && typeof data.coords.lat === 'number' && typeof data.coords.lng === 'number') {
-    // Use RPC function to update coords with PostGIS
-    const { error: coordsError } = await supabase.rpc('update_profile_coords_only', {
-      p_user_id: user.id,
-      p_lng: data.coords.lng,
-      p_lat: data.coords.lat
+    // Use direct SQL to update coords with PostGIS since RPC might not exist
+    const { error: coordsError } = await supabase.rpc('sql', {
+      query: `UPDATE users SET geo_coords = ST_SetSRID(ST_MakePoint($1, $2), 4326) WHERE id = $3`,
+      params: [data.coords.lng, data.coords.lat, user.id]
     });
 
     if (coordsError) {
       console.error('Coords update error:', coordsError);
-      // Continue with other updates even if coords fail
     }
   }
 
   // Update other profile fields (excluding coords)
   const updateData: any = {};
-  if (data.name) updateData.name = data.name.trim();
+  if (data.name) {
+    const [firstName, ...lastNameParts] = data.name.trim().split(' ');
+    updateData.first_name = firstName;
+    updateData.last_name = lastNameParts.join(' ') || '';
+  }
   if (data.phone !== undefined) updateData.phone = data.phone;
   if (data.location !== undefined) updateData.location = data.location;
-  if (data.trade !== undefined) updateData.trade = data.trade;
-  if (data.sub_trade !== undefined) updateData.sub_trade = data.sub_trade;
   if (data.bio !== undefined) updateData.bio = data.bio;
   if (data.employer_type !== undefined) updateData.employer_type = data.employer_type;
-  if (data.company_name !== undefined) updateData.company_name = data.company_name;
   if (data.profile_image_url !== undefined) updateData.profile_image_url = data.profile_image_url;
 
-  // Only update if there are fields to update
+  // Only update if there are fields to update in users table
   if (Object.keys(updateData).length > 0) {
     const { error: updateError } = await supabase
       .from('users')
@@ -91,14 +90,46 @@ export async function updateProfile(data: ProfileUpdateData): Promise<ProfileRes
 
     if (updateError) {
       console.error('Update profile error:', updateError);
-      return { success: false, error: 'Failed to update profile' };
+      return { success: false, error: 'Failed to update base profile' };
     }
   }
 
-  // Fetch updated profile
+  // Update workers table if trade/sub_trade provided
+  if (data.trade !== undefined || data.sub_trade !== undefined) {
+    const workerUpdate: any = {};
+    if (data.trade !== undefined) workerUpdate.trade = data.trade;
+    if (data.sub_trade !== undefined) workerUpdate.sub_trade = data.sub_trade;
+
+    const { error: workerError } = await supabase
+      .from('workers')
+      .update(workerUpdate)
+      .eq('user_id', user.id);
+
+    if (workerError) {
+      console.error('Update worker profile error:', workerError);
+    }
+  }
+
+  // Update contractors table if company_name provided
+  if (data.company_name !== undefined) {
+    const { error: contractorError } = await supabase
+      .from('contractors')
+      .update({ company_name: data.company_name })
+      .eq('user_id', user.id);
+
+    if (contractorError) {
+      console.error('Update contractor profile error:', contractorError);
+    }
+  }
+
+  // Fetch updated profile (join with workers and contractors for full data)
   const { data: profile, error: fetchError } = await supabase
     .from('users')
-    .select('*')
+    .select(`
+      *,
+      workers(trade, sub_trade),
+      contractors(company_name)
+    `)
     .eq('id', user.id)
     .single();
 
@@ -111,6 +142,105 @@ export async function updateProfile(data: ProfileUpdateData): Promise<ProfileRes
   revalidatePath('/dashboard/profile/edit');
 
   return { success: true, data: profile };
+}
+
+/**
+ * Update user's location coordinates (used for initial location capture)
+ */
+export async function updateProfileLocation(data: {
+  location: string;
+  coords: { lat: number; lng: number };
+}): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient(await cookies());
+
+  // Get current user
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { success: false, error: 'Not authenticated' };
+  }
+
+  // Use direct SQL to update coords with PostGIS
+  const { error: updateError } = await supabase.rpc('sql', {
+    query: `UPDATE users SET location = $1, geo_coords = ST_SetSRID(ST_MakePoint($2, $3), 4326) WHERE id = $4`,
+    params: [data.location, data.coords.lng, data.coords.lat, user.id]
+  });
+
+  if (updateError) {
+    return { success: false, error: updateError.message };
+  }
+
+  revalidatePath('/dashboard/feed');
+  revalidatePath('/dashboard/profile');
+  return { success: true };
+}
+
+/**
+ * Update worker's tools owned
+ */
+export async function updateToolsOwned(
+  hasTools: boolean,
+  toolsOwned: string[]
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient(await cookies());
+
+  // 1. Get authenticated user
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return { success: false, error: 'Not authenticated' };
+  }
+
+  // 2. Validate input
+  if (typeof hasTools !== 'boolean') {
+    return { success: false, error: 'Invalid hasTools value' };
+  }
+
+  // Validate and sanitize toolsOwned array
+  const MAX_TOOLS = 100;
+  const MAX_TOOL_NAME_LENGTH = 100;
+
+  if (toolsOwned.length > MAX_TOOLS) {
+    return { success: false, error: `Cannot save more than ${MAX_TOOLS} tools` };
+  }
+
+  // Sanitize: trim whitespace, filter empty/too long, remove duplicates
+  const sanitizedTools = toolsOwned
+    .map(tool => tool.trim())
+    .filter(tool => tool.length > 0 && tool.length <= MAX_TOOL_NAME_LENGTH);
+
+  const uniqueTools = [...new Set(sanitizedTools)];
+
+  // 3. Verify user is a worker
+  const { data: profile } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (profile?.role !== 'worker') {
+    return { success: false, error: 'Only workers can update tools owned' };
+  }
+
+  // 4. Update tools in workers table
+  const { error } = await supabase
+    .from('workers')
+    .update({
+      has_tools: hasTools,
+      tools_owned: uniqueTools
+    })
+    .eq('user_id', user.id);
+
+  if (error) {
+    console.error('Update tools error:', error);
+    return { success: false, error: 'Failed to update tools' };
+  }
+
+  revalidatePath('/dashboard/profile/edit');
+  revalidatePath('/dashboard/profile');
+  return { success: true };
 }
 
 /**
@@ -129,7 +259,11 @@ export async function getMyProfile(): Promise<ProfileResult> {
 
   const { data: profile, error } = await supabase
     .from('users')
-    .select('*')
+    .select(`
+      *,
+      workers(trade, sub_trade),
+      contractors(company_name)
+    `)
     .eq('id', user.id)
     .single();
 

@@ -102,14 +102,19 @@ CREATE OR REPLACE FUNCTION "public"."create_job_with_coords"(
     "p_lng" double precision,
     "p_lat" double precision,
     "p_trades" "text"[],
+    "p_sub_trades" "text"[],
     "p_job_type" "text",
-    "p_pay_rate" "text"
+    "p_pay_rate" "text",
+    "p_pay_min" numeric,
+    "p_pay_max" numeric,
+    "p_required_certs" "text"[],
+    "p_status" "text" DEFAULT 'active'
 ) RETURNS "uuid" LANGUAGE "plpgsql" SECURITY DEFINER AS $$
 DECLARE
   v_job_id UUID;
 BEGIN
   INSERT INTO jobs (
-    employer_id, title, description, location, coords, trades, job_type, pay_rate
+    employer_id, title, description, location, coords, trades, sub_trades, job_type, pay_rate, pay_min, pay_max, required_certs, status
   ) VALUES (
     p_employer_id,
     p_title,
@@ -117,8 +122,13 @@ BEGIN
     p_location,
     ST_SetSRID(ST_MakePoint(p_lng, p_lat), 4326),
     p_trades,
+    p_sub_trades,
     p_job_type,
-    p_pay_rate
+    p_pay_rate,
+    p_pay_min,
+    p_pay_max,
+    p_required_certs,
+    p_status
   )
   RETURNING id INTO v_job_id;
 

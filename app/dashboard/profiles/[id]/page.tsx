@@ -34,34 +34,58 @@ export default async function PublicProfilePage({ params }: Props) {
   }
 
   // Fetch the profile
-  const { data: profile, error } = await supabase
+  const { data: profileData, error } = await supabase
     .from('users')
-    .select('*')
+    .select(`
+      *,
+      workers(trade, sub_trade, boost_expires_at),
+      contractors(company_name)
+    `)
     .eq('id', profileId)
     .single();
 
-  if (error || !profile) {
+  if (error || !profileData) {
     notFound();
   }
 
+  const profile = {
+    ...profileData,
+    name: `${profileData.first_name} ${profileData.last_name}`.trim(),
+    trade: profileData.workers?.[0]?.trade,
+    sub_trade: profileData.workers?.[0]?.sub_trade,
+    boost_expires_at: profileData.workers?.[0]?.boost_expires_at,
+    company_name: profileData.contractors?.[0]?.company_name,
+  };
+
   // Get certifications if worker
-  const { data: certifications } = profile.role === 'worker'
+  const { data: certificationsData } = profile.role === 'worker'
     ? await supabase
         .from('certifications')
         .select('*')
-        .eq('user_id', profileId)
-        .eq('is_verified', true) // Only show verified certifications to public
+        .eq('worker_id', profileId)
+        .eq('verification_status', 'verified') // Only show verified certifications to public
         .order('created_at', { ascending: false })
     : { data: null };
 
+  const certifications = (certificationsData || []).map(c => ({
+    ...c,
+    certification_type: c.name,
+    expires_at: c.expiration_date,
+  }));
+
   // Get work experience if worker
-  const { data: workExperience } = profile.role === 'worker'
+  const { data: workExperienceData } = profile.role === 'worker'
     ? await supabase
-        .from('work_experience')
+        .from('experiences')
         .select('*')
         .eq('user_id', profileId)
         .order('start_date', { ascending: false })
     : { data: null };
+
+  const workExperience = (workExperienceData || []).map(exp => ({
+    ...exp,
+    company_name: exp.company,
+  }));
 
   return (
     <div className="space-y-6">

@@ -13,7 +13,7 @@ export function useReferences(userId: string) {
       const supabase = createClient();
 
       const { data, error } = await supabase
-        .from('references')
+        .from('professional_references')
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false });

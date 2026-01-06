@@ -56,10 +56,10 @@ export async function applyToJob(
 
   // Check if already applied
   const { data: existingApplication } = await supabase
-    .from('applications')
+    .from('job_applications')
     .select('id')
     .eq('job_id', jobId)
-    .eq('worker_id', user.id)
+    .eq('applicant_id', user.id)
     .single();
 
   if (existingApplication) {
@@ -67,9 +67,9 @@ export async function applyToJob(
   }
 
   // Create application
-  const { error: insertError } = await supabase.from('applications').insert({
+  const { error: insertError } = await supabase.from('job_applications').insert({
     job_id: jobId,
-    worker_id: user.id,
+    applicant_id: user.id,
     cover_letter: coverLetter || null,
     status: 'pending',
   });
@@ -101,16 +101,16 @@ export async function withdrawApplication(applicationId: string): Promise<Applic
 
   // Verify ownership
   const { data: application } = await supabase
-    .from('applications')
-    .select('worker_id, job_id')
+    .from('job_applications')
+    .select('applicant_id, job_id')
     .eq('id', applicationId)
     .single();
 
-  if (!application || application.worker_id !== user.id) {
+  if (!application || application.applicant_id !== user.id) {
     return { success: false, error: 'Application not found' };
   }
 
-  const { error } = await supabase.from('applications').delete().eq('id', applicationId);
+  const { error } = await supabase.from('job_applications').delete().eq('id', applicationId);
 
   if (error) {
     return { success: false, error: 'Failed to withdraw application' };
@@ -141,7 +141,7 @@ export async function updateApplicationStatus(
 
   // Verify user is employer and owns the job
   const { data: application } = await supabase
-    .from('applications')
+    .from('job_applications')
     .select(
       `
       id,
@@ -162,7 +162,7 @@ export async function updateApplicationStatus(
   }
 
   const { error } = await supabase
-    .from('applications')
+    .from('job_applications')
     .update({ status })
     .eq('id', applicationId);
 

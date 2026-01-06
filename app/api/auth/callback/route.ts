@@ -29,18 +29,28 @@ export async function GET(request: Request) {
     } = await supabase.auth.getUser();
 
     if (user) {
-      const { data: profile } = await supabase
+      const { data: userData } = await supabase
         .from('users')
-        .select('name, role, trade, location')
+        .select(`
+          first_name, 
+          last_name, 
+          role, 
+          location,
+          workers(trade)
+        `)
         .eq('id', user.id)
         .single();
+
+      const profile = userData as any;
+      const worker = profile?.workers?.[0];
+      const fullName = `${profile?.first_name} ${profile?.last_name}`.trim();
 
       // If profile is incomplete (default values from trigger), redirect to onboarding
       if (
         profile &&
-        (profile.name.startsWith('User-') ||
+        (fullName.startsWith('User-') ||
           profile.location === 'Update your location' ||
-          profile.trade === 'General Laborer')
+          worker?.trade === 'General Laborer')
       ) {
         return NextResponse.redirect(`${origin}/onboarding`);
       }

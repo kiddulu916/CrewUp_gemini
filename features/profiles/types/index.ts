@@ -34,31 +34,33 @@ export type PortfolioImage = {
   id: string;
   user_id: string;
   image_url: string;
+  description?: string | null;
   display_order: number;
-  uploaded_at: string;
+  created_at: string;
 };
 
 export type WorkExperience = {
   id: string;
   user_id: string;
+  company: string;
   job_title: string;
-  company_name: string;
+  description?: string | null;
   start_date: string;
   end_date?: string | null;
   is_current: boolean;
-  description?: string | null;
+  is_verified: boolean;
+  endorsement_count: number;
   created_at: string;
 };
 
 export type Education = {
   id: string;
   user_id: string;
-  institution_name: string;
-  degree_type: string;
+  institution: string;
+  degree?: string | null;
   field_of_study?: string | null;
-  graduation_year?: number | null;
-  is_currently_enrolled: boolean;
-  created_at: string;
+  start_date?: string | null;
+  end_date?: string | null;
 };
 
 export type Certification = {

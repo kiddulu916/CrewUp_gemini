@@ -16,7 +16,7 @@ export function useEducation(userId: string) {
         .from('education')
         .select('*')
         .eq('user_id', userId)
-        .order('graduation_year', { ascending: false, nullsFirst: false });
+        .order('end_date', { ascending: false, nullsFirst: false });
 
       if (error) throw error;
       return data as Education[];

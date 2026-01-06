@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { updateProfileLocation } from '@/features/profile/actions/profile-actions';
+import { updateProfileLocation } from '@/features/profiles/actions/profile-actions';
 
 /**
  * Component that captures user's location on first dashboard visit

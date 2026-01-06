@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { createClient } from '@supabase/supabase-js';
 import {
   updateProfile,
@@ -14,6 +14,15 @@ import {
   deleteExperience,
   getMyExperience,
 } from '@/features/profiles/actions/experience-actions';
+
+// Mock next/headers
+vi.mock('next/headers', () => ({
+  cookies: vi.fn().mockImplementation(() => Promise.resolve({
+    get: vi.fn(),
+    set: vi.fn(),
+    getAll: vi.fn().mockReturnValue([]),
+  })),
+}));
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -38,11 +47,18 @@ describe('Profile Server Actions Integration Tests', () => {
     await testDb
       .from('users')
       .update({
-        name: 'Test User',
-        role: 'Worker',
-        trade: 'Carpenter',
+        first_name: 'Test',
+        last_name: 'User',
+        role: 'worker',
       })
       .eq('id', testUserId);
+
+    await testDb
+      .from('workers')
+      .update({
+        trade: 'Carpenter',
+      })
+      .eq('user_id', testUserId);
   });
 
   afterEach(async () => {
@@ -66,21 +82,23 @@ describe('Profile Server Actions Integration Tests', () => {
       // Verify in database
       const { data } = await testDb
         .from('users')
-        .select('*')
+        .select('*, workers(trade)')
         .eq('id', testUserId)
         .single();
 
-      expect(data?.name).toBe('Updated Name');
+      expect(data?.first_name).toBe('Updated');
+      expect(data?.last_name).toBe('Name');
       expect(data?.bio).toBe('Updated bio');
-      expect(data?.trade).toBe('Electrician');
+      expect(data?.workers?.[0]?.trade).toBe('Electrician');
     });
 
     it('should get user profile', async () => {
       const result = await getMyProfile();
 
       expect(result.success).toBe(true);
-      expect(result.data?.name).toBe('Test User');
-      expect(result.data?.role).toBe('Worker');
+      expect(result.data?.first_name).toBe('Test');
+      expect(result.data?.last_name).toBe('User');
+      expect(result.data?.role).toBe('worker');
     });
 
     it('should handle validation errors', async () => {
@@ -97,10 +115,11 @@ describe('Profile Server Actions Integration Tests', () => {
   describe('Certification Actions', () => {
     it('should add certification successfully', async () => {
       const result = await addCertification({
-        name: 'OSHA 10',
-        issuing_organization: 'OSHA',
+        credential_category: 'certification',
+        certification_type: 'OSHA 10',
+        issued_by: 'OSHA',
         issue_date: '2023-01-15',
-        expiry_date: '2025-01-15',
+        expires_at: '2025-01-15',
         certification_number: 'OSHA-10-12345',
       });
 
@@ -110,17 +129,17 @@ describe('Profile Server Actions Integration Tests', () => {
       const { data } = await testDb
         .from('certifications')
         .select('*')
-        .eq('user_id', testUserId)
+        .eq('worker_id', testUserId)
         .single();
 
       expect(data?.name).toBe('OSHA 10');
-      expect(data?.certification_number).toBe('OSHA-10-12345');
+      expect(data?.credential_id).toBe('OSHA-10-12345');
     });
 
     it('should get user certifications', async () => {
       // Add a certification first
       await testDb.from('certifications').insert({
-        user_id: testUserId,
+        worker_id: testUserId,
         name: 'First Aid/CPR',
         issuing_organization: 'Red Cross',
         issue_date: '2023-06-01',
@@ -130,7 +149,7 @@ describe('Profile Server Actions Integration Tests', () => {
 
       expect(result.success).toBe(true);
       expect(result.data).toHaveLength(1);
-      expect(result.data?.[0].name).toBe('First Aid/CPR');
+      expect(result.data?.[0].certification_type).toBe('First Aid/CPR');
     });
 
     it('should delete certification', async () => {
@@ -138,7 +157,7 @@ describe('Profile Server Actions Integration Tests', () => {
       const { data: cert } = await testDb
         .from('certifications')
         .insert({
-          user_id: testUserId,
+          worker_id: testUserId,
           name: 'Test Cert',
           issuing_organization: 'Test Org',
           issue_date: '2023-01-01',
@@ -146,7 +165,7 @@ describe('Profile Server Actions Integration Tests', () => {
         .select()
         .single();
 
-      const result = await deleteCertification(cert!.id);
+      const result = await deleteCertification(cert!.id, 'certification');
 
       expect(result.success).toBe(true);
 
@@ -165,11 +184,11 @@ describe('Profile Server Actions Integration Tests', () => {
     it('should add work experience successfully', async () => {
       const result = await addExperience({
         company: 'ABC Construction',
-        title: 'Senior Carpenter',
+        job_title: 'Senior Carpenter',
         description: 'Built custom furniture',
         start_date: '2020-01-01',
         end_date: '2023-01-01',
-        current: false,
+        is_current: false,
       });
 
       expect(result.success).toBe(true);
@@ -182,7 +201,7 @@ describe('Profile Server Actions Integration Tests', () => {
         .single();
 
       expect(data?.company).toBe('ABC Construction');
-      expect(data?.title).toBe('Senior Carpenter');
+      expect(data?.job_title).toBe('Senior Carpenter');
     });
 
     it('should get user experiences', async () => {
@@ -190,9 +209,9 @@ describe('Profile Server Actions Integration Tests', () => {
       await testDb.from('experiences').insert({
         user_id: testUserId,
         company: 'Test Company',
-        title: 'Test Position',
+        job_title: 'Test Position',
         start_date: '2021-01-01',
-        current: true,
+        is_current: true,
       });
 
       const result = await getMyExperience();
@@ -209,9 +228,9 @@ describe('Profile Server Actions Integration Tests', () => {
         .insert({
           user_id: testUserId,
           company: 'Delete Me',
-          title: 'Test',
+          job_title: 'Test',
           start_date: '2021-01-01',
-          current: false,
+          is_current: false,
         })
         .select()
         .single();
@@ -233,10 +252,10 @@ describe('Profile Server Actions Integration Tests', () => {
     it('should validate current experience has no end date', async () => {
       const result = await addExperience({
         company: 'Current Job',
-        title: 'Carpenter',
+        job_title: 'Carpenter',
         start_date: '2023-01-01',
         end_date: '2024-01-01', // Should not have end date if current
-        current: true,
+        is_current: true,
       });
 
       // Should either succeed and ignore end_date or fail with error

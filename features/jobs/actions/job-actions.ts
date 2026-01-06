@@ -88,8 +88,13 @@ export async function createJob(data: JobData): Promise<JobResult> {
       p_lng: data.coords.lng,
       p_lat: data.coords.lat,
       p_trades: data.trades,
+      p_sub_trades: data.sub_trades || [],
       p_job_type: data.job_type,
       p_pay_rate: data.pay_rate,
+      p_pay_min: data.pay_min || null,
+      p_pay_max: data.pay_max || null,
+      p_required_certs: data.required_certs || [],
+      p_status: data.status || 'active',
     });
 
     if (createError) {

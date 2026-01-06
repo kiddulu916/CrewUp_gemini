@@ -49,13 +49,15 @@ export async function requestEndorsement(
     // Check if user is Pro worker
     const { data: profile } = await supabase
       .from('users')
-      .select('subscription_status, role, name, email')
+      .select('subscription_status, role, first_name, last_name, email')
       .eq('id', user.id)
       .single();
 
     if (!profile) {
       return { success: false, error: 'Profile not found' };
     }
+
+    const fullName = `${profile.first_name} ${profile.last_name}`.trim();
 
     if (profile.subscription_status !== 'pro') {
       return { success: false, error: 'Pro subscription required' };
@@ -80,7 +82,7 @@ export async function requestEndorsement(
     // Find employer by email
     const { data: employer } = await supabase
       .from('users')
-      .select('id, name, role')
+      .select('id, first_name, last_name, role')
       .eq('email', employerEmail.toLowerCase())
       .eq('role', 'employer')
       .single();
@@ -136,9 +138,9 @@ export async function requestEndorsement(
 
     const emailResult = await sendEmail({
       to: employerEmail,
-      subject: `${profile.name} requests work history endorsement`,
+      subject: `${fullName} requests work history endorsement`,
       html: endorsementRequestEmailHtml({
-        workerName: profile.name,
+        workerName: fullName,
         position: experience.title,
         companyName: experience.company,
         startDate: formatDate(experience.start_date),
@@ -146,7 +148,7 @@ export async function requestEndorsement(
         approveUrl,
       }),
       text: endorsementRequestEmailText({
-        workerName: profile.name,
+        workerName: fullName,
         position: experience.title,
         companyName: experience.company,
         startDate: formatDate(experience.start_date),
@@ -202,13 +204,15 @@ export async function approveEndorsement(
     // Get employer profile
     const { data: employer } = await supabase
       .from('users')
-      .select('name, employer_type')
+      .select('first_name, last_name, employer_type')
       .eq('id', user.id)
       .single();
 
     if (!employer) {
       return { success: false, error: 'Employer profile not found' };
     }
+
+    const employerName = `${employer.first_name} ${employer.last_name}`.trim();
 
     // Validate recommendation text length
     const trimmedRecommendation = recommendationText.trim();
@@ -222,7 +226,7 @@ export async function approveEndorsement(
       .insert({
         experience_id: request.experience_id,
         endorsed_by_user_id: user.id,
-        endorsed_by_name: employer.name,
+        endorsed_by_name: employerName,
         endorsed_by_company: employer.employer_type,
         recommendation_text: trimmedRecommendation || null,
         verified_dates_worked: verifiedDates,

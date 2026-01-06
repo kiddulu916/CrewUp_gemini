@@ -33,9 +33,9 @@ export async function getContentReports(status?: string) {
     .select(
       `
       *,
-      reporter:users!content_reports_reporter_id_fkey(name, email),
-      reported_user:users!content_reports_reported_user_id_fkey(name, email),
-      reviewed_by_profile:users!content_reports_reviewed_by_fkey(name)
+      reporter:users!content_reports_reporter_id_fkey(first_name, last_name, email),
+      reported_user:users!content_reports_reported_user_id_fkey(first_name, last_name, email),
+      reviewed_by_profile:users!content_reports_reviewed_by_fkey(first_name, last_name)
     `
     )
     .order('created_at', { ascending: false });
@@ -89,7 +89,7 @@ export async function getReportedContent(contentType: string, contentId: string)
         .select(
           `
           *,
-          employer:users!jobs_employer_id_fkey(name, email)
+          employer:users!jobs_employer_id_fkey(first_name, last_name, email)
         `
         )
         .eq('id', contentId)
@@ -114,8 +114,8 @@ export async function getReportedContent(contentType: string, contentId: string)
         .select(
           `
           *,
-          sender:users!messages_sender_id_fkey(name, email),
-          recipient:users!messages_recipient_id_fkey(name, email)
+          sender:users!messages_sender_id_fkey(first_name, last_name, email),
+          recipient:users!messages_recipient_id_fkey(first_name, last_name, email)
         `
         )
         .eq('id', contentId)

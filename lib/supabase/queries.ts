@@ -26,7 +26,11 @@ export async function getCurrentUserProfile(supabase: SupabaseClient) {
 
   return supabase
     .from('users')
-    .select('*')
+    .select(`
+      *,
+      workers(trade, sub_trade, years_of_experience),
+      contractors(company_name)
+    `)
     .eq('id', user.id)
     .single();
 }
@@ -117,7 +121,7 @@ export async function getConversationMessages(
     .select(
       `
       *,
-      sender:users!sender_id(id, name, profile_image_url)
+      sender:users!sender_id(id, first_name, last_name, profile_image_url)
     `
     )
     .eq('conversation_id', conversationId)
@@ -189,22 +193,26 @@ export async function getJobApplications(
       *,
       worker:users!applicant_id(
         id,
-        name,
-        trade,
-        sub_trade,
+        first_name,
+        last_name,
         location,
         bio,
-        profile_image_url
-      ),
-      certifications:certifications(
-        certification_type,
-        is_verified
-      ),
-      work_experience:work_experience(
-        job_title,
-        company_name,
-        start_date,
-        end_date
+        profile_image_url,
+        workers(
+          trade, 
+          sub_trade, 
+          years_of_experience,
+          certifications(
+            name,
+            verification_status
+          )
+        ),
+        experiences(
+          job_title,
+          company,
+          start_date,
+          end_date
+        )
       )
     `
     )

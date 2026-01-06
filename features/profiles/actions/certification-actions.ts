@@ -66,45 +66,64 @@ export async function addCertification(data: CertificationData): Promise<Certifi
     return { success: false, error: 'Certification type is required' };
   }
 
-  // Insert certification with credential_category
-  const { data: certification, error: insertError } = await supabase
-    .from('certifications')
-    .insert({
-      user_id: user.id,
-      credential_category: data.credential_category,
-      certification_type: data.certification_type.trim(),
-      certification_number: data.certification_number?.trim() || null,
-      issued_by: data.issued_by?.trim() || null,
-      issuing_state: data.issuing_state?.trim() || null,
-      issue_date: data.issue_date || null,
-      expires_at: data.expires_at || null,
-      image_url: data.photo_url || null,
-      verification_status: 'pending', // Starts as pending verification
-    })
-    .select()
-    .single();
+  try {
+    // Insert credential into appropriate table
+    if (data.credential_category === 'certification') {
+    const { data: certification, error: insertError } = await supabase
+      .from('certifications')
+      .insert({
+        worker_id: user.id,
+        name: data.certification_type.trim(),
+        issuing_organization: data.issued_by?.trim() || 'Unknown',
+        credential_id: data.certification_number?.trim() || null,
+        issue_date: data.issue_date || null,
+        expiration_date: data.expires_at || null,
+        image_url: data.photo_url || null,
+        verification_status: 'pending',
+      })
+      .select()
+      .single();
 
-  if (insertError) {
-    console.error('Add certification error:', insertError);
-    // Provide more detailed error messages
-    let errorMessage = 'Failed to add certification';
-    if (insertError.code === '23505') {
-      errorMessage = 'This certification already exists in your profile';
-    } else if (insertError.message) {
-      errorMessage = `Failed to add certification: ${insertError.message}`;
-    }
-    return { success: false, error: errorMessage };
+    if (insertError) throw insertError;
+    return { success: true, data: certification };
+  } else {
+    const { data: license, error: insertError } = await supabase
+      .from('licenses')
+      .insert({
+        contractor_id: user.id,
+        license_number: data.certification_number?.trim() || 'Pending',
+        classification: data.certification_type.trim(),
+        issuing_state: data.issuing_state?.trim() || null,
+        issue_date: data.issue_date || null,
+        expiration_date: data.expires_at || null,
+        image_url: data.photo_url || null,
+        verification_status: 'pending',
+      })
+      .select()
+      .single();
+
+    if (insertError) throw insertError;
+    return { success: true, data: license };
   }
-
-  revalidatePath('/dashboard/profile');
-
-  return { success: true, data: certification };
+} catch (error: any) {
+  console.error('Add credential error:', error);
+  let errorMessage = 'Failed to add credential';
+  if (error.code === '23505') {
+    errorMessage = 'This credential already exists in your profile';
+  } else if (error.message) {
+    errorMessage = `Failed to add credential: ${error.message}`;
+  }
+  return { success: false, error: errorMessage };
+}
 }
 
 /**
- * Delete a certification
+ * Delete a certification or license
  */
-export async function deleteCertification(certificationId: string): Promise<CertificationResult> {
+export async function deleteCertification(
+  certificationId: string,
+  category: 'certification' | 'license'
+): Promise<CertificationResult> {
   const supabase = await createClient(await cookies());
 
   const {
@@ -115,12 +134,15 @@ export async function deleteCertification(certificationId: string): Promise<Cert
     return { success: false, error: 'Not authenticated' };
   }
 
-  // Delete only if owned by user
+  // Delete from appropriate table
+  const table = category === 'certification' ? 'certifications' : 'licenses';
+  const idField = category === 'certification' ? 'worker_id' : 'contractor_id';
+
   const { error } = await supabase
-    .from('certifications')
+    .from(table)
     .delete()
     .eq('id', certificationId)
-    .eq('user_id', user.id);
+    .eq(idField, user.id);
 
   if (error) {
     console.error('Delete certification error:', error);
@@ -191,7 +213,7 @@ export async function uploadCertificationPhoto(file: File): Promise<Certificatio
 }
 
 /**
- * Get user's certifications
+ * Get user's certifications and licenses
  */
 export async function getMyCertifications(): Promise<CertificationResult> {
   const supabase = await createClient(await cookies());
@@ -204,16 +226,47 @@ export async function getMyCertifications(): Promise<CertificationResult> {
     return { success: false, error: 'Not authenticated' };
   }
 
-  const { data, error } = await supabase
-    .from('certifications')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false });
+  // Fetch both certifications and licenses
+  const [certsResponse, licensesResponse] = await Promise.all([
+    supabase
+      .from('certifications')
+      .select('*')
+      .eq('worker_id', user.id)
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('licenses')
+      .select('*')
+      .eq('contractor_id', user.id)
+      .order('created_at', { ascending: false })
+  ]);
 
-  if (error) {
-    console.error('Get certifications error:', error);
+  if (certsResponse.error) {
+    console.error('Get certifications error:', certsResponse.error);
     return { success: false, error: 'Failed to get certifications' };
   }
 
-  return { success: true, data };
+  if (licensesResponse.error) {
+    console.error('Get licenses error:', licensesResponse.error);
+    return { success: false, error: 'Failed to get licenses' };
+  }
+
+  // Map to a common format if needed, or just return both
+  const certs = (certsResponse.data || []).map(c => ({
+    ...c,
+    credential_category: 'certification' as const,
+    certification_type: c.name,
+    certification_number: c.credential_id,
+    issued_by: c.issuing_organization,
+    expires_at: c.expiration_date,
+  }));
+
+  const licenses = (licensesResponse.data || []).map(l => ({
+    ...l,
+    credential_category: 'license' as const,
+    certification_type: l.classification,
+    certification_number: l.license_number,
+    expires_at: l.expiration_date,
+  }));
+
+  return { success: true, data: [...certs, ...licenses] };
 }

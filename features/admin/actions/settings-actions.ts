@@ -132,9 +132,9 @@ export async function getAdminUsers() {
 
   const { data, error } = await supabase
     .from('users')
-    .select('user_id, name, email, is_admin, created_at')
+    .select('id, first_name, last_name, email, is_admin, created_at')
     .eq('is_admin', true)
-    .order('name', { ascending: true });
+    .order('first_name', { ascending: true });
 
   if (error) {
     console.error('Error fetching admin users:', error);
@@ -293,9 +293,9 @@ export async function searchUsersForAdmin(query: string) {
 
   const { data, error } = await supabase
     .from('users')
-    .select('user_id, name, email, role, is_admin')
+    .select('id, first_name, last_name, email, role, is_admin')
     .eq('is_admin', false)
-    .or(`name.ilike.${searchTerm},email.ilike.${searchTerm}`)
+    .or(`first_name.ilike.${searchTerm},last_name.ilike.${searchTerm},email.ilike.${searchTerm}`)
     .limit(10);
 
   if (error) {

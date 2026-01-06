@@ -109,7 +109,7 @@ describe('Cron Job APIs', () => {
           name: 'Alert Worker',
           role: 'Worker',
           trade: 'Carpenter',
-          coords: 'POINT(-87.6298 41.8781)', // Chicago
+          geo_coords: 'POINT(-87.6298 41.8781)', // Chicago
         })
         .eq('id', workerId);
 

@@ -102,7 +102,7 @@ export function useConversations() {
 
           return {
             id: conv.id,
-            otherParticipant,
+            otherParticipant: participantWithLegacyName,
             lastMessage: lastMessageData || undefined,
             lastMessageAt: conv.last_message_at,
             unreadCount: unreadCount || 0,
