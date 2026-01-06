@@ -14,9 +14,6 @@ out/
 build/
 dist/
 
-# Production
-build/
-
 # Environment Variables
 .env
 .env.local

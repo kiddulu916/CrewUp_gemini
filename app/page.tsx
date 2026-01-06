@@ -13,7 +13,7 @@ export default async function Home() {
   } = await supabase.auth.getUser();
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-100 via-white to-orange-100 relative overflow-hidden">
+    <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-blue-100 via-white to-orange-100 relative overflow-hidden">
       {/* Decorative elements */}
       <div className="absolute top-20 left-10 w-72 h-72 bg-krewup-blue opacity-10 rounded-full blur-3xl"></div>
       <div className="absolute bottom-20 right-10 w-96 h-96 bg-krewup-orange opacity-10 rounded-full blur-3xl"></div>

@@ -144,7 +144,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
       {/* Job Details Card */}
       <Card className="shadow-xl border-2 border-krewup-light-blue">
-        <CardHeader className="bg-gradient-to-r from-krewup-blue to-krewup-light-blue">
+        <CardHeader className="bg-linear-to-r from-krewup-blue to-krewup-light-blue">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <CardTitle className="text-white text-3xl mb-2">{job.title}</CardTitle>
@@ -288,7 +288,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
             {/* Employer Info */}
             {isWorker && job.employer && (
-              <div className="bg-gradient-to-br from-blue-50 to-orange-50 rounded-lg p-3 border border-krewup-light-blue">
+              <div className="bg-linear-to-br from-blue-50 to-orange-50 rounded-lg p-3 border border-krewup-light-blue">
                 <h3 className="text-xs font-semibold text-gray-500 uppercase mb-2">Posted By</h3>
                 <div className="space-y-2">
                   <div>
@@ -361,7 +361,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
       {/* Applications Section (Only for job owner) */}
       {isJobOwner && (
         <Card className="shadow-xl border-2 border-krewup-light-orange">
-          <CardHeader className="bg-gradient-to-r from-krewup-orange to-krewup-light-orange">
+          <CardHeader className="bg-linear-to-r from-krewup-orange to-krewup-light-orange">
             <CardTitle className="text-white flex items-center gap-2">
               <span className="text-2xl">📥</span>
               Applications ({applications.length})

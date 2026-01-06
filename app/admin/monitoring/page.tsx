@@ -176,7 +176,7 @@ async function MonitoringContent({ role, subscription }: MonitoringContentProps)
                       </h3>
                       <p className="text-sm text-gray-600 truncate">{issue.culprit}</p>
                     </div>
-                    <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                    <div className="flex flex-col items-end gap-2 shrink-0">
                       <div className="text-right">
                         <div className="text-2xl font-bold text-gray-900">{issue.count}</div>
                         <div className="text-xs text-gray-500">events</div>
