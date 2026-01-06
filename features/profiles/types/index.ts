@@ -19,7 +19,7 @@ export type User = {
 };
 
 export type PublicProfile = User & {
-  // Legacy support or joined fields
+  // Computed or joined fields
   name: string;
   trade?: string | null;
   sub_trade?: string | null;
@@ -27,7 +27,7 @@ export type PublicProfile = User & {
   years_of_experience?: number | null;
   has_tools?: boolean;
   tools_owned?: string[] | null;
-  skills?: string[] | null;
+  trade_skills?: string[] | null;
 };
 
 export type PortfolioImage = {
@@ -39,10 +39,11 @@ export type PortfolioImage = {
   created_at: string;
 };
 
+// Work Experience - DB columns (component uses 'company' directly now)
 export type WorkExperience = {
   id: string;
   user_id: string;
-  company: string;
+  company: string; // DB column
   job_title: string;
   description?: string | null;
   start_date: string;
@@ -53,29 +54,34 @@ export type WorkExperience = {
   created_at: string;
 };
 
+// Education - DB columns
 export type Education = {
   id: string;
   user_id: string;
-  institution: string;
-  degree?: string | null;
+  institution: string; // DB column
+  degree?: string | null; // DB column
   field_of_study?: string | null;
   start_date?: string | null;
   end_date?: string | null;
 };
 
+// Certification - DB columns + mapped fields for UI
 export type Certification = {
   id: string;
-  user_id: string;
-  credential_category: 'license' | 'certification';
-  certification_type: string;
-  certification_number?: string | null;
-  issued_by?: string | null;
-  issuing_state?: string | null;
+  worker_id: string; // DB column
+  name: string; // DB column
+  issuing_organization: string;
+  credential_id?: string | null;
   issue_date?: string | null;
-  expires_at?: string | null;
+  expiration_date?: string | null;
   image_url?: string | null;
   verification_status: 'pending' | 'verified' | 'rejected';
+  rejection_reason?: string | null;
   created_at: string;
+  updated_at: string;
+  // Mapped fields for UI
+  certification_type?: string; // Mapped from 'name'
+  credential_category?: 'license' | 'certification'; // UI categorization
 };
 
 export type Reference = {

@@ -201,11 +201,7 @@ export async function getJobApplications(
         workers(
           trade, 
           sub_trade, 
-          years_of_experience,
-          certifications(
-            name,
-            verification_status
-          )
+          years_of_experience
         ),
         experiences(
           job_title,

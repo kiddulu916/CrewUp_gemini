@@ -82,10 +82,7 @@ export default async function PublicProfilePage({ params }: Props) {
         .order('start_date', { ascending: false })
     : { data: null };
 
-  const workExperience = (workExperienceData || []).map(exp => ({
-    ...exp,
-    company_name: exp.company,
-  }));
+  const workExperience = workExperienceData || [];
 
   return (
     <div className="space-y-6">
@@ -223,7 +220,7 @@ export default async function PublicProfilePage({ params }: Props) {
               {workExperience.map((exp: any) => (
                 <div key={exp.id} className="border-l-2 border-krewup-blue pl-4">
                   <h3 className="font-semibold text-gray-900">{exp.job_title}</h3>
-                  <p className="text-sm text-gray-600">{exp.company_name}</p>
+                  <p className="text-sm text-gray-600">{exp.company}</p>
                   <p className="text-sm text-gray-500">
                     {new Date(exp.start_date).toLocaleDateString()} -{' '}
                     {exp.end_date ? new Date(exp.end_date).toLocaleDateString() : 'Present'}

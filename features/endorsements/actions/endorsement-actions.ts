@@ -70,7 +70,7 @@ export async function requestEndorsement(
     // Get experience details
     const { data: experience } = await supabase
       .from('experiences')
-      .select('id, user_id, title, company, start_date, end_date')
+      .select('id, user_id, job_title, company, start_date, end_date')
       .eq('id', experienceId)
       .eq('user_id', user.id)
       .single();
@@ -141,7 +141,7 @@ export async function requestEndorsement(
       subject: `${fullName} requests work history endorsement`,
       html: endorsementRequestEmailHtml({
         workerName: fullName,
-        position: experience.title,
+        position: experience.job_title,
         companyName: experience.company,
         startDate: formatDate(experience.start_date),
         endDate: experience.end_date ? formatDate(experience.end_date) : null,
@@ -149,7 +149,7 @@ export async function requestEndorsement(
       }),
       text: endorsementRequestEmailText({
         workerName: fullName,
-        position: experience.title,
+        position: experience.job_title,
         companyName: experience.company,
         startDate: formatDate(experience.start_date),
         endDate: experience.end_date ? formatDate(experience.end_date) : null,

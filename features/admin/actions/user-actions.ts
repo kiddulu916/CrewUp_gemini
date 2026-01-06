@@ -167,17 +167,26 @@ export async function unbanUser(userId: string) {
     return { success: false, error: 'Not authorized' };
   }
 
-  // Create unban record
+  // Delete the latest ban record to unban user (since 'unbanned' is not a valid action_type)
+  // First, get the latest ban record
+  const { data: latestBan } = await supabase
+    .from('user_moderation_actions')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('action_type', 'ban')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (!latestBan) {
+    return { success: false, error: 'User is not currently banned' };
+  }
+
+  // Delete the ban record
   const { error: moderationError } = await supabase
     .from('user_moderation_actions')
-    .insert({
-      user_id: userId,
-      action_type: 'unbanned',
-      reason: 'User unbanned by admin',
-      duration_days: null,
-      expires_at: null,
-      actioned_by: user.id,
-    });
+    .delete()
+    .eq('id', latestBan.id);
 
   if (moderationError) {
     console.error('Error creating moderation action:', moderationError);
@@ -230,7 +239,7 @@ export async function grantProSubscription(userId: string, reason: string) {
     .update({
       subscription_status: 'pro',
     })
-    .eq('user_id', userId);
+    .eq('id', userId);
 
   if (updateError) {
     console.error('Error updating subscription status:', updateError);
@@ -245,8 +254,11 @@ export async function grantProSubscription(userId: string, reason: string) {
     .from('subscriptions')
     .insert({
       user_id: userId,
+      stripe_customer_id: 'manual_grant_' + userId, // Placeholder for manually granted subscriptions
+      stripe_subscription_id: 'manual_' + Date.now(), // Placeholder
+      stripe_price_id: 'manual_pro_annual', // Placeholder
       status: 'active',
-      plan: 'pro_annual_manual',
+      plan_type: 'annual',
       current_period_start: new Date().toISOString(),
       current_period_end: oneYearFromNow.toISOString(),
     });
@@ -303,7 +315,7 @@ export async function revokeProSubscription(userId: string, reason: string) {
     .update({
       subscription_status: 'free',
     })
-    .eq('user_id', userId);
+    .eq('id', userId);
 
   if (updateError) {
     console.error('Error updating subscription status:', updateError);
@@ -367,7 +379,7 @@ export async function getUserModerationHistory(userId: string) {
     .select(
       `
       *,
-      actioned_by_profile:users!actioned_by(name)
+      actioned_by_profile:users!actioned_by(first_name, last_name)
     `
     )
     .eq('user_id', userId)
@@ -400,13 +412,10 @@ export async function getUserModerationStatus(userId: string) {
     return { isBanned: false, isSuspended: false };
   }
 
-  // Check for permanent ban (most recent ban without an unban after it)
+  // Check for permanent ban (ban exists means user is banned)
   const latestBan = actions.find((a) => a.action_type === 'ban');
-  const latestUnban = actions.find((a) => a.action_type === 'unbanned');
 
-  const isBanned =
-    latestBan &&
-    (!latestUnban || new Date(latestBan.created_at) > new Date(latestUnban.created_at));
+  const isBanned = !!latestBan;
 
   // Check for active suspension (not expired)
   const activeSuspension = actions.find(

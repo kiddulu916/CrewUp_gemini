@@ -12,7 +12,7 @@ type ExperienceItemProps = {
   exp: {
     id: string;
     job_title: string;
-    company_name: string;
+    company: string; // DB column is 'company', not 'company_name'
     start_date: string;
     end_date?: string | null;
     description?: string | null;
@@ -52,7 +52,7 @@ export function ExperienceItem({ exp, isOwnProfile = true }: ExperienceItemProps
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <h3 className="font-semibold text-gray-900">{exp.job_title}</h3>
-            <p className="text-sm text-gray-600">{exp.company_name}</p>
+            <p className="text-sm text-gray-600">{exp.company}</p>
             <p className="text-sm text-gray-500">
               {new Date(exp.start_date).toLocaleDateString()} -{' '}
               {exp.end_date ? new Date(exp.end_date).toLocaleDateString() : 'Present'}
@@ -97,7 +97,7 @@ export function ExperienceItem({ exp, isOwnProfile = true }: ExperienceItemProps
         onClose={() => setShowConfirm(false)}
         onConfirm={handleDelete}
         title="Delete Work Experience"
-        message={`Are you sure you want to delete "${exp.job_title}" at ${exp.company_name}? This action cannot be undone.`}
+        message={`Are you sure you want to delete "${exp.job_title}" at ${exp.company}? This action cannot be undone.`}
         confirmText="Delete"
         cancelText="Cancel"
         isLoading={isDeleting}

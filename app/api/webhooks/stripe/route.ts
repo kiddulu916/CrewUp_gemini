@@ -123,22 +123,31 @@ export async function POST(req: NextRequest) {
         if (profile?.is_lifetime_pro) {
           console.log(`User ${userId} has lifetime Pro - skipping subscription_status update`);
         } else {
-          // Only set profile boost for workers
-          const profileUpdate: any = { subscription_status: 'pro' };
-          if (profile?.role === 'worker') {
-            profileUpdate.is_profile_boosted = true;
-            // Profile boost lasts 7 days and renews monthly
-            profileUpdate.boost_expires_at = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
-          }
-
+          // Update subscription status on users table
           const { error: profileError } = await supabaseAdmin
             .from('users')
-            .update(profileUpdate)
+            .update({ subscription_status: 'pro' })
             .eq('id', userId);
 
           if (profileError) {
             console.error('Database error updating profile subscription status:', profileError);
             // Don't fail the webhook for this, just log the error
+          }
+
+          // Set profile boost on workers table (only for workers)
+          if (profile?.role === 'worker') {
+            const { error: workerError } = await supabaseAdmin
+              .from('workers')
+              .update({
+                is_profile_boosted: true,
+                // Profile boost lasts 7 days and renews monthly
+                boost_expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+              })
+              .eq('user_id', userId);
+
+            if (workerError) {
+              console.error('Database error updating worker boost:', workerError);
+            }
           }
         }
 
@@ -224,13 +233,14 @@ export async function POST(req: NextRequest) {
           if (profile?.is_lifetime_pro) {
             console.log(`User ${existingSubscription.user_id} has lifetime Pro - skipping subscription renewal updates`);
           } else if (profile?.role === 'worker') {
+            // Update workers table for boost fields
             await supabaseAdmin
-              .from('users')
+              .from('workers')
               .update({
                 is_profile_boosted: true,
                 boost_expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
               })
-              .eq('id', existingSubscription.user_id);
+              .eq('user_id', existingSubscription.user_id);
           }
         }
 
@@ -287,18 +297,28 @@ export async function POST(req: NextRequest) {
         if (profile?.is_lifetime_pro) {
           console.log(`User ${existingSubscription.user_id} has lifetime Pro - keeping Pro access despite cancellation`);
         } else {
+          // Update subscription status on users table
           const { error: profileError } = await supabaseAdmin
             .from('users')
-            .update({
-              subscription_status: 'free',
-              is_profile_boosted: false,
-              boost_expires_at: null,
-            })
+            .update({ subscription_status: 'free' })
             .eq('id', existingSubscription.user_id);
 
           if (profileError) {
             console.error('Database error updating profile subscription status:', profileError);
             // Don't fail the webhook for this, just log the error
+          }
+
+          // Remove profile boost on workers table
+          const { error: workerError } = await supabaseAdmin
+            .from('workers')
+            .update({
+              is_profile_boosted: false,
+              boost_expires_at: null,
+            })
+            .eq('user_id', existingSubscription.user_id);
+
+          if (workerError) {
+            console.error('Database error removing worker boost:', workerError);
           }
         }
 

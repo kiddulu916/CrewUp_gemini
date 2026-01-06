@@ -34,18 +34,15 @@ export async function signIn(email: string, password: string): Promise<AuthResul
       .from('user_moderation_actions')
       .select('*')
       .eq('user_id', data.user.id)
-      .in('action_type', ['ban', 'suspension', 'unbanned'])
+      .in('action_type', ['ban', 'suspension', 'warning'])
       .order('created_at', { ascending: false })
       .limit(10);
 
     if (actions && actions.length > 0) {
-      // Check for permanent ban
+      // Check for permanent ban (ban exists means user is banned)
       const latestBan = actions.find((a) => a.action_type === 'ban');
-      const latestUnban = actions.find((a) => a.action_type === 'unbanned');
 
-      const isBanned =
-        latestBan &&
-        (!latestUnban || new Date(latestBan.created_at) > new Date(latestUnban.created_at));
+      const isBanned = !!latestBan;
 
       if (isBanned) {
         await supabase.auth.signOut();
