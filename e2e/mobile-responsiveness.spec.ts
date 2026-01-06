@@ -18,7 +18,7 @@ test.describe('Mobile Responsiveness', () => {
     testUser = await createTestUser({
       email: generateTestEmail(),
       password: 'TestPassword123!',
-      role: 'Worker',
+      role: 'worker',
       name: 'Mobile User',
       trade: 'Carpenter',
     });
@@ -292,10 +292,9 @@ test.describe('Mobile Responsiveness', () => {
   test.describe('Orientation Changes', () => {
     test('should handle portrait to landscape rotation', async ({
       page,
-      context,
     }) => {
       // Start in portrait (iPhone 13 Pro)
-      await context.setViewportSize({ width: 390, height: 844 });
+      await page.setViewportSize({ width: 390, height: 844 });
       await loginAsUser(page, testUser);
       await page.goto('/dashboard/jobs');
 
@@ -303,7 +302,7 @@ test.describe('Mobile Responsiveness', () => {
       await page.waitForLoadState('networkidle');
 
       // Rotate to landscape
-      await context.setViewportSize({ width: 844, height: 390 });
+      await page.setViewportSize({ width: 844, height: 390 });
       await page.waitForTimeout(500);
 
       // Layout should adapt - no horizontal scroll

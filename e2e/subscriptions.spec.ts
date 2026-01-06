@@ -20,7 +20,7 @@ test.describe('Stripe Subscription Flows', () => {
     testUser = await createTestUser({
       email: generateTestEmail(),
       password: 'TestPassword123!',
-      role: 'Worker',
+      role: 'worker',
       name: 'Test User',
       trade: 'Carpenter',
     });

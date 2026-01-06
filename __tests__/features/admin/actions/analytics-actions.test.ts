@@ -9,7 +9,19 @@ vi.mock('next/headers', () => ({
 
 // Mock Supabase client
 const createMockChain = () => {
-  const mockChain = {
+  const mockChain: {
+    select: ReturnType<typeof vi.fn>;
+    gte: ReturnType<typeof vi.fn>;
+    lte: ReturnType<typeof vi.fn>;
+    in: ReturnType<typeof vi.fn>;
+    limit: ReturnType<typeof vi.fn>;
+    eq: ReturnType<typeof vi.fn>;
+    single: ReturnType<typeof vi.fn>;
+    not: ReturnType<typeof vi.fn>;
+    data: any;
+    error: any;
+    count: number;
+  } = {
     select: vi.fn(() => mockChain),
     gte: vi.fn(() => mockChain),
     lte: vi.fn(() => mockChain),
@@ -135,7 +147,7 @@ describe('Analytics Actions', () => {
       mockSupabaseClient.auth.getUser.mockResolvedValueOnce({
         data: { user: null },
         error: null,
-      });
+      } as any);
 
       await expect(getConversionFunnel(dateRange, {})).rejects.toThrow(
         'Unauthorized: User not authenticated'
@@ -382,7 +394,7 @@ describe('Analytics Actions', () => {
       mockSupabaseClient.auth.getUser.mockResolvedValueOnce({
         data: { user: null },
         error: null,
-      });
+      } as any);
 
       await expect(getSubscriptionMetrics(dateRange)).rejects.toThrow(
         'Unauthorized: User not authenticated'
@@ -516,7 +528,7 @@ describe('Analytics Actions', () => {
       mockSupabaseClient.auth.getUser.mockResolvedValueOnce({
         data: { user: null },
         error: null,
-      });
+      } as any);
 
       await expect(getOperationalLoad(dateRange)).rejects.toThrow(
         'Unauthorized: User not authenticated'

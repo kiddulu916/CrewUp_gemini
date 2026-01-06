@@ -194,11 +194,12 @@ export function SignupForm() {
 
         <div className="flex items-start">
           <input
+            id="terms-checkbox"
             type="checkbox"
             required
             className="mt-1 h-4 w-4 rounded border-gray-300 text-krewup-blue focus:ring-krewup-blue"
           />
-          <label className="ml-2 text-sm text-gray-600">
+          <label htmlFor="terms-checkbox" className="ml-2 text-sm text-gray-600">
             I agree to the{' '}
             <a href="/legal/terms" className="text-krewup-blue hover:underline">
               Terms of Service

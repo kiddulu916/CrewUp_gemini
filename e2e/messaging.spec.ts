@@ -33,7 +33,7 @@ test.describe('Messaging System', () => {
     user1 = await createTestUser({
       email: generateTestEmail(),
       password: 'TestPassword123!',
-      role: 'Worker',
+      role: 'worker',
       name: 'Worker One',
       trade: 'Carpenter',
     });
@@ -41,7 +41,7 @@ test.describe('Messaging System', () => {
     user2 = await createTestUser({
       email: generateTestEmail(),
       password: 'TestPassword123!',
-      role: 'Employer',
+      role: 'employer',
       name: 'Employer Two',
       trade: 'General Contractor',
     });

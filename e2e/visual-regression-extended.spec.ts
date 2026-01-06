@@ -119,7 +119,7 @@ test.describe('Visual Regression Tests - Worker Dashboard', () => {
     worker = await createTestUser({
       email: generateTestEmail(),
       password: 'TestPassword123!',
-      role: 'Worker',
+      role: 'worker',
       name: 'Visual Test Worker',
       trade: 'Carpenter',
     });
@@ -127,7 +127,7 @@ test.describe('Visual Regression Tests - Worker Dashboard', () => {
     employer = await createTestUser({
       email: generateTestEmail(),
       password: 'TestPassword123!',
-      role: 'Employer',
+      role: 'employer',
       name: 'Visual Test Employer',
       trade: 'General Contractor',
     });
@@ -338,7 +338,7 @@ test.describe('Visual Regression Tests - Employer Dashboard', () => {
     employer = await createTestUser({
       email: generateTestEmail(),
       password: 'TestPassword123!',
-      role: 'Employer',
+      role: 'employer',
       name: 'Visual Test Employer',
       trade: 'General Contractor',
     });
@@ -346,7 +346,7 @@ test.describe('Visual Regression Tests - Employer Dashboard', () => {
     worker = await createTestUser({
       email: generateTestEmail(),
       password: 'TestPassword123!',
-      role: 'Worker',
+      role: 'worker',
       name: 'Visual Test Worker',
       trade: 'Carpenter',
     });
@@ -458,7 +458,7 @@ test.describe('Visual Regression Tests - Pro Features', () => {
     proWorker = await createTestUser({
       email: generateTestEmail(),
       password: 'TestPassword123!',
-      role: 'Worker',
+      role: 'worker',
       name: 'Pro Worker',
       trade: 'Electrician',
     });
@@ -467,7 +467,7 @@ test.describe('Visual Regression Tests - Pro Features', () => {
     employer = await createTestUser({
       email: generateTestEmail(),
       password: 'TestPassword123!',
-      role: 'Employer',
+      role: 'employer',
       name: 'Test Employer',
       trade: 'General Contractor',
     });
@@ -514,7 +514,7 @@ test.describe('Visual Regression Tests - Admin Pages', () => {
     admin = await createTestUser({
       email: generateTestEmail(),
       password: 'TestPassword123!',
-      role: 'Worker',
+      role: 'worker',
       name: 'Admin User',
       trade: 'Carpenter',
     });
@@ -525,7 +525,7 @@ test.describe('Visual Regression Tests - Admin Pages', () => {
     worker = await createTestUser({
       email: generateTestEmail(),
       password: 'TestPassword123!',
-      role: 'Worker',
+      role: 'worker',
       name: 'Regular Worker',
       trade: 'Electrician',
     });
@@ -617,7 +617,7 @@ test.describe('Visual Regression Tests - Edge Cases', () => {
     worker = await createTestUser({
       email: generateTestEmail(),
       password: 'TestPassword123!',
-      role: 'Worker',
+      role: 'worker',
       name: 'Edge Case Worker',
       trade: 'Carpenter',
     });
@@ -665,7 +665,7 @@ test.describe('Visual Regression Tests - Dark Mode', () => {
     worker = await createTestUser({
       email: generateTestEmail(),
       password: 'TestPassword123!',
-      role: 'Worker',
+      role: 'worker',
       name: 'Dark Mode Worker',
       trade: 'Carpenter',
     });

@@ -26,7 +26,7 @@ test.describe('Pro Features', () => {
     proUser = await createTestUser({
       email: generateTestEmail(),
       password: 'TestPassword123!',
-      role: 'Worker',
+      role: 'worker',
       name: 'Pro Worker',
       trade: 'Carpenter',
     });
@@ -35,7 +35,7 @@ test.describe('Pro Features', () => {
     freeUser = await createTestUser({
       email: generateTestEmail(),
       password: 'TestPassword123!',
-      role: 'Worker',
+      role: 'worker',
       name: 'Free Worker',
       trade: 'Carpenter',
     });
@@ -43,7 +43,7 @@ test.describe('Pro Features', () => {
     employer = await createTestUser({
       email: generateTestEmail(),
       password: 'TestPassword123!',
-      role: 'Employer',
+      role: 'employer',
       name: 'Pro Employer',
       trade: 'General Contractor',
     });
@@ -288,7 +288,7 @@ test.describe('Pro Features', () => {
       const freeEmployer = await createTestUser({
         email: generateTestEmail(),
         password: 'TestPassword123!',
-        role: 'Employer',
+        role: 'employer',
         name: 'Free Employer',
         trade: 'General Contractor',
       });
@@ -537,7 +537,7 @@ test.describe('Pro Features', () => {
       const freeEmployer = await createTestUser({
         email: generateTestEmail(),
         password: 'TestPassword123!',
-        role: 'Employer',
+        role: 'employer',
         name: 'Free Employer',
         trade: 'General Contractor',
       });

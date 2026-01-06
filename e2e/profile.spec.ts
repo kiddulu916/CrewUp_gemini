@@ -20,7 +20,7 @@ test.describe('Profile Management', () => {
     testUser = await createTestUser({
       email: `worker-${Date.now()}@test.krewup.local`,
       password: 'TestPassword123!',
-      role: 'Worker',
+      role: 'worker',
       name: 'Test Worker',
       trade: 'Carpenter',
       location: 'Chicago, IL',
@@ -144,7 +144,7 @@ test.describe('Profile Management', () => {
     await expect(page.locator('text=First Aid/CPR')).toBeVisible();
 
     // Now delete it - look for delete button in certification item
-    await page.click('button:has-text("Delete")').first();
+    await page.locator('button:has-text("Delete")').first().click();
 
     // Confirm deletion in dialog
     await page.click('button:has-text("Delete"):visible');
@@ -216,7 +216,7 @@ test.describe('Profile Management', () => {
     await expect(page).toHaveURL(/\/dashboard\/profile/);
 
     // Delete it
-    await page.click('button:has-text("Delete")').first();
+    await page.locator('button:has-text("Delete")').first().click();
     await page.click('button:has-text("Delete"):visible');
 
     // Wait for success

@@ -49,8 +49,9 @@ describe('Onboarding Actions', () => {
     };
 
     it('should successfully complete onboarding with coordinates', async () => {
-      const mockSupabase = await import('@/lib/supabase/server').then(m =>
-        m.createClient(await import('next/headers').then(h => h.cookies()))
+      const cookieStore = await import('next/headers').then(h => h.cookies());
+      const mockSupabase = await import('@/lib/supabase/server').then(async m =>
+        m.createClient(await cookieStore)
       );
 
       vi.mocked(mockSupabase.auth.getUser).mockResolvedValue({
@@ -66,6 +67,9 @@ describe('Onboarding Actions', () => {
       vi.mocked(mockSupabase.rpc).mockResolvedValue({
         data: null,
         error: null,
+        count: null,
+        status: 200,
+        statusText: 'OK',
       });
 
       const result = await completeOnboarding(validOnboardingData);
@@ -88,8 +92,9 @@ describe('Onboarding Actions', () => {
     });
 
     it('should successfully complete onboarding without coordinates', async () => {
-      const mockSupabase = await import('@/lib/supabase/server').then(m =>
-        m.createClient(await import('next/headers').then(h => h.cookies()))
+      const cookieStore = await import('next/headers').then(h => h.cookies());
+      const mockSupabase = await import('@/lib/supabase/server').then(async m =>
+        m.createClient(await cookieStore)
       );
 
       const dataWithoutCoords: OnboardingData = {
@@ -132,8 +137,9 @@ describe('Onboarding Actions', () => {
     });
 
     it('should handle employer role with employer_type', async () => {
-      const mockSupabase = await import('@/lib/supabase/server').then(m =>
-        m.createClient(await import('next/headers').then(h => h.cookies()))
+      const cookieStore = await import('next/headers').then(h => h.cookies());
+      const mockSupabase = await import('@/lib/supabase/server').then(async m =>
+        m.createClient(await cookieStore)
       );
 
       const employerData: OnboardingData = {
@@ -155,6 +161,9 @@ describe('Onboarding Actions', () => {
       vi.mocked(mockSupabase.rpc).mockResolvedValue({
         data: null,
         error: null,
+        count: null,
+        status: 200,
+        statusText: 'OK',
       });
 
       await completeOnboarding(employerData);
@@ -169,8 +178,9 @@ describe('Onboarding Actions', () => {
     });
 
     it('should handle sub_trade when provided', async () => {
-      const mockSupabase = await import('@/lib/supabase/server').then(m =>
-        m.createClient(await import('next/headers').then(h => h.cookies()))
+      const cookieStore = await import('next/headers').then(h => h.cookies());
+      const mockSupabase = await import('@/lib/supabase/server').then(async m =>
+        m.createClient(await cookieStore)
       );
 
       const dataWithSubTrade: OnboardingData = {
@@ -191,6 +201,9 @@ describe('Onboarding Actions', () => {
       vi.mocked(mockSupabase.rpc).mockResolvedValue({
         data: null,
         error: null,
+        count: null,
+        status: 200,
+        statusText: 'OK',
       });
 
       await completeOnboarding(dataWithSubTrade);
@@ -204,8 +217,9 @@ describe('Onboarding Actions', () => {
     });
 
     it('should return error when user is not authenticated', async () => {
-      const mockSupabase = await import('@/lib/supabase/server').then(m =>
-        m.createClient(await import('next/headers').then(h => h.cookies()))
+      const cookieStore = await import('next/headers').then(h => h.cookies());
+      const mockSupabase = await import('@/lib/supabase/server').then(async m =>
+        m.createClient(await cookieStore)
       );
 
       vi.mocked(mockSupabase.auth.getUser).mockResolvedValue({
@@ -222,8 +236,9 @@ describe('Onboarding Actions', () => {
     });
 
     it('should return error when RPC update fails', async () => {
-      const mockSupabase = await import('@/lib/supabase/server').then(m =>
-        m.createClient(await import('next/headers').then(h => h.cookies()))
+      const cookieStore = await import('next/headers').then(h => h.cookies());
+      const mockSupabase = await import('@/lib/supabase/server').then(async m =>
+        m.createClient(await cookieStore)
       );
 
       vi.mocked(mockSupabase.auth.getUser).mockResolvedValue({
@@ -239,6 +254,9 @@ describe('Onboarding Actions', () => {
       vi.mocked(mockSupabase.rpc).mockResolvedValue({
         data: null,
         error: { message: 'Database error' } as any,
+        count: null,
+        status: 500,
+        statusText: 'Internal Server Error',
       });
 
       const result = await completeOnboarding(validOnboardingData);
@@ -250,8 +268,9 @@ describe('Onboarding Actions', () => {
     });
 
     it('should use default location when not provided', async () => {
-      const mockSupabase = await import('@/lib/supabase/server').then(m =>
-        m.createClient(await import('next/headers').then(h => h.cookies()))
+      const cookieStore = await import('next/headers').then(h => h.cookies());
+      const mockSupabase = await import('@/lib/supabase/server').then(async m =>
+        m.createClient(await cookieStore)
       );
 
       const dataWithoutLocation: OnboardingData = {

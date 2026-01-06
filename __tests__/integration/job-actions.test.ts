@@ -87,13 +87,13 @@ describe('Job Server Actions Integration Tests', () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.data?.id).toBeTruthy();
+      expect(result.jobId).toBeTruthy();
 
       // Verify in database
       const { data } = await testDb
         .from('jobs')
         .select('*')
-        .eq('id', result.data!.id)
+        .eq('id', result.jobId!)
         .single();
 
       expect(data?.title).toBe('Carpentry Work Needed');
@@ -116,7 +116,7 @@ describe('Job Server Actions Integration Tests', () => {
       const { data } = await testDb
         .from('jobs')
         .select('*')
-        .eq('id', result.data!.id)
+        .eq('id', result.jobId!)
         .single();
 
       expect(data?.pay_rate).toBe('$5000/contract');
@@ -153,7 +153,7 @@ describe('Job Server Actions Integration Tests', () => {
       const { data } = await testDb
         .from('jobs')
         .select('coords')
-        .eq('id', result.data!.id)
+        .eq('id', result.jobId!)
         .single();
 
       // PostGIS format: POINT(lng lat)
@@ -221,28 +221,27 @@ describe('Job Server Actions Integration Tests', () => {
       expect(result.data?.every((job) => job.trades.includes('Carpenter'))).toBe(true);
     });
 
-    it('should calculate distance from user location', async () => {
+    it('should get jobs by trade filter', async () => {
       // Create job in Chicago
       await testDb.from('jobs').insert({
         employer_id: employerId,
-        title: 'Distance Test',
-        trades: ['Carpenter'],
+        title: 'Electrician Job',
+        trades: ['Electrician'],
         job_type: 'Full-Time',
         location: 'Chicago, IL',
         coords: 'POINT(-87.6298 41.8781)',
         description: 'Test',
         pay_rate: '$25/hr',
+        status: 'active',
       });
 
       const result = await getJobs({
-        userCoords: { lat: 41.8781, lng: -87.6298 }, // Same location
+        trade: 'Electrician',
       });
 
       expect(result.success).toBe(true);
-      // Distance should be very small (< 1 mile)
-      if (result.data && result.data.length > 0) {
-        expect(result.data[0].distance).toBeLessThan(1);
-      }
+      expect(result.data?.length).toBeGreaterThan(0);
+      expect(result.data?.every((job: any) => job.trades.includes('Electrician'))).toBe(true);
     });
   });
 

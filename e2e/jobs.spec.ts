@@ -25,7 +25,7 @@ test.describe('Job Posting and Feed', () => {
     employer = await createTestUser({
       email: generateTestEmail(),
       password: 'TestPassword123!',
-      role: 'Employer',
+      role: 'employer',
       name: 'Test Employer',
       trade: 'Operating Engineers',
       location: 'Chicago, IL',
@@ -34,7 +34,7 @@ test.describe('Job Posting and Feed', () => {
     worker = await createTestUser({
       email: generateTestEmail(),
       password: 'TestPassword123!',
-      role: 'Worker',
+      role: 'worker',
       name: 'Test Worker',
       trade: 'Carpenters (Rough)',
       location: 'Chicago, IL',
@@ -144,7 +144,7 @@ test.describe('Job Posting and Feed', () => {
       trade: 'Carpenters (Rough)',
       location: 'Chicago, IL',
       description: 'Need framer for residential project',
-      pay_rate: '$30/hr (weekly)',
+      payRate: '$30/hr (weekly)',
     });
 
     await loginAsUser(page, worker);
@@ -190,7 +190,7 @@ test.describe('Job Posting and Feed', () => {
     await createTestJob(employer.id, {
       title: 'Full Time Position',
       trade: 'Carpenters (Rough)',
-      pay_rate: '$25/hr (weekly)',
+      payRate: '$25/hr (weekly)',
     });
 
     await loginAsUser(page, worker);
@@ -210,7 +210,7 @@ test.describe('Job Posting and Feed', () => {
       trade: 'Carpenters (Rough)',
       location: 'Chicago, IL',
       description: 'This is a detailed job description with requirements',
-      pay_rate: '$35/hr (weekly)',
+      payRate: '$35/hr (weekly)',
     });
 
     await loginAsUser(page, worker);
@@ -307,7 +307,7 @@ test.describe('Job Posting and Feed', () => {
     const contractor = await createTestUser({
       email: generateTestEmail(),
       password: 'TestPassword123!',
-      role: 'Employer',
+      role: 'employer',
       name: 'Test Contractor',
       trade: 'Carpenters (Rough)',
       location: 'Chicago, IL',

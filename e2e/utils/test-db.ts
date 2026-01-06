@@ -26,20 +26,27 @@ export interface TestUser {
  * IMPORTANT: Uses proper PostGIS RPC function for coords to avoid database errors
  */
 export async function createTestUser(data: {
-  email: string;
-  password: string;
+  email?: string;
+  password?: string;
   role: 'worker' | 'employer';
-  name: string;
+  name?: string;
   trade?: string;
   location?: string;
   employerType?: 'contractor' | 'recruiter';
   companyName?: string;
   coords?: { lat: number; lng: number };
+  isAdmin?: boolean;
 }): Promise<TestUser> {
+  // Generate defaults for required fields
+  const timestamp = Date.now();
+  const email = data.email || `test-${timestamp}-${Math.random().toString(36).substring(7)}@test.krewup.local`;
+  const password = data.password || 'TestPassword123!';
+  const name = data.name || `Test ${data.role === 'worker' ? 'Worker' : 'Employer'} ${timestamp}`;
+
   // Create auth user
   const { data: authData, error: authError } = await testDb.auth.admin.createUser({
-    email: data.email,
-    password: data.password,
+    email,
+    password,
     email_confirm: true,
   });
 
@@ -72,7 +79,7 @@ export async function createTestUser(data: {
   }
 
   // Update user fields (created by trigger)
-  const [firstName, ...lastNameParts] = data.name.split(' ');
+  const [firstName, ...lastNameParts] = name.split(' ');
   const lastName = lastNameParts.join(' ') || 'User';
 
   const userUpdate: Record<string, any> = {
@@ -81,6 +88,11 @@ export async function createTestUser(data: {
     role: data.role.toLowerCase(),
     location: data.location || 'Chicago, IL',
   };
+  
+  // Set admin flag if requested
+  if (data.isAdmin) {
+    userUpdate.is_admin = true;
+  }
 
   const { error: userError } = await testDb
     .from('users')
@@ -93,10 +105,10 @@ export async function createTestUser(data: {
 
   return {
     id: authData.user.id,
-    email: data.email,
-    password: data.password,
+    email,
+    password,
     role: data.role,
-    name: data.name,
+    name,
     employerType: data.employerType,
     companyName: data.companyName,
   };

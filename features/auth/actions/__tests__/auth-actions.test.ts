@@ -99,14 +99,14 @@ describe('Auth Actions', () => {
         error: null,
       });
 
-      await signUp('test@example.com', 'password123');
+      await signUp('test@example.com', 'password123', '');
 
       expect(mockSignUp).toHaveBeenCalledWith({
         email: 'test@example.com',
         password: 'password123',
         options: {
           data: {
-            full_name: undefined,
+            full_name: '',
           },
         },
       });
@@ -115,8 +115,8 @@ describe('Auth Actions', () => {
 
   describe('signIn', () => {
     it('should successfully sign in a user and redirect to onboarding', async () => {
-      const mockSupabase = await import('@/lib/supabase/server').then(m => m.createClient(await import('next/headers').then(h => h.cookies())));
-      const mockRedirect = await import('next/navigation').then(m => m.redirect);
+      const cookieStore = await import('next/headers').then(h => h.cookies());
+      const mockSupabase = await import('@/lib/supabase/server').then(async m => m.createClient(await cookieStore));
 
       vi.mocked(mockSupabase.auth.signInWithPassword).mockResolvedValue({
         data: {
@@ -156,7 +156,8 @@ describe('Auth Actions', () => {
     });
 
     it('should redirect to dashboard for complete profiles', async () => {
-      const mockSupabase = await import('@/lib/supabase/server').then(m => m.createClient(await import('next/headers').then(h => h.cookies())));
+      const cookieStore = await import('next/headers').then(h => h.cookies());
+      const mockSupabase = await import('@/lib/supabase/server').then(async m => m.createClient(await cookieStore));
 
       vi.mocked(mockSupabase.auth.signInWithPassword).mockResolvedValue({
         data: {
@@ -190,7 +191,8 @@ describe('Auth Actions', () => {
     });
 
     it('should return error when credentials are invalid', async () => {
-      const mockSupabase = await import('@/lib/supabase/server').then(m => m.createClient(await import('next/headers').then(h => h.cookies())));
+      const cookieStore = await import('next/headers').then(h => h.cookies());
+      const mockSupabase = await import('@/lib/supabase/server').then(async m => m.createClient(await cookieStore));
 
       vi.mocked(mockSupabase.auth.signInWithPassword).mockResolvedValue({
         data: { user: null, session: null },
@@ -208,7 +210,8 @@ describe('Auth Actions', () => {
 
   describe('signOut', () => {
     it('should successfully sign out a user', async () => {
-      const mockSupabase = await import('@/lib/supabase/server').then(m => m.createClient(await import('next/headers').then(h => h.cookies())));
+      const cookieStore = await import('next/headers').then(h => h.cookies());
+      const mockSupabase = await import('@/lib/supabase/server').then(async m => m.createClient(await cookieStore));
 
       vi.mocked(mockSupabase.auth.signOut).mockResolvedValue({
         error: null,
@@ -226,7 +229,8 @@ describe('Auth Actions', () => {
     });
 
     it('should handle sign out errors', async () => {
-      const mockSupabase = await import('@/lib/supabase/server').then(m => m.createClient(await import('next/headers').then(h => h.cookies())));
+      const cookieStore = await import('next/headers').then(h => h.cookies());
+      const mockSupabase = await import('@/lib/supabase/server').then(async m => m.createClient(await cookieStore));
 
       vi.mocked(mockSupabase.auth.signOut).mockResolvedValue({
         error: { message: 'Sign out failed' } as any,

@@ -33,7 +33,7 @@ test.describe('Job Applications - Multi-Step Wizard', () => {
     employer = await createTestUser({
       email: generateTestEmail(),
       password: 'TestPassword123!',
-      role: 'Employer',
+      role: 'employer',
       name: 'Test Employer',
       trade: 'General Contractor',
     });
@@ -41,7 +41,7 @@ test.describe('Job Applications - Multi-Step Wizard', () => {
     worker = await createTestUser({
       email: generateTestEmail(),
       password: 'TestPassword123!',
-      role: 'Worker',
+      role: 'worker',
       name: 'Test Worker',
       trade: 'Carpenter',
     });
@@ -51,7 +51,7 @@ test.describe('Job Applications - Multi-Step Wizard', () => {
       title: 'Carpentry Position',
       trade: 'Carpenter',
       description: 'Need experienced carpenter',
-      pay_rate: '$30/hr',
+      payRate: '$30/hr',
     });
     jobId = job.id;
   });
@@ -320,7 +320,7 @@ test.describe('Job Applications - Employer View', () => {
     employer = await createTestUser({
       email: generateTestEmail(),
       password: 'TestPassword123!',
-      role: 'Employer',
+      role: 'employer',
       name: 'Test Employer',
       trade: 'General Contractor',
     });
@@ -328,7 +328,7 @@ test.describe('Job Applications - Employer View', () => {
     worker = await createTestUser({
       email: generateTestEmail(),
       password: 'TestPassword123!',
-      role: 'Worker',
+      role: 'worker',
       name: 'Test Worker',
       trade: 'Carpenter',
     });
@@ -337,7 +337,7 @@ test.describe('Job Applications - Employer View', () => {
       title: 'Carpentry Position',
       trade: 'Carpenter',
       description: 'Need experienced carpenter',
-      pay_rate: '$30/hr',
+      payRate: '$30/hr',
     });
     jobId = job.id;
   });
@@ -525,7 +525,7 @@ test.describe('Job Applications - Validation & Edge Cases', () => {
     employer = await createTestUser({
       email: generateTestEmail(),
       password: 'TestPassword123!',
-      role: 'Employer',
+      role: 'employer',
       name: 'Test Employer',
       trade: 'General Contractor',
     });
@@ -533,7 +533,7 @@ test.describe('Job Applications - Validation & Edge Cases', () => {
     worker = await createTestUser({
       email: generateTestEmail(),
       password: 'TestPassword123!',
-      role: 'Worker',
+      role: 'worker',
       name: 'Test Worker',
       trade: 'Carpenter',
     });
@@ -542,7 +542,7 @@ test.describe('Job Applications - Validation & Edge Cases', () => {
       title: 'Carpentry Position',
       trade: 'Carpenter',
       description: 'Need experienced carpenter',
-      pay_rate: '$30/hr',
+      payRate: '$30/hr',
     });
     jobId = job.id;
   });
