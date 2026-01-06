@@ -104,19 +104,14 @@ export function CertificationsTab({ userId }: CertificationsTabProps) {
                   </div>
 
                   <div className="mt-2 space-y-1 text-sm text-gray-600">
-                    {cert.issued_by && (
+                    {cert.issuing_organization && (
                       <p>
-                        <span className="font-medium">Issued by:</span> {cert.issued_by}
+                        <span className="font-medium">Issued by:</span> {cert.issuing_organization}
                       </p>
                     )}
-                    {cert.issuing_state && (
+                    {cert.credential_id && (
                       <p>
-                        <span className="font-medium">State:</span> {cert.issuing_state}
-                      </p>
-                    )}
-                    {cert.certification_number && (
-                      <p>
-                        <span className="font-medium">Number:</span> ****{cert.certification_number.slice(-4)}
+                        <span className="font-medium">Number:</span> ****{cert.credential_id.slice(-4)}
                       </p>
                     )}
                     {cert.issue_date && (
@@ -124,9 +119,9 @@ export function CertificationsTab({ userId }: CertificationsTabProps) {
                         <span className="font-medium">Issued:</span> {formatDate(cert.issue_date)}
                       </p>
                     )}
-                    {cert.expires_at && (
+                    {cert.expiration_date && (
                       <p>
-                        <span className="font-medium">Expires:</span> {formatDate(cert.expires_at)}
+                        <span className="font-medium">Expires:</span> {formatDate(cert.expiration_date)}
                       </p>
                     )}
                   </div>

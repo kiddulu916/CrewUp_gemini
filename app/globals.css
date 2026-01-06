@@ -54,3 +54,17 @@ body {
 .animate-slide-in {
   animation: slide-in 0.3s ease-out;
 }
+
+/* Infinite Scroll Animation for Trades Ticker */
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll {
+  animation: scroll-left 20s linear infinite;
+}

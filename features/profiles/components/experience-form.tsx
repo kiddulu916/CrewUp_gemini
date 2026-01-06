@@ -45,7 +45,7 @@ export function ExperienceForm({ onSuccess, onCancel }: Props) {
     try {
       const result = await addExperience({
         job_title: data.job_title,
-        company_name: data.company_name,
+        company: data.company_name,
         start_date: data.start_date,
         end_date: data.is_current ? null : data.end_date,
         is_current: data.is_current,

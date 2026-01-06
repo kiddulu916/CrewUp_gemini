@@ -23,61 +23,66 @@ function transformProfileToFormData(profileData: ProfileWithRelations): Partial<
   // Transform work experience
   const workHistory: WorkHistoryEntry[] = workExperience.map((exp) => ({
     id: exp.id,
-    companyName: exp.company_name,
+    companyName: exp.company_name || exp.company || '',
     jobTitle: exp.job_title,
     startDate: exp.start_date,
     endDate: exp.end_date || undefined,
     isCurrent: exp.is_current,
-    responsibilities: exp.responsibilities || '',
+    responsibilities: exp.responsibilities || exp.description || '',
     reasonForLeaving: exp.reason_for_leaving || undefined,
   }));
 
   // Transform education
   const educationEntries: EducationEntry[] = education.map((edu) => ({
     id: edu.id,
-    institutionName: edu.institution_name,
-    degreeType: edu.degree_type,
-    fieldOfStudy: edu.field_of_study,
-    graduationYear: edu.graduation_year,
-    isCurrentlyEnrolled: edu.is_currently_enrolled,
+    institutionName: edu.institution_name || edu.institution || '',
+    degreeType: edu.degree_type || edu.degree || '',
+    fieldOfStudy: edu.field_of_study || '',
+    graduationYear: edu.graduation_year || new Date().getFullYear(),
+    isCurrentlyEnrolled: edu.is_currently_enrolled || false,
   }));
 
   // Transform certifications (database certs to wizard format)
   const certificationEntries: CertificationEntry[] = certifications.map((cert) => ({
     id: cert.id,
-    name: cert.certification_type,
-    issuingOrganization: cert.is_verified ? 'Verified' : 'Not Verified',
-    expirationDate: cert.expires_at || undefined,
+    name: cert.certification_type || cert.name || '',
+    issuingOrganization: cert.issuing_organization || (cert.is_verified ? 'Verified' : 'Not Verified'),
+    expirationDate: cert.expires_at || cert.expiration_date || undefined,
   }));
 
   // Transform professional references
   const referenceEntries: ReferenceEntry[] = professionalReferences.map((ref) => ({
     id: ref.id,
     name: ref.name,
-    company: ref.company,
-    phone: ref.phone,
-    email: ref.email,
+    company: ref.company || '',
+    phone: ref.phone || '',
+    email: ref.email || '',
     relationship: ref.relationship,
   }));
 
+  // Derive full name from profile
+  const fullName = profile.name || `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
+
   return {
     // Step 2: Personal Information
-    fullName: profile.name,
+    fullName,
     address: {
-      street: profile.address_street || '',
-      city: profile.address_city || '',
-      state: profile.address_state || '',
-      zipCode: profile.address_zip_code || '',
+      street: '',
+      city: profile.location?.split(',')[0]?.trim() || '',
+      state: profile.location?.split(',')[1]?.trim() || '',
+      zipCode: '',
     },
 
     // Step 3: Contact
     phoneNumber: profile.phone || '',
 
     // Step 4: Work Authorization
-    authorizedToWork: profile.authorized_to_work,
-    hasDriversLicense: profile.has_drivers_license,
-    licenseClass: profile.license_class || undefined,
-    hasReliableTransportation: profile.has_reliable_transportation,
+    authorizedToWork: profile.authorized_to_work ?? true,
+    hasDriversLicense: profile.has_dl ?? false,
+    licenseClass: profile.dl_class && ['A', 'B', 'C'].includes(profile.dl_class) 
+      ? (profile.dl_class as 'A' | 'B' | 'C') 
+      : undefined,
+    hasReliableTransportation: profile.reliable_transportation ?? false,
 
     // Step 5: Work History
     workHistory,
@@ -86,7 +91,7 @@ function transformProfileToFormData(profileData: ProfileWithRelations): Partial<
     education: educationEntries,
 
     // Step 7: Skills & Certifications
-    yearsOfExperience: profile.years_of_experience,
+    yearsOfExperience: profile.years_of_experience ?? 0,
     tradeSkills: profile.trade_skills || [],
     certifications: certificationEntries,
 

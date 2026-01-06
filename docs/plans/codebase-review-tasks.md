@@ -306,34 +306,33 @@ This document tracks all issues, improvements, and tasks identified during the c
   - Added tests for `lib/utils/action-response.ts` (success, error, validateInput)
   - Total: 134+ unit tests passing
 
+- [x] **Add integration tests**
+  - Added `message-actions.test.ts` - Send, mark read, conversations
+  - Added `application-actions.test.ts` - Submit, withdraw, get applications
+  - Added `auth-actions.test.ts` - User creation, sessions, roles
+  - Added `notification-actions.test.ts` - Get, mark read, delete notifications
+
+- [x] **Expand E2E tests**
+  - Added `admin.spec.ts` - Admin dashboard, access control, navigation
+  - Added `error-states.spec.ts` - 404 pages, auth errors, empty states
+
+- [x] **Add mobile-specific E2E tests**
+  - Added `mobile-interactions.spec.ts` - Bottom nav, touch, gestures
+  - Enhanced existing `mobile-responsiveness.spec.ts`
+
+- [x] **Add accessibility tests**
+  - Added `accessibility.spec.ts` with axe-core integration
+  - Keyboard navigation tests
+  - Screen reader support tests
+  - Color contrast tests
+  - Installed `@axe-core/playwright`
+
 ### Pending ⏳
-
-- [ ] **Add integration tests**
-  - Test job creation flow
-  - Test application submission flow
-  - Test messaging flow
-  - Test profile update flow
-
-- [ ] **Expand E2E tests**
-  - Add tests for admin dashboard flows
-  - Add tests for Pro feature flows
-  - Add tests for error states
-  - Add tests for edge cases
-
-- [ ] **Add mobile-specific E2E tests**
-  - Test bottom navigation
-  - Test responsive layouts
-  - Test touch interactions
 
 - [ ] **Add performance tests**
   - Lighthouse CI integration
   - Core Web Vitals monitoring
   - Bundle size tracking
-
-- [ ] **Add accessibility tests**
-  - axe-core integration
-  - Keyboard navigation tests
-  - Screen reader compatibility
 
 ---
 
@@ -597,14 +596,14 @@ This document tracks all issues, improvements, and tasks identified during the c
 | Security | 9 | 0 | 9 |
 | Pro Features | 4 | 4 | 8 |
 | Real-time & Polling | 5 | 0 | 5 |
-| Testing | 2 | 4 | 6 |
+| Testing | 6 | 1 | 7 |
 | Performance | 4 | 1 | 5 |
 | UI/UX | 1 | 6 | 7 |
 | Documentation & Types | 2 | 3 | 5 |
 | Marketing & SEO | 3 | 1 | 4 |
 | Admin Dashboard | 6 | 0 | 6 |
 | Ad Monetization | 7 | 0 | 7 |
-| **TOTAL** | **62** | **27** | **89** |
+| **TOTAL** | **66** | **24** | **90** |
 
 ---
 

@@ -24,7 +24,7 @@ export const createJobSchema = z.object({
   description: z.string().min(20, 'Description must be at least 20 characters').max(5000, 'Description is too long'),
   location: z.string().min(3, 'Location is required'),
   jobType: z.enum(['full-time', 'part-time', 'contract', 'temporary'], {
-    errorMap: () => ({ message: 'Invalid job type' }),
+    message: 'Invalid job type',
   }),
   trades: z.array(z.string()).min(1, 'At least one trade is required'),
   payRate: z.string().optional(),
@@ -43,7 +43,7 @@ export const updateJobSchema = createJobSchema.partial().extend({
 export const updateApplicationStatusSchema = z.object({
   applicationId: uuidSchema,
   status: z.enum(['pending', 'viewed', 'hired', 'rejected'], {
-    errorMap: () => ({ message: 'Invalid status' }),
+    message: 'Invalid status',
   }),
 });
 
@@ -72,10 +72,10 @@ export const createContentReportSchema = z.object({
   reportedUserId: uuidSchema,
   contentId: z.string().min(1, 'Content ID is required'),
   contentType: z.enum(['profile', 'job', 'message', 'application'], {
-    errorMap: () => ({ message: 'Invalid content type' }),
+    message: 'Invalid content type',
   }),
   reason: z.enum(['spam', 'harassment', 'inappropriate', 'fraud', 'other'], {
-    errorMap: () => ({ message: 'Invalid reason' }),
+    message: 'Invalid reason',
   }),
   description: z.string().max(1000, 'Description is too long').optional(),
 });
@@ -84,7 +84,7 @@ export const createContentReportSchema = z.object({
 export const reviewContentReportSchema = z.object({
   reportId: uuidSchema,
   actionTaken: z.enum(['warning', 'suspension', 'ban', 'content_removed', 'dismissed'], {
-    errorMap: () => ({ message: 'Invalid action' }),
+    message: 'Invalid action',
   }),
   adminNotes: z.string().max(1000, 'Notes are too long').optional(),
 });

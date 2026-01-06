@@ -107,7 +107,7 @@ export function useSmartPolling<TData = unknown, TError = Error>(
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
   const [nextSyncTime, setNextSyncTime] = useState<Date | null>(null);
   const lastActivityRef = useRef(Date.now());
-  const idleTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // * Calculate current interval based on state
   const calculateInterval = useCallback(() => {

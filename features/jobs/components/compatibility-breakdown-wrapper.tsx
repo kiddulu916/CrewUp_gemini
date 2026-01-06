@@ -53,7 +53,7 @@ export function CompatibilityBreakdownWrapper({
         location: currentUser.location || '',
         coords: currentUser.coords,
       },
-      workerCerts: (currentUser.certifications || []).map(c => c.certification_type),
+      workerCerts: (currentUser.certifications || []).map(c => c.certification_type || c.name).filter((c): c is string => Boolean(c)),
       workerExperience: currentUser.years_of_experience || 0,
       distance: distance !== null ? distance : 999,
     };

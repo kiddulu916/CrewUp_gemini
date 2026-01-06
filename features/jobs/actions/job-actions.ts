@@ -30,6 +30,12 @@ export type JobData = {
   pay_max?: number;
   required_certs?: string[];
   status?: 'active' | 'filled' | 'closed' | 'draft';
+  time_length?: string;
+  // Extended fields for backward compatibility
+  trade?: string;
+  sub_trade?: string;
+  trade_selections?: TradeSelection[];
+  custom_questions?: CustomQuestion[];
 };
 
 export type JobResult = {

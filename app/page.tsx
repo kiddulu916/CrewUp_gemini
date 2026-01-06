@@ -477,20 +477,6 @@ export default async function Home() {
         </div>
       </footer>
 
-      {/* CSS for scroll animation */}
-      <style jsx>{`
-        @keyframes scroll {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
-        }
-        .animate-scroll {
-          animation: scroll 20s linear infinite;
-        }
-      `}</style>
     </div>
   );
 }

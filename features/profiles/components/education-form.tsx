@@ -49,7 +49,15 @@ export function EducationForm({ onSuccess, onCancel }: Props) {
   async function onSubmit(data: EducationSchema) {
     setError('');
 
-    const result = await addEducation(data);
+    // Map form fields to action expected format
+    const educationData = {
+      institution: data.institution_name,
+      degree: data.degree_type,
+      field_of_study: data.field_of_study,
+      end_date: data.graduation_year ? `${data.graduation_year}-01-01` : undefined,
+    };
+
+    const result = await addEducation(educationData);
 
     if (result.success) {
       router.refresh();

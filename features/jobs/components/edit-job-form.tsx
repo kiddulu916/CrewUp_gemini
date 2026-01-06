@@ -22,13 +22,14 @@ export function EditJobForm({ job }: EditJobFormProps) {
   // Initialize form data from existing job
   const [formData, setFormData] = useState<JobData>({
     title: job.title || '',
-    trade: job.trade || '',
+    trades: job.trades || (job.trade ? [job.trade] : []),
+    sub_trades: job.sub_trades || (job.sub_trade ? [job.sub_trade] : []),
     job_type: job.job_type || '',
     description: job.description || '',
     location: job.location || '',
     coords: job.coords || null,
     pay_rate: job.pay_rate || '',
-    time_length: job.time_length || '',
+    required_certs: job.required_certs || [],
   });
 
   // Transform trade_selections from database format

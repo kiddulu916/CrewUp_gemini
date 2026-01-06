@@ -14,7 +14,7 @@ export function JobForm() {
 
   const [formData, setFormData] = useState<JobData>({
     title: '',
-    trade: '',
+    trades: [],
     job_type: '',
     description: '',
     location: '',

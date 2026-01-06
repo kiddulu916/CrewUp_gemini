@@ -56,22 +56,17 @@ export function EducationTab({ userId }: EducationTabProps) {
 
             <div className="flex-1">
               <h3 className="text-xl font-semibold text-gray-900">
-                {edu.degree_type}
+                {edu.degree || 'Degree'}
               </h3>
               {edu.field_of_study && (
                 <p className="mt-1 text-lg text-gray-700">{edu.field_of_study}</p>
               )}
-              <p className="mt-2 text-gray-600">{edu.institution_name}</p>
+              <p className="mt-2 text-gray-600">{edu.institution}</p>
 
               <div className="mt-2 flex items-center gap-2">
-                {edu.graduation_year && (
+                {edu.end_date && (
                   <span className="text-sm text-gray-600">
-                    Graduated {edu.graduation_year}
-                  </span>
-                )}
-                {edu.is_currently_enrolled && (
-                  <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
-                    Currently Enrolled
+                    Graduated {new Date(edu.end_date).getFullYear()}
                   </span>
                 )}
               </div>

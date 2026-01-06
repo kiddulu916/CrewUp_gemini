@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { adConfig, shouldShowAds } from './config';
-import { getConsentStatus, needsConsent, type AdConsentStatus } from './consent';
+import { getConsentStatus, needsConsent } from './consent';
+import type { AdConsentStatus } from './types';
 
 /**
  * Hook to check if ads should be shown for current user

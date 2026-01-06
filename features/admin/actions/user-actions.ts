@@ -37,12 +37,12 @@ export async function suspendUser(
 
     // * Authentication check
     const authResult = await requireAuth(supabase);
-    if (!authResult.success) return authResult;
+    if (!authResult.success) return error(authResult.error || 'Not authenticated');
     const adminUser = authResult.data!;
 
     // * Authorization check
     const adminResult = await requireAdmin(supabase, adminUser.id);
-    if (!adminResult.success) return adminResult;
+    if (!adminResult.success) return error(adminResult.error || 'Not authorized');
 
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + validatedInput.durationDays);
@@ -106,12 +106,12 @@ export async function banUser(userId: string, reason: string): Promise<ActionRes
 
     // * Authentication check
     const authResult = await requireAuth(supabase);
-    if (!authResult.success) return authResult;
+    if (!authResult.success) return error(authResult.error || 'Not authenticated');
     const adminUser = authResult.data!;
 
     // * Authorization check
     const adminResult = await requireAdmin(supabase, adminUser.id);
-    if (!adminResult.success) return adminResult;
+    if (!adminResult.success) return error(adminResult.error || 'Not authorized');
 
     // * Create permanent ban record
     const { error: moderationError } = await supabase

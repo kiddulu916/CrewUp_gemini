@@ -60,3 +60,4 @@ test-results
 # Script outputs (keep .gitkeep)
 scripts/output/*.json
 .junie
+

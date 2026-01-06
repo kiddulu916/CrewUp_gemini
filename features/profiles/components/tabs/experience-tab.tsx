@@ -67,7 +67,7 @@ export function ExperienceTab({ userId }: ExperienceTabProps) {
               <h3 className="text-xl font-semibold text-gray-900">
                 {experience.job_title}
               </h3>
-              <p className="mt-1 text-lg text-gray-700">{experience.company_name}</p>
+              <p className="mt-1 text-lg text-gray-700">{experience.company}</p>
 
               <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
                 <Calendar className="h-4 w-4" />

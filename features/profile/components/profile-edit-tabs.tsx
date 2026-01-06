@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Profile } from '@/lib/types/profile.types';
+import { ProfileWithWorkerData } from '@/lib/types/profile.types';
 import { LazyPortfolioManager } from '@/features/portfolio/components/lazy-portfolio';
 import { ToolsSelector } from '@/features/profile/components/tools-selector';
 import { updateToolsOwned } from '@/features/profiles/actions/profile-actions';
@@ -10,7 +10,7 @@ import { useToast } from '@/components/providers/toast-provider';
 import { Briefcase, Image as ImageIcon, Award, User } from 'lucide-react';
 
 export interface ProfileEditTabsProps {
-  profile: Profile;
+  profile: ProfileWithWorkerData;
 }
 
 type TabId = 'basic' | 'portfolio' | 'experience' | 'certifications';

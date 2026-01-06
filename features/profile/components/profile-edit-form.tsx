@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Input, Select, Textarea } from '@/components/ui';
 import { LocationAutocomplete } from '@/components/common';
 import { TRADES, TRADE_SUBCATEGORIES, EMPLOYER_TYPES } from '@/lib/constants';
-import { updateProfile } from '../actions/profile-actions';
+import { updateProfile } from '@/features/profiles/actions/profile-actions';
 import { ProfileAvatarUpload } from '@/features/profiles/components/profile-avatar-upload';
 import { uploadProfilePicture } from '@/features/profiles/actions/profile-picture-actions';
 import { profileSchema, type ProfileSchema } from '@/features/profiles/utils/validation';

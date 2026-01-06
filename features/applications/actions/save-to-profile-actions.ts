@@ -39,7 +39,6 @@ export async function saveApplicationDataToProfile(
         first_name: firstName,
         last_name: lastName,
         phone: formData.phoneNumber,
-        bio: formData.bio || null,
         updated_at: new Date().toISOString(),
       })
       .eq('id', user.id);
