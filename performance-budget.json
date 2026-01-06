@@ -1,0 +1,105 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nicholasruunu/performance-budget/main/schema.json",
+  "budgets": [
+    {
+      "path": "/",
+      "name": "Homepage",
+      "resourceSizes": [
+        { "resourceType": "total", "budget": 2048 },
+        { "resourceType": "script", "budget": 500 },
+        { "resourceType": "stylesheet", "budget": 100 },
+        { "resourceType": "image", "budget": 500 },
+        { "resourceType": "font", "budget": 150 }
+      ],
+      "resourceCounts": [
+        { "resourceType": "total", "budget": 50 },
+        { "resourceType": "script", "budget": 15 },
+        { "resourceType": "image", "budget": 20 }
+      ],
+      "timings": [
+        { "metric": "first-contentful-paint", "budget": 3000 },
+        { "metric": "largest-contentful-paint", "budget": 4000 },
+        { "metric": "cumulative-layout-shift", "budget": 0.1 },
+        { "metric": "total-blocking-time", "budget": 500 },
+        { "metric": "time-to-interactive", "budget": 5000 }
+      ]
+    },
+    {
+      "path": "/login",
+      "name": "Login Page",
+      "resourceSizes": [
+        { "resourceType": "total", "budget": 1024 },
+        { "resourceType": "script", "budget": 300 }
+      ],
+      "timings": [
+        { "metric": "first-contentful-paint", "budget": 2500 },
+        { "metric": "largest-contentful-paint", "budget": 3500 }
+      ]
+    },
+    {
+      "path": "/signup",
+      "name": "Signup Page",
+      "resourceSizes": [
+        { "resourceType": "total", "budget": 1024 },
+        { "resourceType": "script", "budget": 300 }
+      ],
+      "timings": [
+        { "metric": "first-contentful-paint", "budget": 2500 },
+        { "metric": "largest-contentful-paint", "budget": 3500 }
+      ]
+    },
+    {
+      "path": "/pricing",
+      "name": "Pricing Page",
+      "resourceSizes": [
+        { "resourceType": "total", "budget": 1536 },
+        { "resourceType": "script", "budget": 400 }
+      ],
+      "timings": [
+        { "metric": "first-contentful-paint", "budget": 3000 },
+        { "metric": "largest-contentful-paint", "budget": 4000 }
+      ]
+    },
+    {
+      "path": "/dashboard/*",
+      "name": "Dashboard Pages",
+      "resourceSizes": [
+        { "resourceType": "total", "budget": 3072 },
+        { "resourceType": "script", "budget": 800 }
+      ],
+      "timings": [
+        { "metric": "first-contentful-paint", "budget": 3500 },
+        { "metric": "largest-contentful-paint", "budget": 5000 },
+        { "metric": "total-blocking-time", "budget": 600 }
+      ]
+    }
+  ],
+  "coreWebVitals": {
+    "lcp": {
+      "good": 2500,
+      "needsImprovement": 4000,
+      "poor": 4000
+    },
+    "fid": {
+      "good": 100,
+      "needsImprovement": 300,
+      "poor": 300
+    },
+    "cls": {
+      "good": 0.1,
+      "needsImprovement": 0.25,
+      "poor": 0.25
+    },
+    "fcp": {
+      "good": 1800,
+      "needsImprovement": 3000,
+      "poor": 3000
+    },
+    "ttfb": {
+      "good": 800,
+      "needsImprovement": 1800,
+      "poor": 1800
+    }
+  }
+}
+

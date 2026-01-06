@@ -327,12 +327,15 @@ This document tracks all issues, improvements, and tasks identified during the c
   - Color contrast tests
   - Installed `@axe-core/playwright`
 
-### Pending ⏳
+- [x] **Add performance tests**
+  - Enhanced `lighthouserc.json` with desktop preset
+  - Added `lighthouserc.mobile.json` for mobile testing
+  - Created `.github/workflows/lighthouse-ci.yml` for CI integration
+  - Added `e2e/performance.spec.ts` for Core Web Vitals with Playwright
+  - Added `performance-budget.json` with resource budgets
+  - Added npm scripts: `test:perf`, `test:perf:lhci`, `test:perf:all`
 
-- [ ] **Add performance tests**
-  - Lighthouse CI integration
-  - Core Web Vitals monitoring
-  - Bundle size tracking
+### Pending ⏳
 
 ---
 
@@ -596,14 +599,14 @@ This document tracks all issues, improvements, and tasks identified during the c
 | Security | 9 | 0 | 9 |
 | Pro Features | 4 | 4 | 8 |
 | Real-time & Polling | 5 | 0 | 5 |
-| Testing | 6 | 1 | 7 |
+| Testing | 7 | 0 | 7 |
 | Performance | 4 | 1 | 5 |
 | UI/UX | 1 | 6 | 7 |
 | Documentation & Types | 2 | 3 | 5 |
 | Marketing & SEO | 3 | 1 | 4 |
 | Admin Dashboard | 6 | 0 | 6 |
 | Ad Monetization | 7 | 0 | 7 |
-| **TOTAL** | **66** | **24** | **90** |
+| **TOTAL** | **67** | **23** | **90** |
 
 ---
 

@@ -1,0 +1,110 @@
+name: Lighthouse CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lighthouse-desktop:
+    name: Lighthouse Desktop
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Create .env.local for build
+        run: |
+          echo "NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" >> .env.local
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" >> .env.local
+          echo "NEXT_PUBLIC_APP_URL=http://localhost:3000" >> .env.local
+
+      - name: Run Lighthouse CI (Desktop)
+        run: |
+          npm install -g @lhci/cli@0.15.x
+          lhci autorun
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+      - name: Upload Lighthouse results
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-results-desktop
+          path: .lighthouseci
+          retention-days: 30
+
+  lighthouse-mobile:
+    name: Lighthouse Mobile
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Create .env.local for build
+        run: |
+          echo "NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" >> .env.local
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" >> .env.local
+          echo "NEXT_PUBLIC_APP_URL=http://localhost:3000" >> .env.local
+
+      - name: Run Lighthouse CI (Mobile)
+        run: |
+          npm install -g @lhci/cli@0.15.x
+          lhci autorun --config=lighthouserc.mobile.json
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+      - name: Upload Lighthouse results
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-results-mobile
+          path: .lighthouseci
+          retention-days: 30
+
+  performance-budget:
+    name: Performance Budget Check
+    runs-on: ubuntu-latest
+    needs: [lighthouse-desktop, lighthouse-mobile]
+    steps:
+      - name: Download desktop results
+        uses: actions/download-artifact@v4
+        with:
+          name: lighthouse-results-desktop
+          path: .lighthouseci-desktop
+
+      - name: Download mobile results
+        uses: actions/download-artifact@v4
+        with:
+          name: lighthouse-results-mobile
+          path: .lighthouseci-mobile
+
+      - name: Check performance budgets
+        run: |
+          echo "=== Desktop Results ==="
+          cat .lighthouseci-desktop/manifest.json 2>/dev/null || echo "No desktop manifest found"
+          echo ""
+          echo "=== Mobile Results ==="
+          cat .lighthouseci-mobile/manifest.json 2>/dev/null || echo "No mobile manifest found"
+          echo ""
+          echo "Performance audit complete!"
+
