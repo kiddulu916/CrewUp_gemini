@@ -6,8 +6,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "analyze": "ANALYZE=true next build",
+    "build": "npx next build",
+    "analyze": "ANALYZE=true npx next build",
     "start": "./node_modules/.bin/dotenvx run -- next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
