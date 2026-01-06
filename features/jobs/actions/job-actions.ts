@@ -323,6 +323,7 @@ export async function getJobs(filters?: {
   jobType?: string;
   status?: string;
   employerId?: string;
+  minPay?: number;
 }): Promise<JobResult & { data?: any[] }> {
   const supabase = await createClient(await cookies());
 
@@ -342,6 +343,10 @@ export async function getJobs(filters?: {
 
   if (filters?.jobType) {
     query = query.eq('job_type', filters.jobType);
+  }
+
+  if (filters?.minPay) {
+    query = query.gte('pay_min', filters.minPay);
   }
 
   if (filters?.status) {

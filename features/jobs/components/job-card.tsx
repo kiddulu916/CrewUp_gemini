@@ -18,7 +18,7 @@ type JobCardProps = {
     sub_trade?: string | null;
     job_type: string;
     location: string;
-    coords?: { lat: number; lng: number } | null;
+    coords?: { lat: number; lng: number } | string | null;
     pay_rate: string;
     employer_name: string;
     required_certs?: string[];

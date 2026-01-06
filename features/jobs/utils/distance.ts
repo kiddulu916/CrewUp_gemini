@@ -1,21 +1,41 @@
 /**
+ * Parse PostGIS point string format: "POINT(lng lat)" or "SRID=4326;POINT(lng lat)"
+ */
+export function parsePostGISPoint(pointStr: string | null): { lat: number; lng: number } | null {
+  if (!pointStr || typeof pointStr !== 'string') return null;
+
+  // Match both with and without SRID prefix
+  const match = pointStr.match(/POINT\(([-\d.]+) ([\d.-]+)\)/);
+  if (match) {
+    return {
+      lng: parseFloat(match[1]),
+      lat: parseFloat(match[2]),
+    };
+  }
+  return null;
+}
+
+/**
  * Calculate distance between two coordinates using the Haversine formula
  * Returns distance in miles
  */
 export function calculateDistance(
-  coords1: { lat: number; lng: number } | null,
-  coords2: { lat: number; lng: number } | null
+  coords1: { lat: number; lng: number } | string | null,
+  coords2: { lat: number; lng: number } | string | null
 ): number | null {
-  if (!coords1 || !coords2) return null;
+  const p1 = typeof coords1 === 'string' ? parsePostGISPoint(coords1) : coords1;
+  const p2 = typeof coords2 === 'string' ? parsePostGISPoint(coords2) : coords2;
+
+  if (!p1 || !p2) return null;
 
   const R = 3959; // Earth's radius in miles
-  const dLat = toRad(coords2.lat - coords1.lat);
-  const dLng = toRad(coords2.lng - coords1.lng);
+  const dLat = toRad(p2.lat - p1.lat);
+  const dLng = toRad(p2.lng - p1.lng);
 
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(coords1.lat)) *
-      Math.cos(toRad(coords2.lat)) *
+    Math.cos(toRad(p1.lat)) *
+      Math.cos(toRad(p2.lat)) *
       Math.sin(dLng / 2) *
       Math.sin(dLng / 2);
 
@@ -42,7 +62,7 @@ export function formatDistance(distance: number | null): string {
 /**
  * Sort jobs by distance from user location
  */
-export function sortJobsByDistance<T extends { coords?: { lat: number; lng: number } | null }>(
+export function sortJobsByDistance<T extends { coords?: { lat: number; lng: number } | string | null }>(
   jobs: T[],
   userCoords: { lat: number; lng: number } | null
 ): (T & { distance?: number | null })[] {

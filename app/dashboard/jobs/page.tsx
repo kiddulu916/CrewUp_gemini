@@ -3,6 +3,7 @@ import { Card, CardContent, Button, Badge } from '@/components/ui';
 import Link from 'next/link';
 import { formatRelativeTime } from '@/lib/utils';
 import { cookies } from 'next/headers';
+import { JobsPageClient } from './page-client';
 
       
 
@@ -96,37 +97,21 @@ export default async function JobsPage() {
         )}
       </div>
 
-      {/* Filters - TODO: Add filtering functionality */}
-      {!isEmployer && (
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-4">
-              <input
-                type="text"
-                placeholder="Search jobs..."
-                className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-krewup-blue"
-              />
-              <Button variant="outline">Filter</Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Jobs List */}
-      {jobs && jobs.length > 0 ? (
-        <div className="grid gap-3">
-          {jobs.map((job: any) => (
-            <Link key={job.id} href={`/dashboard/jobs/${job.id}`}>
-              <Card className="hover:border-krewup-blue hover:shadow-lg transition-all duration-200 cursor-pointer border">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <h3 className="text-base font-bold text-gray-900">
-                          {job.title}
-                        </h3>
-                        <Badge variant="info" className="text-xs px-2 py-0.5">{job.job_type}</Badge>
-                        {isEmployer && (
+      {isEmployer ? (
+        /* Employer View */
+        jobs && jobs.length > 0 ? (
+          <div className="grid gap-3">
+            {jobs.map((job: any) => (
+              <Link key={job.id} href={`/dashboard/jobs/${job.id}`}>
+                <Card className="hover:border-krewup-blue hover:shadow-lg transition-all duration-200 cursor-pointer border">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <h3 className="text-base font-bold text-gray-900">
+                            {job.title}
+                          </h3>
+                          <Badge variant="info" className="text-xs px-2 py-0.5">{job.job_type}</Badge>
                           <Badge
                             variant={
                               job.status === 'active'
@@ -139,82 +124,72 @@ export default async function JobsPage() {
                           >
                             {job.status}
                           </Badge>
-                        )}
-                      </div>
-
-                      <div className="flex items-center gap-3 text-sm text-gray-600 flex-wrap">
-                        <span>
-                          💼 {job.trade_selections && job.trade_selections.length > 0
-                            ? job.trade_selections.map((ts: any) => ts.trade).join(', ')
-                            : job.trades && job.trades.length > 0
-                            ? job.trades.join(', ')
-                            : job.trade}
-                        </span>
-                        <span className="text-gray-400">•</span>
-                        <span>📍 {job.location}</span>
-                        <span className="text-gray-400">•</span>
-                        <span>📅 {formatRelativeTime(job.created_at)}</span>
-                      </div>
-
-                      {job.required_certs && job.required_certs.length > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                          {job.required_certs.map((cert: string) => (
-                            <Badge key={cert} variant="warning" className="text-xs px-1.5 py-0.5">
-                              📜 {cert}
-                            </Badge>
-                          ))}
                         </div>
-                      )}
-                    </div>
 
-                    {isEmployer && (
+                        <div className="flex items-center gap-3 text-sm text-gray-600 flex-wrap">
+                          <span>
+                            💼 {job.trade_selections && job.trade_selections.length > 0
+                              ? job.trade_selections.map((ts: any) => ts.trade).join(', ')
+                              : job.trades && job.trades.length > 0
+                              ? job.trades.join(', ')
+                              : job.trade}
+                          </span>
+                          <span className="text-gray-400">•</span>
+                          <span>📍 {job.location}</span>
+                          <span className="text-gray-400">•</span>
+                          <span>📅 {formatRelativeTime(job.created_at)}</span>
+                        </div>
+                      </div>
+
                       <div className="text-right">
                         <p className="text-sm font-semibold text-gray-900">
                           {job.application_count || 0} apps
                         </p>
                       </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      ) : (
-        <Card>
-          <CardContent className="p-12 text-center">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 text-3xl">
-              💼
-            </div>
-            <h3 className="mt-4 text-lg font-semibold text-gray-900">
-              {isEmployer ? 'No jobs posted yet' : 'No jobs available'}
-            </h3>
-            <div className="mt-2 text-sm text-gray-600">
-              {isEmployer ? (
-                <>
-                  Get started by posting your first job to find skilled workers
-                  <br />
-                  {profile?.can_post_jobs ? (
-                    <Link href="/dashboard/jobs/new">
-                      <Button className="mt-4">Post a Job</Button>
-                    </Link>
-                  ) : (
-                    <div className="mt-4 inline-block">
-                      <Button disabled className="cursor-not-allowed opacity-50">
-                        Post a Job
-                      </Button>
-                      <div className="text-xs text-yellow-700 mt-2">
-                        License verification required
-                      </div>
                     </div>
-                  )}
-                </>
-              ) : (
-                'Check back later for new opportunities'
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <Card>
+            <CardContent className="p-12 text-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 text-3xl">
+                💼
+              </div>
+              <h3 className="mt-4 text-lg font-semibold text-gray-900">
+                No jobs posted yet
+              </h3>
+              <div className="mt-2 text-sm text-gray-600">
+                Get started by posting your first job to find skilled workers
+                <br />
+                {profile?.can_post_jobs ? (
+                  <Link href="/dashboard/jobs/new">
+                    <Button className="mt-4">Post a Job</Button>
+                  </Link>
+                ) : (
+                  <div className="mt-4 inline-block">
+                    <Button disabled className="cursor-not-allowed opacity-50">
+                      Post a Job
+                    </Button>
+                    <div className="text-xs text-yellow-700 mt-2">
+                      License verification required
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )
+      ) : (
+        /* Worker View with Filters */
+        <JobsPageClient 
+          initialJobs={jobs?.map((job: any) => ({
+            ...job,
+            employer_name: job.employer?.company_name || job.employer?.name || 'Unknown Employer'
+          })) || []} 
+        />
       )}
     </div>
   );

@@ -9,6 +9,7 @@ export type JobFilters = {
   jobType?: string;
   status?: string;
   employerId?: string;
+  minPay?: number;
 };
 
 export function useJobs(filters?: JobFilters) {
@@ -39,6 +40,10 @@ export function useJobs(filters?: JobFilters) {
 
       if (filters?.jobType) {
         query = query.eq('job_type', filters.jobType);
+      }
+
+      if (filters?.minPay) {
+        query = query.gte('pay_min', filters.minPay);
       }
 
       if (filters?.status) {

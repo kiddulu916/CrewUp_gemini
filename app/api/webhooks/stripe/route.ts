@@ -100,6 +100,18 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ error: 'Database operation failed' }, { status: 500 });
         }
 
+        // Track in history
+        await supabaseAdmin.from('subscription_history').insert({
+          user_id: userId,
+          stripe_subscription_id: subscriptionId,
+          event_type: 'subscription_created',
+          status: 'active',
+          plan_type: planType,
+          metadata: {
+            checkout_session_id: session.id,
+          },
+        });
+
         // Update profiles.subscription_status to 'pro' and activate profile boost
         const { data: profile } = await supabaseAdmin
           .from('profiles')
@@ -188,6 +200,18 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ error: 'Database operation failed' }, { status: 500 });
         }
 
+        // Track in history
+        await supabaseAdmin.from('subscription_history').insert({
+          user_id: existingSubscription.user_id,
+          stripe_subscription_id: subscription.id,
+          event_type: 'subscription_updated',
+          status: subscription.status,
+          plan_type: planType,
+          metadata: {
+            cancel_at_period_end: subscription.cancel_at_period_end,
+          },
+        });
+
         // Renew profile boost if subscription is active and for workers
         if (subscription.status === 'active') {
           const { data: profile } = await supabaseAdmin
@@ -240,6 +264,17 @@ export async function POST(req: NextRequest) {
           console.error('Database error updating subscription:', updateError);
           return NextResponse.json({ error: 'Database operation failed' }, { status: 500 });
         }
+
+        // Track in history
+        await supabaseAdmin.from('subscription_history').insert({
+          user_id: existingSubscription.user_id,
+          stripe_subscription_id: subscription.id,
+          event_type: 'subscription_canceled',
+          status: 'canceled',
+          metadata: {
+            deleted_at: new Date().toISOString(),
+          },
+        });
 
         // Update profiles.subscription_status back to 'free' and remove profile boost
         // BUT protect lifetime Pro users - they keep Pro access even after canceling
@@ -297,6 +332,50 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ error: 'Database operation failed' }, { status: 500 });
         }
 
+        // Track in history
+        await supabaseAdmin.from('subscription_history').insert({
+          user_id: existingSubscription.user_id,
+          stripe_subscription_id: (invoice as any).subscription as string,
+          event_type: 'payment_failed',
+          status: 'past_due',
+          metadata: {
+            invoice_id: invoice.id,
+            amount_due: invoice.amount_due / 100,
+          },
+        });
+
+        break;
+      }
+
+      case 'invoice.payment_succeeded': {
+        const invoice = event.data.object as Stripe.Invoice;
+        const customerId = invoice.customer as string;
+        const subscriptionId = (invoice as any).subscription as string;
+
+        // Skip if not a subscription payment (e.g. one-off invoice)
+        if (!subscriptionId) break;
+
+        const { data: existingSubscription } = await supabaseAdmin
+          .from('subscriptions')
+          .select('user_id, plan_type')
+          .eq('stripe_customer_id', customerId)
+          .maybeSingle();
+
+        if (existingSubscription) {
+          await supabaseAdmin.from('subscription_history').insert({
+            user_id: existingSubscription.user_id,
+            stripe_subscription_id: subscriptionId,
+            event_type: 'payment_succeeded',
+            status: 'active',
+            plan_type: existingSubscription.plan_type,
+            amount: invoice.amount_paid / 100,
+            currency: invoice.currency,
+            metadata: {
+              invoice_id: invoice.id,
+              billing_reason: invoice.billing_reason,
+            },
+          });
+        }
         break;
       }
 

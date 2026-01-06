@@ -16,7 +16,7 @@ type Job = {
   sub_trade?: string | null;
   job_type: string;
   location: string;
-  coords?: { lat: number; lng: number } | null;
+  coords?: { lat: number; lng: number } | string | null;
   pay_rate: string;
   employer_name: string;
   required_certs?: string[];
@@ -26,23 +26,46 @@ type Job = {
 
 export function JobsPageClient({ initialJobs }: { initialJobs: Job[] }) {
   const { location: userCoords } = useAutoUserLocation();
-  const [filters, setFilters] = useState({ trade: '', subTrade: '', jobType: '' });
+  const [filters, setFilters] = useState({ 
+    trade: '', 
+    subTrade: '', 
+    jobType: '',
+    maxDistance: '',
+    minPay: ''
+  });
 
   const { data: jobs, isLoading } = useJobs({
     trade: filters.trade || undefined,
     subTrade: filters.subTrade || undefined,
     jobType: filters.jobType || undefined,
+    minPay: filters.minPay ? parseInt(filters.minPay, 10) : undefined,
   });
 
   const displayJobs: Job[] = (jobs as Job[]) || initialJobs;
-  const sortedJobs = sortJobsByDistance(displayJobs, userCoords) as (Job & { distance?: number | null })[];
+  
+  // 1. Sort by distance first (this also adds distance property to each job)
+  let processedJobs = sortJobsByDistance(displayJobs, userCoords) as (Job & { distance?: number | null })[];
+
+  // 2. Apply client-side distance filter if specified
+  if (filters.maxDistance && userCoords) {
+    const maxDist = parseFloat(filters.maxDistance);
+    processedJobs = processedJobs.filter(job => 
+      job.distance !== null && job.distance <= maxDist
+    );
+  }
+
+  const sortedJobs = processedJobs;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
       {/* Filters Sidebar */}
       <div className="lg:col-span-1">
         <div className="lg:sticky lg:top-6">
-          <JobFilters filters={filters} onFilterChange={setFilters} />
+          <JobFilters 
+            filters={filters} 
+            onFilterChange={setFilters} 
+            hasLocation={!!userCoords}
+          />
         </div>
       </div>
 
@@ -60,7 +83,7 @@ export function JobsPageClient({ initialJobs }: { initialJobs: Job[] }) {
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">No jobs found</h3>
             <p className="text-gray-600">
-              {filters.trade || filters.subTrade || filters.jobType
+              {filters.trade || filters.subTrade || filters.jobType || filters.maxDistance || filters.minPay
                 ? 'Try adjusting your filters to see more results'
                 : 'No jobs are currently available'}
             </p>

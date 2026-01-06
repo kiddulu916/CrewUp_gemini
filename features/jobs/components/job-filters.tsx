@@ -8,11 +8,20 @@ type JobFiltersProps = {
     trade: string;
     subTrade: string;
     jobType: string;
+    maxDistance: string;
+    minPay: string;
   };
-  onFilterChange: (filters: { trade: string; subTrade: string; jobType: string }) => void;
+  onFilterChange: (filters: { 
+    trade: string; 
+    subTrade: string; 
+    jobType: string;
+    maxDistance: string;
+    minPay: string;
+  }) => void;
+  hasLocation?: boolean;
 };
 
-export function JobFilters({ filters, onFilterChange }: JobFiltersProps) {
+export function JobFilters({ filters, onFilterChange, hasLocation }: JobFiltersProps) {
   const availableSubTrades = filters.trade ? TRADE_SUBCATEGORIES[filters.trade] || [] : [];
 
   const handleTradeChange = (trade: string) => {
@@ -27,11 +36,30 @@ export function JobFilters({ filters, onFilterChange }: JobFiltersProps) {
     onFilterChange({ ...filters, jobType });
   };
 
-  const handleClearFilters = () => {
-    onFilterChange({ trade: '', subTrade: '', jobType: '' });
+  const handleDistanceChange = (maxDistance: string) => {
+    onFilterChange({ ...filters, maxDistance });
   };
 
-  const hasActiveFilters = filters.trade || filters.subTrade || filters.jobType;
+  const handleMinPayChange = (minPay: string) => {
+    onFilterChange({ ...filters, minPay });
+  };
+
+  const handleClearFilters = () => {
+    onFilterChange({ 
+      trade: '', 
+      subTrade: '', 
+      jobType: '', 
+      maxDistance: '', 
+      minPay: '' 
+    });
+  };
+
+  const hasActiveFilters = 
+    filters.trade || 
+    filters.subTrade || 
+    filters.jobType || 
+    filters.maxDistance || 
+    filters.minPay;
 
   return (
     <Card className="shadow-md">
@@ -95,6 +123,48 @@ export function JobFilters({ filters, onFilterChange }: JobFiltersProps) {
               options={[
                 { value: '', label: 'All Types' },
                 ...JOB_TYPES.map((type) => ({ value: type, label: type })),
+              ]}
+            />
+          </div>
+
+          {/* Distance Filter */}
+          {hasLocation && (
+            <div>
+              <label htmlFor="filter-distance" className="block text-sm font-medium text-gray-700 mb-1.5">
+                Distance
+              </label>
+              <Select
+                id="filter-distance"
+                value={filters.maxDistance}
+                onChange={(e) => handleDistanceChange(e.target.value)}
+                options={[
+                  { value: '', label: 'Any Distance' },
+                  { value: '5', label: 'Within 5 miles' },
+                  { value: '10', label: 'Within 10 miles' },
+                  { value: '25', label: 'Within 25 miles' },
+                  { value: '50', label: 'Within 50 miles' },
+                  { value: '100', label: 'Within 100 miles' },
+                ]}
+              />
+            </div>
+          )}
+
+          {/* Pay Rate Filter */}
+          <div>
+            <label htmlFor="filter-minpay" className="block text-sm font-medium text-gray-700 mb-1.5">
+              Minimum Pay
+            </label>
+            <Select
+              id="filter-minpay"
+              value={filters.minPay}
+              onChange={(e) => handleMinPayChange(e.target.value)}
+              options={[
+                { value: '', label: 'Any Pay' },
+                { value: '20', label: '$20+/hr' },
+                { value: '25', label: '$25+/hr' },
+                { value: '30', label: '$30+/hr' },
+                { value: '40', label: '$40+/hr' },
+                { value: '50', label: '$50+/hr' },
               ]}
             />
           </div>
