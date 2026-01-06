@@ -83,7 +83,6 @@ export async function getWorkerExperience(
   try {
     const supabase = await createClient(await cookies());
 
-    // Call the database function
     const { data, error } = await supabase
       .rpc('calculate_total_experience', {
         p_user_id: workerId,
