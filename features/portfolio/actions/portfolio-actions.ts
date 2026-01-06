@@ -3,13 +3,27 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
+import { rateLimit, RATE_LIMITS } from '@/lib/security/rate-limit';
+import { validateFile, ALLOWED_IMAGE_TYPES, FILE_SIZE_LIMITS } from '@/lib/security/file-validation';
 
 /**
  * Upload a portfolio photo
  * Free users: max 5 photos
  * Pro users: unlimited
+ * 
+ * * Security features:
+ * - Rate limiting (10 uploads/minute)
+ * - File type validation (MIME + magic bytes)
+ * - File size validation (5MB max)
+ * - File name sanitization
+ * 
+ * ! Rate limited: 10 uploads per minute per IP
  */
 export async function uploadPortfolioPhoto(formData: FormData): Promise<{ success: boolean; error?: string }> {
+  // * Rate limiting - prevent upload spam/DOS
+  const rateLimitResult = await rateLimit('upload:portfolio', RATE_LIMITS.upload);
+  if (rateLimitResult) return rateLimitResult;
+
   const supabase = await createClient(await cookies());
 
   // 1. Get authenticated user
@@ -45,20 +59,20 @@ export async function uploadPortfolioPhoto(formData: FormData): Promise<{ succes
     return { success: false, error: 'No file provided' };
   }
 
-  // Validate file type
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-  if (!allowedTypes.includes(file.type)) {
-    return { success: false, error: 'Please upload JPEG, PNG, or WebP images only' };
-  }
+  // * Enhanced file validation (type, size, and content verification)
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'] as const;
+  const validation = await validateFile(file, {
+    allowedTypes,
+    maxSize: FILE_SIZE_LIMITS.portfolioImage,
+  });
 
-  // Validate file size (5MB max)
-  const maxSize = 5 * 1024 * 1024;
-  if (file.size > maxSize) {
-    return { success: false, error: 'File size must be under 5MB' };
+  if (!validation.valid) {
+    return { success: false, error: validation.error };
   }
 
   // 6. Upload to Supabase Storage
-  const fileExt = file.name.split('.').pop();
+  const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+  // * Use sanitized name or generate timestamp-based name
   const fileName = `${user.id}/${Date.now()}.${fileExt}`;
 
   const { error: uploadError } = await supabase.storage

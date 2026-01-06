@@ -43,14 +43,13 @@ export function usePublicProfile(userId: string) {
 
       if (error) throw error;
 
-      // Transform to PublicProfile
+      // * Transform to PublicProfile
       const profile = data as any;
       const worker = profile.workers?.[0];
       const contractor = profile.contractors?.[0];
 
       return {
         ...profile,
-        name: `${profile.first_name} ${profile.last_name}`.trim(),
         trade: worker?.trade,
         sub_trade: worker?.sub_trade,
         years_of_experience: worker?.years_of_experience,

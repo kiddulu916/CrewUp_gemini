@@ -3,9 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from '@/compo
 import { MessageButton } from '@/features/messaging/components/message-button';
 import { BoostBadge } from '@/features/subscriptions/components/boost-badge';
 import { ProfileViewTracker } from '@/features/subscriptions/components/profile-view-tracker';
+import { SidebarAd } from '@/components/ads/sidebar-ad';
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
+import { getFullName, getInitials } from '@/lib/utils';
 
       
 
@@ -33,12 +35,19 @@ export default async function PublicProfilePage({ params }: Props) {
     redirect('/dashboard/profile');
   }
 
+  // Get current user's profile to check subscription status
+  const { data: currentUserProfile } = await supabase
+    .from('users')
+    .select('subscription_status, is_lifetime_pro')
+    .eq('id', user.id)
+    .single();
+
   // Fetch the profile
   const { data: profileData, error } = await supabase
     .from('users')
     .select(`
       *,
-      workers(trade, sub_trade, boost_expires_at),
+      workers(trade, sub_trade, is_profile_boosted),
       contractors(company_name)
     `)
     .eq('id', profileId)
@@ -50,10 +59,9 @@ export default async function PublicProfilePage({ params }: Props) {
 
   const profile = {
     ...profileData,
-    name: `${profileData.first_name} ${profileData.last_name}`.trim(),
     trade: profileData.workers?.[0]?.trade,
     sub_trade: profileData.workers?.[0]?.sub_trade,
-    boost_expires_at: profileData.workers?.[0]?.boost_expires_at,
+    is_profile_boosted: profileData.workers?.[0]?.is_profile_boosted ?? false,
     company_name: profileData.contractors?.[0]?.company_name,
   };
 
@@ -85,16 +93,18 @@ export default async function PublicProfilePage({ params }: Props) {
   const workExperience = workExperienceData || [];
 
   return (
-    <div className="space-y-6">
-      {/* Track profile view */}
-      <ProfileViewTracker profileId={profileId} />
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      {/* Main Profile Content */}
+      <div className="lg:col-span-3 space-y-6">
+        {/* Track profile view */}
+        <ProfileViewTracker profileId={profileId} />
 
-      {/* Back button */}
-      <Link href="/dashboard/jobs">
-        <Button variant="outline">← Back</Button>
-      </Link>
+        {/* Back button */}
+        <Link href="/dashboard/jobs">
+          <Button variant="outline">← Back</Button>
+        </Link>
 
-      {/* Basic Info Card */}
+        {/* Basic Info Card */}
       <Card className="shadow-xl border-2 border-krewup-light-blue">
         <CardHeader className="bg-gradient-to-r from-krewup-blue to-krewup-light-blue">
           <div className="flex items-center justify-between">
@@ -110,18 +120,17 @@ export default async function PublicProfilePage({ params }: Props) {
           <div className="flex items-start gap-6 mb-6">
             {/* Profile Picture Placeholder */}
             <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-krewup-blue to-krewup-orange text-4xl font-bold text-white shadow-lg">
-              {profile.name.charAt(0).toUpperCase()}
+              {getInitials(profile)}
             </div>
 
             {/* Info Grid */}
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-4">
-                <h1 className="text-2xl font-bold text-gray-900">{profile.name}</h1>
+                <h1 className="text-2xl font-bold text-gray-900">{getFullName(profile)}</h1>
                 {profile.role === 'worker' && (
                   <BoostBadge
-                    expiresAt={profile.boost_expires_at}
+                    isActive={profile.is_profile_boosted}
                     size="md"
-                    showExpiry
                   />
                 )}
               </div>
@@ -167,7 +176,7 @@ export default async function PublicProfilePage({ params }: Props) {
           <div className="flex justify-end">
             <MessageButton
               recipientId={profile.id}
-              recipientName={profile.name}
+              recipientName={getFullName(profile)}
               variant="primary"
               className="min-w-[200px]"
             />
@@ -234,6 +243,17 @@ export default async function PublicProfilePage({ params }: Props) {
           </CardContent>
         </Card>
       )}
+      </div>
+
+      {/* Sidebar with Ad */}
+      <div className="lg:col-span-1">
+        <div className="lg:sticky lg:top-6 space-y-4">
+          <SidebarAd 
+            subscriptionStatus={currentUserProfile?.subscription_status}
+            isLifetimePro={currentUserProfile?.is_lifetime_pro}
+          />
+        </div>
+      </div>
     </div>
   );
 }

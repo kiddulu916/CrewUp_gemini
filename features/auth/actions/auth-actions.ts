@@ -4,6 +4,7 @@ import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
+import { rateLimit, RATE_LIMITS } from '@/lib/security/rate-limit';
 
 const SUPPORT_EMAIL = 'support@krewup.net';
 
@@ -14,8 +15,14 @@ export type AuthResult = {
 
 /**
  * Sign in with email and password
+ * 
+ * ! Rate limited: 5 attempts per minute per IP
  */
 export async function signIn(email: string, password: string): Promise<AuthResult> {
+  // * Rate limiting - prevent brute force attacks
+  const rateLimitResult = await rateLimit('auth:signIn', RATE_LIMITS.auth);
+  if (rateLimitResult) return rateLimitResult;
+
   const supabase = await createClient(await cookies());
 
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -77,12 +84,18 @@ export async function signIn(email: string, password: string): Promise<AuthResul
 
 /**
  * Sign up with email and password
+ * 
+ * ! Rate limited: 3 signups per minute per IP
  */
 export async function signUp(
   email: string,
   password: string,
   name: string
 ): Promise<AuthResult> {
+  // * Rate limiting - prevent mass account creation
+  const rateLimitResult = await rateLimit('auth:signUp', RATE_LIMITS.authSignup);
+  if (rateLimitResult) return rateLimitResult;
+
   const supabase = await createClient(await cookies());
 
   // Check if email already exists in profiles
@@ -169,8 +182,14 @@ export async function signOut(): Promise<AuthResult> {
 
 /**
  * Request password reset
+ * 
+ * ! Rate limited: 5 attempts per minute per IP
  */
 export async function resetPassword(email: string): Promise<AuthResult> {
+  // * Rate limiting - prevent email enumeration and spam
+  const rateLimitResult = await rateLimit('auth:resetPassword', RATE_LIMITS.auth);
+  if (rateLimitResult) return rateLimitResult;
+
   const supabase = await createClient(await cookies());
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {

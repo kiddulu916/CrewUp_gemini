@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from '@/components/ui';
 import { MessageButton } from '@/features/messaging/components/message-button';
+import { getFullName, getInitials } from '@/lib/utils';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 
@@ -44,7 +45,8 @@ export default async function ApplicationDetailPage({ params }: Props) {
       *,
       applicant:users!applicant_id(
         id,
-        name,
+        first_name,
+        last_name,
         trade,
         sub_trade,
         location,
@@ -69,7 +71,8 @@ export default async function ApplicationDetailPage({ params }: Props) {
         employer_id,
         employer:users!employer_id(
           id,
-          name,
+          first_name,
+          last_name,
           company_name,
           subscription_status
         )
@@ -119,7 +122,7 @@ export default async function ApplicationDetailPage({ params }: Props) {
                 Application Details
               </CardTitle>
               <p className="text-white/90 text-lg">
-                {isEmployer ? `Application from ${application.applicant.name}` : `Application to ${application.job.title}`}
+                {isEmployer ? `Application from ${getFullName(application.applicant)}` : `Application to ${application.job.title}`}
               </p>
             </div>
             <Badge
@@ -152,11 +155,11 @@ export default async function ApplicationDetailPage({ params }: Props) {
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
                   <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-krewup-blue to-krewup-orange text-white font-bold text-2xl shadow-lg">
-                    {application.applicant.name.charAt(0).toUpperCase()}
+                    {getInitials(application.applicant)}
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h4 className="text-xl font-bold text-gray-900">{application.applicant.name}</h4>
+                      <h4 className="text-xl font-bold text-gray-900">{getFullName(application.applicant)}</h4>
                       {application.applicant.is_profile_boosted &&
                         application.applicant.boost_expires_at &&
                         new Date(application.applicant.boost_expires_at) > new Date() && (
@@ -204,7 +207,7 @@ export default async function ApplicationDetailPage({ params }: Props) {
                 <div className="pt-3 flex gap-3">
                   <MessageButton
                     recipientId={application.applicant.id}
-                    recipientName={application.applicant.name}
+                    recipientName={getFullName(application.applicant)}
                     variant="primary"
                   />
                   <Link href={`/dashboard/profiles/${application.applicant.id}`}>

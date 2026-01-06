@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Profile } from '@/lib/types/profile.types';
-import { PortfolioManager } from '@/features/portfolio/components/portfolio-manager';
+import { LazyPortfolioManager } from '@/features/portfolio/components/lazy-portfolio';
 import { ToolsSelector } from '@/features/profile/components/tools-selector';
 import { updateToolsOwned } from '@/features/profiles/actions/profile-actions';
 import { useToast } from '@/components/providers/toast-provider';
@@ -140,7 +140,7 @@ export function ProfileEditTabs({ profile }: ProfileEditTabsProps) {
               </p>
             </div>
 
-            <PortfolioManager profile={profile} />
+            <LazyPortfolioManager profile={profile} />
           </div>
         )}
 

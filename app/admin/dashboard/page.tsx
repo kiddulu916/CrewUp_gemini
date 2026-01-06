@@ -51,7 +51,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <a
           href="/admin/certifications"
           className="p-6 bg-white rounded-lg border border-gray-200 hover:border-blue-500 hover:shadow-lg transition-all"
@@ -76,6 +76,14 @@ export default async function AdminDashboardPage() {
         >
           <h3 className="font-semibold text-lg mb-2">View Errors</h3>
           <p className="text-gray-600 text-sm">Monitor platform health and errors</p>
+        </a>
+
+        <a
+          href="/admin/ads"
+          className="p-6 bg-white rounded-lg border border-gray-200 hover:border-orange-500 hover:shadow-lg transition-all"
+        >
+          <h3 className="font-semibold text-lg mb-2">📊 Ad Metrics</h3>
+          <p className="text-gray-600 text-sm">View ad impressions, clicks, and revenue</p>
         </a>
       </div>
     </div>

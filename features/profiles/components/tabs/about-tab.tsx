@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { usePublicProfile } from '../../hooks/use-public-profile';
 import { Loader2, MapPin, Briefcase, Calendar } from 'lucide-react';
 import Image from 'next/image';
+import { getFullName, getInitials } from '@/lib/utils';
 
 type AboutTabProps = {
   userId: string;
@@ -44,20 +45,20 @@ export function AboutTab({ userId }: AboutTabProps) {
           {profile.profile_image_url ? (
             <Image
               src={profile.profile_image_url}
-              alt={profile.name}
+              alt={getFullName(profile)}
               width={80}
               height={80}
               className="h-20 w-20 rounded-full border-2 border-krewup-blue object-cover"
             />
           ) : (
             <div className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-krewup-blue bg-gradient-to-br from-krewup-blue to-krewup-light-blue text-2xl font-bold text-white">
-              {profile.name.charAt(0).toUpperCase()}
+              {getInitials(profile)}
             </div>
           )}
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <h2 className="text-2xl font-bold text-gray-900">{profile.name}</h2>
+            <h2 className="text-2xl font-bold text-gray-900">{getFullName(profile)}</h2>
             {profile.subscription_status === 'pro' && (
               <Badge variant="pro">Pro</Badge>
             )}

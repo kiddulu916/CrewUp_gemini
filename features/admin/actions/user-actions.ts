@@ -3,144 +3,151 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
+import {
+  success,
+  error,
+  requireAuth,
+  requireAdmin,
+  getUserFriendlyError,
+  validateInput,
+  type ActionResponse,
+} from '@/lib/utils/action-response';
+import { suspendUserSchema, banUserSchema } from '@/lib/validation/schemas';
 
 /**
  * Suspend a user temporarily
+ * 
+ * @param userId - The ID of the user to suspend
+ * @param reason - The reason for suspension (displayed to user)
+ * @param durationDays - Number of days to suspend the user
+ * @returns ActionResponse indicating success or failure
  */
 export async function suspendUser(
   userId: string,
   reason: string,
   durationDays: number
-) {
-  const supabase = await createClient(await cookies());
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+): Promise<ActionResponse> {
+  try {
+    // * Input validation with Zod
+    const validation = validateInput(suspendUserSchema, { userId, reason, durationDays });
+    if (!validation.success) return validation.error;
+    const validatedInput = validation.data;
 
-  if (!user) {
-    return { success: false, error: 'Not authenticated' };
-  }
+    const supabase = await createClient(await cookies());
 
-  // Verify admin status
-  const { data: profile } = await supabase
-    .from('users')
-    .select('is_admin')
-    .eq('id', user.id)
-    .single();
+    // * Authentication check
+    const authResult = await requireAuth(supabase);
+    if (!authResult.success) return authResult;
+    const adminUser = authResult.data!;
 
-  if (!profile?.is_admin) {
-    return { success: false, error: 'Not authorized' };
-  }
+    // * Authorization check
+    const adminResult = await requireAdmin(supabase, adminUser.id);
+    if (!adminResult.success) return adminResult;
 
-  if (!reason || reason.trim().length === 0) {
-    return { success: false, error: 'Suspension reason is required' };
-  }
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + validatedInput.durationDays);
 
-  if (durationDays <= 0) {
-    return { success: false, error: 'Duration must be greater than 0' };
-  }
+    // * Create moderation action record
+    const { error: moderationError } = await supabase
+      .from('user_moderation_actions')
+      .insert({
+        user_id: validatedInput.userId,
+        action_type: 'suspension',
+        reason: validatedInput.reason,
+        duration_days: validatedInput.durationDays,
+        expires_at: expiresAt.toISOString(),
+        actioned_by: adminUser.id,
+      });
 
-  const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + durationDays);
+    if (moderationError) {
+      return error(getUserFriendlyError(moderationError, 'Failed to suspend user'));
+    }
 
-  // Create moderation action record
-  const { error: moderationError } = await supabase
-    .from('user_moderation_actions')
-    .insert({
-      user_id: userId,
-      action_type: 'suspension',
-      reason,
-      duration_days: durationDays,
-      expires_at: expiresAt.toISOString(),
-      actioned_by: user.id,
+    // * Log activity (non-blocking)
+    const { error: logError } = await supabase.from('admin_activity_log').insert({
+      admin_id: adminUser.id,
+      action: 'suspended_user',
+      target_type: 'user',
+      target_id: validatedInput.userId,
+      details: {
+        reason: validatedInput.reason,
+        duration_days: validatedInput.durationDays,
+        expires_at: expiresAt.toISOString(),
+      },
     });
 
-  if (moderationError) {
-    console.error('Error creating moderation action:', moderationError);
-    return { success: false, error: 'Failed to suspend user' };
+    if (logError) {
+      console.error('Error logging activity:', logError);
+      // ! Don't fail the action if logging fails
+    }
+
+    revalidatePath('/admin/users');
+    return success();
+  } catch (err) {
+    return error(getUserFriendlyError(err, 'Failed to suspend user'));
   }
-
-  // Log activity
-  const { error: logError } = await supabase.from('admin_activity_log').insert({
-    admin_id: user.id,
-    action: 'suspended_user',
-    target_type: 'user',
-    target_id: userId,
-    details: {
-      reason,
-      duration_days: durationDays,
-      expires_at: expiresAt.toISOString(),
-    },
-  });
-
-  if (logError) {
-    console.error('Error logging activity:', logError);
-  }
-
-  revalidatePath('/admin/users');
-  return { success: true };
 }
 
 /**
  * Ban a user permanently
+ * 
+ * @param userId - The ID of the user to ban
+ * @param reason - The reason for the ban (displayed to user)
+ * @returns ActionResponse indicating success or failure
  */
-export async function banUser(userId: string, reason: string) {
-  const supabase = await createClient(await cookies());
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+export async function banUser(userId: string, reason: string): Promise<ActionResponse> {
+  try {
+    // * Input validation with Zod
+    const validation = validateInput(banUserSchema, { userId, reason });
+    if (!validation.success) return validation.error;
+    const validatedInput = validation.data;
 
-  if (!user) {
-    return { success: false, error: 'Not authenticated' };
-  }
+    const supabase = await createClient(await cookies());
 
-  // Verify admin status
-  const { data: profile } = await supabase
-    .from('users')
-    .select('is_admin')
-    .eq('id', user.id)
-    .single();
+    // * Authentication check
+    const authResult = await requireAuth(supabase);
+    if (!authResult.success) return authResult;
+    const adminUser = authResult.data!;
 
-  if (!profile?.is_admin) {
-    return { success: false, error: 'Not authorized' };
-  }
+    // * Authorization check
+    const adminResult = await requireAdmin(supabase, adminUser.id);
+    if (!adminResult.success) return adminResult;
 
-  if (!reason || reason.trim().length === 0) {
-    return { success: false, error: 'Ban reason is required' };
-  }
+    // * Create permanent ban record
+    const { error: moderationError } = await supabase
+      .from('user_moderation_actions')
+      .insert({
+        user_id: validatedInput.userId,
+        action_type: 'ban',
+        reason: validatedInput.reason,
+        duration_days: null, // NULL = permanent ban
+        expires_at: null,
+        actioned_by: adminUser.id,
+      });
 
-  // Create permanent ban record
-  const { error: moderationError } = await supabase
-    .from('user_moderation_actions')
-    .insert({
-      user_id: userId,
-      action_type: 'ban',
-      reason,
-      duration_days: null, // NULL = permanent ban
-      expires_at: null,
-      actioned_by: user.id,
+    if (moderationError) {
+      return error(getUserFriendlyError(moderationError, 'Failed to ban user'));
+    }
+
+    // * Log activity (non-blocking)
+    const { error: logError } = await supabase.from('admin_activity_log').insert({
+      admin_id: adminUser.id,
+      action: 'banned_user',
+      target_type: 'user',
+      target_id: validatedInput.userId,
+      details: { reason: validatedInput.reason },
     });
 
-  if (moderationError) {
-    console.error('Error creating moderation action:', moderationError);
-    return { success: false, error: 'Failed to ban user' };
+    if (logError) {
+      console.error('Error logging activity:', logError);
+      // ! Don't fail the action if logging fails
+    }
+
+    revalidatePath('/admin/users');
+    return success();
+  } catch (err) {
+    return error(getUserFriendlyError(err, 'Failed to ban user'));
   }
-
-  // Log activity
-  const { error: logError } = await supabase.from('admin_activity_log').insert({
-    admin_id: user.id,
-    action: 'banned_user',
-    target_type: 'user',
-    target_id: userId,
-    details: { reason },
-  });
-
-  if (logError) {
-    console.error('Error logging activity:', logError);
-  }
-
-  revalidatePath('/admin/users');
-  return { success: true };
 }
 
 /**

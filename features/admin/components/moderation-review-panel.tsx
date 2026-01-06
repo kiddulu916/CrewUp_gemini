@@ -20,6 +20,7 @@ import {
   getReportedContent,
 } from '../actions/moderation-actions';
 import { useRouter } from 'next/navigation';
+import { getFullName } from '@/lib/utils';
 
 type ContentReport = {
   id: string;
@@ -36,16 +37,19 @@ type ContentReport = {
   admin_notes: string | null;
   created_at: string;
   reporter: {
-    name: string;
+    first_name: string;
+    last_name: string;
     email: string;
   };
   reported_user: {
-    name: string;
+    first_name: string;
+    last_name: string;
     email: string;
     user_id: string;
   };
   reviewed_by_profile?: {
-    name: string;
+    first_name: string;
+    last_name: string;
   };
 };
 
@@ -331,7 +335,7 @@ export function ModerationReviewPanel({ report, onClose }: Props) {
               <div>
                 <span className="font-medium text-gray-700">Employer:</span>
                 <p className="text-gray-900">
-                  {reportedContent.employer.name} ({reportedContent.employer.email})
+                  {getFullName(reportedContent.employer)} ({reportedContent.employer.email})
                 </p>
               </div>
             )}
@@ -344,7 +348,7 @@ export function ModerationReviewPanel({ report, onClose }: Props) {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <span className="font-medium text-gray-700">Name:</span>
-                <p className="text-gray-900">{reportedContent.name}</p>
+                <p className="text-gray-900">{getFullName(reportedContent)}</p>
               </div>
               <div>
                 <span className="font-medium text-gray-700">Email:</span>
@@ -387,13 +391,13 @@ export function ModerationReviewPanel({ report, onClose }: Props) {
               <div>
                 <span className="font-medium text-gray-700">From:</span>
                 <p className="text-gray-900">
-                  {reportedContent.sender?.name} ({reportedContent.sender?.email})
+                  {reportedContent.sender ? getFullName(reportedContent.sender) : 'Unknown'} ({reportedContent.sender?.email})
                 </p>
               </div>
               <div>
                 <span className="font-medium text-gray-700">To:</span>
                 <p className="text-gray-900">
-                  {reportedContent.recipient?.name} (
+                  {reportedContent.recipient ? getFullName(reportedContent.recipient) : 'Unknown'} (
                   {reportedContent.recipient?.email})
                 </p>
               </div>
@@ -452,7 +456,7 @@ export function ModerationReviewPanel({ report, onClose }: Props) {
               <div>
                 <span className="font-medium text-gray-700">Reporter:</span>
                 <p className="text-gray-900">
-                  {report.reporter.name}
+                  {getFullName(report.reporter)}
                   <br />
                   <span className="text-xs text-gray-600">
                     {report.reporter.email}
@@ -462,7 +466,7 @@ export function ModerationReviewPanel({ report, onClose }: Props) {
               <div>
                 <span className="font-medium text-gray-700">Reported User:</span>
                 <p className="text-gray-900">
-                  {report.reported_user.name}
+                  {getFullName(report.reported_user)}
                   <br />
                   <span className="text-xs text-gray-600">
                     {report.reported_user.email}
@@ -688,7 +692,7 @@ export function ModerationReviewPanel({ report, onClose }: Props) {
               {report.reviewed_by_profile && (
                 <p className="text-gray-700 mt-1">
                   <span className="font-medium">Reviewed by:</span>{' '}
-                  {report.reviewed_by_profile.name} on{' '}
+                  {getFullName(report.reviewed_by_profile)} on{' '}
                   {new Date(report.reviewed_at!).toLocaleString()}
                 </p>
               )}

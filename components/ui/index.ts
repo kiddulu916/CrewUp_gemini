@@ -53,3 +53,5 @@ export type { CheckboxProps } from './checkbox';
 
 export { Accordion, AccordionItem } from './accordion';
 export type { AccordionProps, AccordionItemProps } from './accordion';
+
+export { Avatar, AvatarSkeleton } from './avatar';

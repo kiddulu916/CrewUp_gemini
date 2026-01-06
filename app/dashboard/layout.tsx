@@ -3,12 +3,12 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { SignOutButton } from '@/features/auth/components/sign-out-button';
-import { Badge } from '@/components/ui';
-import { InitialsAvatar } from '@/lib/utils/initials-avatar';
+import { Badge, Avatar } from '@/components/ui';
 import { cookies } from 'next/headers';
 import { BottomNav } from './bottom-nav';
 import { NotificationBell } from '@/features/notifications/components/notification-bell';
 import { ModerationGuard } from '@/features/auth/components/moderation-guard';
+import { getFullName } from '@/lib/utils';
 
       
 
@@ -39,6 +39,7 @@ export default async function DashboardLayout({
 
   const isWorker = profile.role === 'worker';
   const isPro = profile.subscription_status === 'pro';
+  const fullName = getFullName(profile);
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50">
@@ -59,15 +60,14 @@ export default async function DashboardLayout({
             <div className="[&>a]:text-white">
               <NotificationBell />
             </div>
-            {profile.profile_image_url ? (
-              <img
-                src={profile.profile_image_url}
-                alt={profile.name}
-                className="h-10 w-10 rounded-full object-cover border-2 border-white shadow-lg"
-              />
-            ) : (
-              <InitialsAvatar name={profile.name} userId={profile.id} size="md" />
-            )}
+            <Avatar
+              src={profile.profile_image_url}
+              name={fullName}
+              userId={profile.id}
+              size="md"
+              border="white"
+              shadow
+            />
           </div>
         </div>
       </header>
@@ -149,18 +149,16 @@ export default async function DashboardLayout({
           {/* User Info */}
           <div className="border-t-2 border-krewup-light-blue p-1 bg-gradient-to-r from-blue-50 to-orange-50 w-full">
             <div className="flex flex-col items-center gap-1">
-              {profile.profile_image_url ? (
-                <img
-                  src={profile.profile_image_url}
-                  alt={profile.name}
-                  className="h-10 w-10 rounded-full object-cover border-2 border-gray-200 shadow-lg"
-                />
-              ) : (
-                <InitialsAvatar name={profile.name} userId={profile.id} size="md" />
-              )}
+              <Avatar
+                src={profile.profile_image_url}
+                name={fullName}
+                userId={profile.id}
+                size="md"
+                shadow
+              />
               <div className="w-full text-center">
                 <p className="text-xs font-semibold text-gray-900 truncate">
-                  {profile.name.split(' ')[0]}
+                  {profile.first_name}
                 </p>
               </div>
             </div>

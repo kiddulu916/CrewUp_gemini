@@ -1,8 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Badge } from '@/components/ui';
-import { InitialsAvatar } from '@/lib/utils/initials-avatar';
+import { Badge, Avatar } from '@/components/ui';
 import type { ConversationWithDetails } from '../types';
 
 type Props = {
@@ -39,21 +38,12 @@ export function ConversationItem({ conversation, isActive = false }: Props) {
       <div className="p-4">
         <div className="flex items-center gap-3">
           {/* Avatar */}
-          <div className="flex-shrink-0">
-            {conversation.otherParticipant.profile_image_url ? (
-              <img
-                src={conversation.otherParticipant.profile_image_url}
-                alt={conversation.otherParticipant.name}
-                className="h-12 w-12 rounded-full object-cover border-2 border-gray-200"
-              />
-            ) : (
-              <InitialsAvatar
-                name={conversation.otherParticipant.name}
-                userId={conversation.otherParticipant.id}
-                size="md"
-              />
-            )}
-          </div>
+          <Avatar
+            src={conversation.otherParticipant.profile_image_url}
+            name={conversation.otherParticipant.name}
+            userId={conversation.otherParticipant.id}
+            size="lg"
+          />
 
           {/* Conversation Info */}
           <div className="flex-1 min-w-0 flex items-center justify-between">

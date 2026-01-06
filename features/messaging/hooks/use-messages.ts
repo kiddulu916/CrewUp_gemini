@@ -1,63 +1,86 @@
 'use client';
 
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
+import { useSmartPolling, POLLING_CONFIGS } from '@/lib/hooks/use-smart-polling';
 import type { Message } from '../types';
 
+/**
+ * Hook for fetching messages with smart polling
+ * 
+ * * Features:
+ * - Adaptive polling (faster when active, slower when idle)
+ * - Exponential backoff on errors
+ * - Tab visibility handling (pauses when hidden)
+ * - Stale-while-revalidate pattern
+ * - Status indicators for UI
+ */
 export function useMessages(conversationId: string) {
   const queryClient = useQueryClient();
   const supabase = createClient();
 
-  // Fetch messages with polling (no real-time subscription)
-  const query = useQuery({
-    queryKey: ['messages', conversationId],
-    queryFn: async (): Promise<Message[]> => {
-      console.log('[useMessages] Fetching messages for conversation:', conversationId);
+  const fetchMessages = async (): Promise<Message[]> => {
+    // * Use JOIN to fetch messages WITH sender profiles in a single query
+    // * This eliminates the N+1 query problem (was 1 + N queries, now just 1)
+    const { data, error } = await supabase
+      .from('messages')
+      .select(`
+        *,
+        sender:users!sender_id (
+          id,
+          first_name,
+          last_name,
+          profile_image_url
+        )
+      `)
+      .eq('conversation_id', conversationId)
+      .order('created_at', { ascending: true })
+      .limit(50); // Load last 50 messages
 
-      const { data, error } = await supabase
-        .from('messages')
-        .select('*')
-        .eq('conversation_id', conversationId)
-        .order('created_at', { ascending: true })
-        .limit(50); // Load last 50 messages
+    if (error) {
+      console.error('[useMessages] Error fetching messages:', error);
+      throw error;
+    }
 
-      if (error) {
-        console.error('[useMessages] Error fetching messages:', error);
-        throw error;
-      }
+    // * Transform sender data to include computed name
+    const messagesWithSenders = (data || []).map((message: any) => {
+      const sender = message.sender;
+      const senderWithName = sender
+        ? {
+            ...sender,
+            name: `${sender.first_name || ''} ${sender.last_name || ''}`.trim() || 'Unknown User',
+          }
+        : { id: message.sender_id, name: 'Unknown User', first_name: 'Unknown', last_name: 'User' };
 
-      console.log('[useMessages] Found messages:', data?.length || 0);
+      return {
+        ...message,
+        sender: senderWithName,
+      };
+    });
 
-      // Fetch sender profiles for each message
-      const messagesWithSenders = await Promise.all(
-        (data || []).map(async (message: any) => {
-          const { data: sender } = await supabase
-            .from('users')
-            .select('id, name, profile_image_url')
-            .eq('id', message.sender_id)
-            .single();
+    // * Invalidate conversations when new messages are detected
+    const currentMessages = queryClient.getQueryData<Message[]>(['messages', conversationId]);
+    if (currentMessages && messagesWithSenders && messagesWithSenders.length > currentMessages.length) {
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+    }
 
-          return {
-            ...message,
-            sender: sender || { id: message.sender_id, name: 'Unknown User' }
-          };
-        })
-      );
+    return messagesWithSenders as Message[];
+  };
 
-      console.log('[useMessages] Messages with senders loaded:', messagesWithSenders.length);
+  const result = useSmartPolling<Message[], Error>(
+    ['messages', conversationId],
+    fetchMessages,
+    POLLING_CONFIGS.messages,
+    {
+      enabled: !!conversationId,
+    }
+  );
 
-      // Invalidate conversations when new messages are detected
-      const currentMessages = queryClient.getQueryData<Message[]>(['messages', conversationId]);
-      if (currentMessages && messagesWithSenders && messagesWithSenders.length > currentMessages.length) {
-        queryClient.invalidateQueries({ queryKey: ['conversations'] });
-      }
-
-      return messagesWithSenders as Message[];
-    },
-    enabled: !!conversationId,
-    refetchInterval: 3000, // Poll every 3 seconds
-    staleTime: 0, // Always consider data stale to ensure fresh data
-  });
-
-  return query;
+  return {
+    ...result,
+    // * Convenience alias for React Query compatibility
+    isLoading: result.isLoading,
+    isFetching: result.isFetching,
+    messages: result.data || [],
+  };
 }

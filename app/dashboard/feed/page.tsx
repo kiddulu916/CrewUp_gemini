@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { InitialLocationCapture } from '@/features/dashboard/components/initial-location-capture';
 import { cookies } from 'next/headers';
+import { FeedAdBanner } from '@/components/ads/feed-ad-banner';
 
       
 
@@ -149,6 +150,12 @@ export default async function FeedPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Ad banner for free users */}
+      <FeedAdBanner 
+        subscriptionStatus={profile?.subscription_status} 
+        isLifetimePro={profile?.is_lifetime_pro}
+      />
     </div>
   );
 }

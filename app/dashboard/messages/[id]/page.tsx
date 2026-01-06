@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { ChatWindow } from '@/features/messaging/components/chat-window';
 import { ConversationList } from '@/features/messaging/components/conversation-list';
+import { getFullName, getInitials } from '@/lib/utils';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 
@@ -62,7 +63,7 @@ export default async function ConversationPage({ params }: Props) {
   // Fetch other participant's profile
   const { data: otherProfile, error: profileError } = await supabase
     .from('users')
-    .select('id, name, profile_image_url')
+    .select('id, first_name, last_name, profile_image_url')
     .eq('id', otherParticipantId)
     .single();
 
@@ -113,15 +114,15 @@ export default async function ConversationPage({ params }: Props) {
             {otherProfile.profile_image_url ? (
               <img
                 src={otherProfile.profile_image_url}
-                alt={otherProfile.name}
+                alt={getFullName(otherProfile)}
                 className="h-8 w-8 rounded-full object-cover border-2 border-white shadow-md"
               />
             ) : (
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-krewup-blue font-bold shadow-md text-sm">
-                {otherProfile.name.charAt(0).toUpperCase()}
+                {getInitials(otherProfile)}
               </div>
             )}
-            <h1 className="text-lg font-bold text-white">{otherProfile.name}</h1>
+            <h1 className="text-lg font-bold text-white">{getFullName(otherProfile)}</h1>
           </div>
         </div>
 
@@ -129,7 +130,11 @@ export default async function ConversationPage({ params }: Props) {
         <div className="flex-1 min-h-0">
           <ChatWindow
             conversationId={conversationId}
-            otherParticipant={otherProfile}
+            otherParticipant={{
+              id: otherProfile.id,
+              name: getFullName(otherProfile),
+              profile_image_url: otherProfile.profile_image_url,
+            }}
           />
         </div>
       </div>

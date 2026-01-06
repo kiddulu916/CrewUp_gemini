@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 import { ModerationQueue } from '@/features/admin/components/moderation-queue';
+import { getFullName } from '@/lib/utils';
 
   
 
@@ -31,9 +32,9 @@ export default async function ModerationPage({
       action_taken,
       admin_notes,
       created_at,
-      reporter:users!reporter_id(name, email),
-      reported_user:users!reported_user_id(name, email, id),
-      reviewed_by_profile:users!reviewed_by(name)
+      reporter:users!reporter_id(first_name, last_name, email),
+      reported_user:users!reported_user_id(first_name, last_name, email, id),
+      reviewed_by_profile:users!reviewed_by(first_name, last_name)
     `
     )
     .order('created_at', { ascending: false });
@@ -49,17 +50,23 @@ export default async function ModerationPage({
     console.error('Error fetching content reports:', error);
   }
 
-  // Transform the data to flatten the profiles
-  const reports = rawReports?.map((report: any) => ({
-    ...report,
-    reporter: Array.isArray(report.reporter) ? report.reporter[0] : report.reporter,
-    reported_user: Array.isArray(report.reported_user)
+  // Transform the data to flatten the profiles and compute full names
+  const reports = rawReports?.map((report: any) => {
+    const reporter = Array.isArray(report.reporter) ? report.reporter[0] : report.reporter;
+    const reportedUser = Array.isArray(report.reported_user)
       ? report.reported_user[0]
-      : report.reported_user,
-    reviewed_by_profile: Array.isArray(report.reviewed_by_profile)
+      : report.reported_user;
+    const reviewedByProfile = Array.isArray(report.reviewed_by_profile)
       ? report.reviewed_by_profile[0]
-      : report.reviewed_by_profile,
-  }));
+      : report.reviewed_by_profile;
+
+    return {
+      ...report,
+      reporter: reporter ? { ...reporter, name: getFullName(reporter) } : null,
+      reported_user: reportedUser ? { ...reportedUser, name: getFullName(reportedUser) } : null,
+      reviewed_by_profile: reviewedByProfile ? { ...reviewedByProfile, name: getFullName(reviewedByProfile) } : null,
+    };
+  });
 
   // Get counts for tabs
   const [

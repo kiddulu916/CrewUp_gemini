@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
+import { getFullName } from '@/lib/utils';
 
 export function useJob(jobId: string | undefined) {
   const supabase = createClient();
@@ -16,8 +17,9 @@ export function useJob(jobId: string | undefined) {
         .select(`
           *,
           users!jobs_employer_id_fkey (
-            company_name,
-            name
+            first_name,
+            last_name,
+            company_name
           )
         `)
         .eq('id', jobId)
@@ -25,13 +27,13 @@ export function useJob(jobId: string | undefined) {
 
       if (error) throw error;
 
-      // Transform the data to include employer_name at the top level
+      // * Transform the data to include employer_name at the top level
       if (data) {
-        const profile = (data as any).profiles;
-        const employer_name = profile?.company_name || profile?.name || 'Unknown Employer';
+        const employer = (data as any).users;
+        const employer_name = employer?.company_name || getFullName(employer) || 'Unknown Employer';
 
-        // Remove the nested profiles object and add employer_name to the job
-        const { profiles, ...jobData } = data as any;
+        // * Remove the nested users object and add employer_name to the job
+        const { users, ...jobData } = data as any;
         return {
           ...jobData,
           employer_name,

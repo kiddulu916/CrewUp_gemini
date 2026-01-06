@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createClient as createServiceClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
+import { rateLimit, RATE_LIMITS } from '@/lib/security/rate-limit';
 
 export type MessageResult = {
   success: boolean;
@@ -13,11 +14,17 @@ export type MessageResult = {
 
 /**
  * Send a message in a conversation
+ * 
+ * ! Rate limited: 30 messages per minute per IP
  */
 export async function sendMessage(
   conversationId: string,
   content: string
 ): Promise<MessageResult> {
+  // * Rate limiting - prevent message spam
+  const rateLimitResult = await rateLimit('message:send', RATE_LIMITS.message);
+  if (rateLimitResult) return rateLimitResult;
+
   const supabase = await createClient(await cookies());
 
   const {

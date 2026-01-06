@@ -154,10 +154,12 @@ export async function completeOnboarding(data: OnboardingData): Promise<Onboardi
   }
 
   // 3. Handle coords update separately with PostGIS
+  // * Use proper RPC function for PostGIS operations
   if (coords && typeof coords.lat === 'number' && typeof coords.lng === 'number') {
-    const { error: coordsError } = await supabase.rpc('sql', {
-      query: `UPDATE users SET geo_coords = ST_SetSRID(ST_MakePoint($1, $2), 4326) WHERE id = $3`,
-      params: [coords.lng, coords.lat, user.id]
+    const { error: coordsError } = await supabase.rpc('update_user_coords', {
+      p_user_id: user.id,
+      p_lng: coords.lng,
+      p_lat: coords.lat,
     });
 
     if (coordsError) {

@@ -6,8 +6,7 @@ import { JobFilters } from '@/features/jobs/components/job-filters';
 import { useJobs } from '@/features/jobs/hooks/use-jobs';
 import { useAutoUserLocation } from '@/hooks/use-user-location';
 import { sortJobsByDistance } from '@/features/jobs/utils/distance';
-
-      
+import { InFeedAd, shouldShowInFeedAd } from '@/components/ads';
 
 type Job = {
   id: string;
@@ -24,7 +23,13 @@ type Job = {
   status: string;
 };
 
-export function JobsPageClient({ initialJobs }: { initialJobs: Job[] }) {
+type JobsPageClientProps = {
+  initialJobs: Job[];
+  subscriptionStatus?: string;
+  isLifetimePro?: boolean;
+};
+
+export function JobsPageClient({ initialJobs, subscriptionStatus, isLifetimePro }: JobsPageClientProps) {
   const { location: userCoords } = useAutoUserLocation();
   const [filters, setFilters] = useState({ 
     trade: '', 
@@ -49,9 +54,10 @@ export function JobsPageClient({ initialJobs }: { initialJobs: Job[] }) {
   // 2. Apply client-side distance filter if specified
   if (filters.maxDistance && userCoords) {
     const maxDist = parseFloat(filters.maxDistance);
-    processedJobs = processedJobs.filter(job => 
-      job.distance !== null && job.distance <= maxDist
-    );
+    processedJobs = processedJobs.filter(job => {
+      const distance = job.distance;
+      return distance !== null && distance !== undefined && distance <= maxDist;
+    });
   }
 
   const sortedJobs = processedJobs;
@@ -100,8 +106,18 @@ export function JobsPageClient({ initialJobs }: { initialJobs: Job[] }) {
               )}
             </div>
 
-            {sortedJobs.map((job) => (
-              <JobCard key={job.id} job={job} userCoords={userCoords} />
+            {sortedJobs.map((job, index) => (
+              <div key={job.id}>
+                <JobCard job={job} userCoords={userCoords} />
+                {/* Show in-feed ad every N jobs (for free users) */}
+                {shouldShowInFeedAd(index, sortedJobs.length) && (
+                  <InFeedAd
+                    subscriptionStatus={subscriptionStatus}
+                    isLifetimePro={isLifetimePro}
+                    className="my-3"
+                  />
+                )}
+              </div>
             ))}
           </>
         )}

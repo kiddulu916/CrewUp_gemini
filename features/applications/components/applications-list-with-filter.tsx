@@ -5,6 +5,7 @@ import { CertificationFilter } from './certification-filter';
 import { getFilteredApplications } from '../actions/certification-filter-actions';
 import { Badge } from '@/components/ui/badge';
 import { MessageButton } from '@/features/messaging/components/message-button';
+import { getFullName, getInitials } from '@/lib/utils';
 
 type Application = {
   id: string;
@@ -13,7 +14,8 @@ type Application = {
   created_at: string;
   applicant: {
     id: string;
-    name: string;
+    first_name: string;
+    last_name: string;
     trade: string;
     sub_trade?: string | null;
     location: string;
@@ -110,11 +112,11 @@ export function ApplicationsListWithFilter({
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-krewup-blue to-krewup-orange text-white font-bold text-lg shadow-lg">
-                      {app.applicant.name.charAt(0).toUpperCase()}
+                      {getInitials(app.applicant)}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h4 className="text-lg font-bold text-gray-900">{app.applicant.name}</h4>
+                        <h4 className="text-lg font-bold text-gray-900">{getFullName(app.applicant)}</h4>
                         {app.applicant.is_profile_boosted &&
                           app.applicant.boost_expires_at &&
                           new Date(app.applicant.boost_expires_at) > new Date() && (
@@ -169,7 +171,7 @@ export function ApplicationsListWithFilter({
                   </Badge>
                   <MessageButton
                     recipientId={app.applicant.id}
-                    recipientName={app.applicant.name}
+                    recipientName={getFullName(app.applicant)}
                     variant="secondary"
                   />
                 </div>

@@ -57,10 +57,12 @@ export async function updateProfile(data: ProfileUpdateData): Promise<ProfileRes
 
   // Handle coords update separately if provided with valid lat/lng
   if (data.coords && typeof data.coords.lat === 'number' && typeof data.coords.lng === 'number') {
-    // Use direct SQL to update coords with PostGIS since RPC might not exist
-    const { error: coordsError } = await supabase.rpc('sql', {
-      query: `UPDATE users SET geo_coords = ST_SetSRID(ST_MakePoint($1, $2), 4326) WHERE id = $3`,
-      params: [data.coords.lng, data.coords.lat, user.id]
+    // Use the update_user_coords RPC function for PostGIS conversion
+    const { error: coordsError } = await supabase.rpc('update_user_coords', {
+      p_user_id: user.id,
+      p_lng: data.coords.lng,
+      p_lat: data.coords.lat,
+      p_location: data.location || null,
     });
 
     if (coordsError) {
@@ -163,10 +165,12 @@ export async function updateProfileLocation(data: {
     return { success: false, error: 'Not authenticated' };
   }
 
-  // Use direct SQL to update coords with PostGIS
-  const { error: updateError } = await supabase.rpc('sql', {
-    query: `UPDATE users SET location = $1, geo_coords = ST_SetSRID(ST_MakePoint($2, $3), 4326) WHERE id = $4`,
-    params: [data.location, data.coords.lng, data.coords.lat, user.id]
+  // Use the update_user_coords RPC function for PostGIS conversion
+  const { error: updateError } = await supabase.rpc('update_user_coords', {
+    p_user_id: user.id,
+    p_lng: data.coords.lng,
+    p_lat: data.coords.lat,
+    p_location: data.location,
   });
 
   if (updateError) {

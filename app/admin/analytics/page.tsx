@@ -1,6 +1,6 @@
 import { getUserGrowthData, getEngagementMetrics } from '@/features/admin/actions/analytics-actions';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui';
-import { UserGrowthChart } from '@/components/admin/user-growth-chart';
+import { LazyUserGrowthChart } from '@/components/admin/lazy-charts';
 import { MetricCard } from '@/components/admin/metric-card';
 
 export default async function AnalyticsPage() {
@@ -29,7 +29,7 @@ export default async function AnalyticsPage() {
           <CardTitle>User Growth</CardTitle>
         </CardHeader>
         <CardContent>
-          <UserGrowthChart data={growthData} />
+          <LazyUserGrowthChart data={growthData} />
         </CardContent>
       </Card>
     </div>

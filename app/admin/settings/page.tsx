@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { EmptyState } from '@/components/ui/empty-state';
 import { useToast } from '@/components/providers/toast-provider';
+import { getFullName } from '@/lib/utils';
 import {
   getPlatformSettings,
   updatePlatformSetting,
@@ -28,7 +29,8 @@ type PlatformSetting = {
 
 type AdminUser = {
   user_id: string;
-  name: string;
+  first_name: string;
+  last_name: string;
   email: string;
   is_admin: boolean;
   created_at: string;
@@ -36,7 +38,8 @@ type AdminUser = {
 
 type UserSearchResult = {
   user_id: string;
-  name: string;
+  first_name: string;
+  last_name: string;
   email: string;
   role: string;
   is_admin: boolean;
@@ -50,7 +53,7 @@ type ActivityLog = {
   target_id: string | null;
   details: any;
   created_at: string;
-  admin: { name: string; email: string } | null;
+  admin: { first_name: string; last_name: string; email: string } | null;
 };
 
 export default function SettingsPage() {
@@ -438,7 +441,7 @@ export default function SettingsPage() {
                         }}
                         className="w-full text-left p-3 hover:bg-gray-50 border-b border-gray-200 last:border-b-0"
                       >
-                        <p className="font-semibold">{user.name}</p>
+                        <p className="font-semibold">{getFullName(user)}</p>
                         <p className="text-sm text-gray-600">{user.email}</p>
                         <Badge variant="default" className="mt-1">
                           {user.role}
@@ -452,7 +455,7 @@ export default function SettingsPage() {
                 {showGrantDialog && selectedUser && (
                   <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <h4 className="font-semibold mb-2">
-                      Grant Admin Access to {selectedUser.name}
+                      Grant Admin Access to {getFullName(selectedUser)}
                     </h4>
                     <div className="space-y-3">
                       <div>
@@ -515,7 +518,7 @@ export default function SettingsPage() {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
-                            <p className="font-semibold">{admin.name}</p>
+                            <p className="font-semibold">{getFullName(admin)}</p>
                             <Badge variant="danger">Admin</Badge>
                           </div>
                           <p className="text-sm text-gray-600 mt-1">
@@ -545,7 +548,7 @@ export default function SettingsPage() {
               {showRevokeDialog && selectedUser && (
                 <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
                   <h4 className="font-semibold mb-2 text-red-900">
-                    Revoke Admin Access from {selectedUser.name}
+                    Revoke Admin Access from {getFullName(selectedUser)}
                   </h4>
                   <div className="space-y-3">
                     <div>
@@ -626,7 +629,7 @@ export default function SettingsPage() {
                         </div>
                         {log.admin && (
                           <p className="text-sm text-gray-700 mt-1">
-                            By: {log.admin.name} ({log.admin.email})
+                            By: {getFullName(log.admin)} ({log.admin.email})
                           </p>
                         )}
                         {log.details && (

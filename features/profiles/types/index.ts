@@ -19,15 +19,14 @@ export type User = {
 };
 
 export type PublicProfile = User & {
-  // Computed or joined fields
-  name: string;
+  // Joined fields from workers/contractors tables
   trade?: string | null;
   sub_trade?: string | null;
   company_name?: string | null;
   years_of_experience?: number | null;
   has_tools?: boolean;
   tools_owned?: string[] | null;
-  trade_skills?: string[] | null;
+  skills?: string[] | null;
 };
 
 export type PortfolioImage = {

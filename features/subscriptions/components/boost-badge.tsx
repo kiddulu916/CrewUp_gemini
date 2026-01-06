@@ -1,24 +1,35 @@
 // features/subscriptions/components/boost-badge.tsx
 'use client';
 
+/**
+ * BoostBadge component
+ * 
+ * Displays a visual indicator that a worker's profile is boosted.
+ * 
+ * * Profile boost is continuous for the entire Pro subscription duration
+ * * The `isActive` prop takes precedence over `expiresAt` for determining if boost is shown
+ * * For backwards compatibility, if only `expiresAt` is provided, it falls back to date checking
+ */
 interface BoostBadgeProps {
+  /** Whether the boost is currently active (preferred way to control visibility) */
+  isActive?: boolean;
+  /** @deprecated Expiration date - kept for backwards compatibility but boost is now continuous */
   expiresAt?: string | null;
   size?: 'sm' | 'md' | 'lg';
+  /** @deprecated Expiry display is removed since boost is now continuous */
   showExpiry?: boolean;
 }
 
-export function BoostBadge({ expiresAt, size = 'md', showExpiry = false }: BoostBadgeProps) {
-  // Check if boost is active (not expired)
-  const isActive = expiresAt && new Date(expiresAt) > new Date();
+export function BoostBadge({ isActive, expiresAt, size = 'md' }: BoostBadgeProps) {
+  // * Determine if boost should be shown
+  // If isActive prop is provided, use it; otherwise fall back to checking expiresAt
+  const shouldShow = isActive !== undefined 
+    ? isActive 
+    : (expiresAt ? new Date(expiresAt) > new Date() : false);
 
-  if (!isActive) {
+  if (!shouldShow) {
     return null;
   }
-
-  // Calculate days remaining
-  const daysRemaining = Math.ceil(
-    (new Date(expiresAt).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
-  );
 
   const sizeClasses = {
     sm: 'text-xs px-2 py-0.5',
@@ -46,11 +57,6 @@ export function BoostBadge({ expiresAt, size = 'md', showExpiry = false }: Boost
         </svg>
         Boosted
       </span>
-      {showExpiry && daysRemaining <= 3 && (
-        <span className="text-xs text-gray-600">
-          {daysRemaining === 0 ? 'Expires today' : `${daysRemaining}d left`}
-        </span>
-      )}
     </div>
   );
 }

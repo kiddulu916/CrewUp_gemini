@@ -53,7 +53,7 @@ export async function getFilteredApplications(
       return { success: false, error: 'Unauthorized', data: null };
     }
 
-    // Get all applications with worker profiles
+    // * Get all applications with worker profiles
     const { data: applications, error } = await supabase
       .from('job_applications')
       .select(
@@ -61,7 +61,8 @@ export async function getFilteredApplications(
         *,
         worker:users!applicant_id(
           id,
-          name,
+          first_name,
+          last_name,
           trade,
           sub_trade,
           location,

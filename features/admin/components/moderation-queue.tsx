@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Card, CardContent, Badge } from '@/components/ui';
 import Link from 'next/link';
 import { ModerationReviewPanel } from './moderation-review-panel';
+import { getFullName } from '@/lib/utils';
 
 type ContentReport = {
   id: string;
@@ -20,16 +21,19 @@ type ContentReport = {
   admin_notes: string | null;
   created_at: string;
   reporter: {
-    name: string;
+    first_name: string;
+    last_name: string;
     email: string;
   };
   reported_user: {
-    name: string;
+    first_name: string;
+    last_name: string;
     email: string;
     user_id: string;
   };
   reviewed_by_profile?: {
-    name: string;
+    first_name: string;
+    last_name: string;
   };
 };
 
@@ -158,7 +162,7 @@ export function ModerationQueue({ reports, currentStatus, counts }: Props) {
                           Reporter:
                         </span>
                         <div className="text-gray-600">
-                          {report.reporter.name}
+                          {getFullName(report.reporter)}
                           <br />
                           <span className="text-xs">{report.reporter.email}</span>
                         </div>
@@ -168,7 +172,7 @@ export function ModerationQueue({ reports, currentStatus, counts }: Props) {
                           Reported User:
                         </span>
                         <div className="text-gray-600">
-                          {report.reported_user.name}
+                          {getFullName(report.reported_user)}
                           <br />
                           <span className="text-xs">
                             {report.reported_user.email}
@@ -190,7 +194,7 @@ export function ModerationQueue({ reports, currentStatus, counts }: Props) {
                         </div>
                         {report.reviewed_by_profile && (
                           <div className="text-sm text-gray-500 mt-1">
-                            by {report.reviewed_by_profile.name} on{' '}
+                            by {getFullName(report.reviewed_by_profile)} on{' '}
                             {new Date(report.reviewed_at!).toLocaleDateString()}
                           </div>
                         )}

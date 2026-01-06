@@ -2,7 +2,7 @@ import React from 'react';
 import { cookies } from 'next/headers';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { MetricCard } from '@/components/admin/metric-card';
-import { FunnelChart } from '@/components/admin/funnel-chart';
+import { LazyFunnelChart } from '@/components/admin/lazy-charts';
 import {
   getActiveUsers,
   getConversionFunnel,
@@ -117,7 +117,7 @@ export default async function AnalyticsOverviewPage({ searchParams }: Props) {
             <CardTitle>Conversion Funnel</CardTitle>
           </CardHeader>
           <CardContent>
-            <FunnelChart stages={conversionFunnel} />
+            <LazyFunnelChart stages={conversionFunnel} />
           </CardContent>
         </Card>
       </section>

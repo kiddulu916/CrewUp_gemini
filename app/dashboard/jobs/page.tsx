@@ -159,6 +159,8 @@ export default async function JobsPage() {
               ? `${job.employer.first_name} ${job.employer.last_name}`.trim() 
               : 'Unknown Employer'
           })) || []} 
+          subscriptionStatus={profile?.subscription_status}
+          isLifetimePro={profile?.is_lifetime_pro}
         />
       )}
     </div>

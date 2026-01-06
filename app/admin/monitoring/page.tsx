@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, LoadingSpinner } from '@/components/ui';
 import { MetricCard } from '@/components/admin/metric-card';
-import { ErrorRateChart } from '@/components/admin/error-rate-chart';
+import { LazyErrorRateChart } from '@/components/admin/lazy-charts';
 import { MonitoringFilter } from '@/features/admin/components/monitoring-filter';
 import type { SegmentValue } from '@/components/admin/segment-filter';
 import {
@@ -121,7 +121,7 @@ async function MonitoringContent({ role, subscription }: MonitoringContentProps)
         </CardHeader>
         <CardContent>
           {errorRateData.length > 0 ? (
-            <ErrorRateChart data={errorRateData} />
+            <LazyErrorRateChart data={errorRateData} />
           ) : (
             <div className="h-[300px] flex items-center justify-center text-gray-500">
               No error data available

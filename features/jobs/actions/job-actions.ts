@@ -185,19 +185,15 @@ export async function updateJob(jobId: string, data: Partial<JobData>): Promise<
   }
 
   // Handle coords update if provided
+  // * Use proper RPC function for PostGIS operations
   if (data.coords && typeof data.coords.lat === 'number' && typeof data.coords.lng === 'number') {
-    // First update the coords using PostGIS
-    const { error: coordsError } = await supabase.rpc('sql', {
-      query: `
-        UPDATE jobs
-        SET coords = ST_SetSRID(ST_MakePoint($1, $2), 4326)
-        WHERE id = $3
-      `,
-      params: [data.coords.lng, data.coords.lat, jobId]
+    const { error: coordsError } = await supabase.rpc('update_job_coords', {
+      p_job_id: jobId,
+      p_lng: data.coords.lng,
+      p_lat: data.coords.lat,
     });
 
     if (coordsError) {
-      // Fallback: try direct update (may not work with geometry)
       console.error('Coords update error:', coordsError);
     }
 

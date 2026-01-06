@@ -141,7 +141,17 @@ export async function getAdminUsers() {
     return { success: false, error: 'Failed to fetch admin users', data: null };
   }
 
-  return { success: true, data };
+  // * Map id to user_id for frontend compatibility
+  const mappedData = data?.map((user) => ({
+    user_id: user.id,
+    first_name: user.first_name,
+    last_name: user.last_name,
+    email: user.email,
+    is_admin: user.is_admin,
+    created_at: user.created_at,
+  }));
+
+  return { success: true, data: mappedData };
 }
 
 /**
@@ -303,7 +313,17 @@ export async function searchUsersForAdmin(query: string) {
     return { success: false, error: 'Failed to search users', data: null };
   }
 
-  return { success: true, data };
+  // * Map id to user_id for frontend compatibility
+  const mappedData = data?.map((user) => ({
+    user_id: user.id,
+    first_name: user.first_name,
+    last_name: user.last_name,
+    email: user.email,
+    role: user.role,
+    is_admin: user.is_admin,
+  }));
+
+  return { success: true, data: mappedData };
 }
 
 /**
@@ -335,7 +355,7 @@ export async function getAdminActivityLog(limit: number = 50) {
     .select(
       `
       *,
-      admin:users!admin_activity_log_admin_id_fkey(name, email)
+      admin:users!admin_activity_log_admin_id_fkey(first_name, last_name, email)
     `
     )
     .order('created_at', { ascending: false })

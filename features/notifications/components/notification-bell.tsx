@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { Bell } from 'lucide-react';
 import { useUnreadCount } from '../hooks/use-unread-count';
 
 export function NotificationBell() {
@@ -13,7 +14,7 @@ export function NotificationBell() {
       aria-label={`Notifications${unreadCount && unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
     >
       {/* Bell Icon */}
-      <span className="text-2xl">🔔</span>
+      <Bell className="h-6 w-6 text-gray-700" />
 
       {/* Unread Badge */}
       {!isLoading && unreadCount !== undefined && unreadCount > 0 && (

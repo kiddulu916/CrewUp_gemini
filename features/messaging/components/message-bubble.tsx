@@ -1,7 +1,7 @@
 'use client';
 
 import type { Message } from '../types';
-import { InitialsAvatar } from '@/lib/utils/initials-avatar';
+import { Avatar } from '@/components/ui';
 
 type Props = {
   message: Message;
@@ -24,17 +24,13 @@ export function MessageBubble({ message, isOwnMessage }: Props) {
     >
       {/* Avatar for received messages */}
       {!isOwnMessage && message.sender && (
-        <div className="flex-shrink-0">
-          {message.sender.profile_image_url ? (
-            <img
-              src={message.sender.profile_image_url}
-              alt={message.sender.name}
-              className="h-8 w-8 rounded-full object-cover border-2 border-gray-200 shadow-md"
-            />
-          ) : (
-            <InitialsAvatar name={message.sender.name} userId={message.sender.id} size="sm" />
-          )}
-        </div>
+        <Avatar
+          src={message.sender.profile_image_url}
+          name={message.sender.name}
+          userId={message.sender.id}
+          size="sm"
+          shadow
+        />
       )}
 
       <div className="flex flex-col">

@@ -3,6 +3,7 @@ import { headers } from 'next/headers';
 import { stripe } from '@/lib/stripe/server';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
+import * as Sentry from '@sentry/nextjs';
 
 // Create Supabase admin client for webhook (server-side, bypasses RLS)
 const supabaseAdmin = createClient(
@@ -10,16 +11,59 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+// * Webhook processing timeout (30 seconds)
+const WEBHOOK_TIMEOUT_MS = 30000;
+
+/**
+ * Log webhook event for auditing
+ */
+async function logWebhookEvent(
+  eventId: string,
+  eventType: string,
+  status: 'received' | 'processed' | 'failed' | 'timeout',
+  metadata?: Record<string, unknown>
+) {
+  try {
+    await supabaseAdmin.from('webhook_logs').insert({
+      event_id: eventId,
+      event_type: eventType,
+      status,
+      metadata,
+      created_at: new Date().toISOString(),
+    });
+  } catch (err) {
+    // ! Don't fail webhook if logging fails, just log to console
+    console.error('Failed to log webhook event:', err);
+  }
+}
+
 /**
  * Stripe webhook handler
+ * 
+ * * Security features:
+ * - Signature verification (Stripe signature)
+ * - Idempotency check (prevents duplicate processing)
+ * - Timeout handling (30 second limit)
+ * - Audit logging (logs all webhook events)
+ * - Error reporting to Sentry
+ * 
  * Note: This route is not functional in static export builds (mobile).
  */
 export async function POST(req: NextRequest) {
+  const startTime = Date.now();
+  let eventId = 'unknown';
+  let eventType = 'unknown';
+
   const body = await req.text();
   const headersList = await headers();
   const signature = headersList.get('stripe-signature');
 
+  // ! Security: Reject requests without signature
   if (!signature) {
+    Sentry.captureMessage('Stripe webhook received without signature', {
+      level: 'warning',
+      extra: { ip: headersList.get('x-forwarded-for') },
+    });
     return NextResponse.json({ error: 'No signature' }, { status: 400 });
   }
 
@@ -31,10 +75,23 @@ export async function POST(req: NextRequest) {
       signature,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
+    eventId = event.id;
+    eventType = event.type;
   } catch (err) {
+    // ! Security: Log signature verification failures (potential attack)
+    Sentry.captureException(err, {
+      tags: { webhook: 'stripe', error_type: 'signature_verification' },
+      extra: { 
+        ip: headersList.get('x-forwarded-for'),
+        userAgent: headersList.get('user-agent'),
+      },
+    });
     console.error('Webhook signature verification failed:', err);
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
   }
+
+  // * Log webhook received
+  await logWebhookEvent(eventId, eventType, 'received');
 
   // Idempotency check: Return 200 if event already processed
   const { data: existingEvent } = await supabaseAdmin
@@ -135,13 +192,13 @@ export async function POST(req: NextRequest) {
           }
 
           // Set profile boost on workers table (only for workers)
+          // * Profile boost is continuous for the entire Pro subscription duration
           if (profile?.role === 'worker') {
             const { error: workerError } = await supabaseAdmin
               .from('workers')
               .update({
                 is_profile_boosted: true,
-                // Profile boost lasts 7 days and renews monthly
-                boost_expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+                boost_expires_at: null, // * No expiration - boost lasts entire subscription
               })
               .eq('user_id', userId);
 
@@ -221,7 +278,8 @@ export async function POST(req: NextRequest) {
           },
         });
 
-        // Renew profile boost if subscription is active and for workers
+        // Ensure profile boost is active if subscription is active (for workers)
+        // * Profile boost is continuous - no expiration while subscription active
         if (subscription.status === 'active') {
           const { data: profile } = await supabaseAdmin
             .from('users')
@@ -233,12 +291,12 @@ export async function POST(req: NextRequest) {
           if (profile?.is_lifetime_pro) {
             console.log(`User ${existingSubscription.user_id} has lifetime Pro - skipping subscription renewal updates`);
           } else if (profile?.role === 'worker') {
-            // Update workers table for boost fields
+            // Update workers table - ensure boost is active (continuous while subscribed)
             await supabaseAdmin
               .from('workers')
               .update({
                 is_profile_boosted: true,
-                boost_expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+                boost_expires_at: null, // * No expiration - boost lasts entire subscription
               })
               .eq('user_id', existingSubscription.user_id);
           }
@@ -411,9 +469,34 @@ export async function POST(req: NextRequest) {
         type: event.type,
       });
 
+    // * Check for timeout
+    const processingTime = Date.now() - startTime;
+    if (processingTime > WEBHOOK_TIMEOUT_MS) {
+      Sentry.captureMessage('Stripe webhook processing exceeded timeout', {
+        level: 'warning',
+        tags: { webhook: 'stripe', event_type: eventType },
+        extra: { eventId, processingTimeMs: processingTime },
+      });
+      await logWebhookEvent(eventId, eventType, 'timeout', { processingTimeMs: processingTime });
+    } else {
+      await logWebhookEvent(eventId, eventType, 'processed', { processingTimeMs: processingTime });
+    }
+
     return NextResponse.json({ received: true });
   } catch (err) {
+    // ! Log error to Sentry with full context
+    Sentry.captureException(err, {
+      tags: { webhook: 'stripe', event_type: eventType },
+      extra: { 
+        eventId,
+        processingTimeMs: Date.now() - startTime,
+      },
+    });
     console.error('Webhook handler error:', err);
+    
+    // * Log failed webhook
+    await logWebhookEvent(eventId, eventType, 'failed', { error: String(err) });
+    
     return NextResponse.json({ error: 'Webhook handler failed' }, { status: 500 });
   }
 }

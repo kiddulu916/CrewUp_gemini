@@ -7,9 +7,10 @@ import { EditJobButton } from '@/features/jobs/components/edit-job-button';
 import { MessageButton } from '@/features/messaging/components/message-button';
 import { ApplicationsListWithFilter } from '@/features/applications/components/applications-list-with-filter';
 import { JobViewTracker } from '@/features/jobs/components/job-view-tracker';
-import { JobAnalyticsDashboard } from '@/features/jobs/components/job-analytics-dashboard';
+import { LazyJobAnalyticsDashboard } from '@/features/jobs/components/lazy-job-analytics';
 import { CompatibilityBreakdownWrapper } from '@/features/jobs/components/compatibility-breakdown-wrapper';
 import { calculateDistance } from '@/features/jobs/utils/distance';
+import { getFullName } from '@/lib/utils';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 
@@ -54,7 +55,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
       *,
       employer:users!employer_id(
         id,
-        name,
+        first_name,
+        last_name,
         company_name,
         trade,
         sub_trade,
@@ -115,7 +117,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         *,
         applicant:users!applicant_id(
           id,
-          name,
+          first_name,
+          last_name,
           trade,
           sub_trade,
           location,
@@ -150,7 +153,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               <CardTitle className="text-white text-3xl mb-2">{job.title}</CardTitle>
               {job.employer && (
                 <p className="text-white/90 text-lg mt-2">
-                  Posted by: <span className="font-semibold">{job.employer.company_name || job.employer.name}</span>
+                  Posted by: <span className="font-semibold">{job.employer.company_name || getFullName(job.employer)}</span>
                 </p>
               )}
             </div>
@@ -292,7 +295,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                 <h3 className="text-xs font-semibold text-gray-500 uppercase mb-2">Posted By</h3>
                 <div className="space-y-2">
                   <div>
-                    <p className="text-base font-bold text-gray-900">{job.employer.company_name || job.employer.name}</p>
+                    <p className="text-base font-bold text-gray-900">{job.employer.company_name || getFullName(job.employer)}</p>
                     <p className="text-xs text-gray-600 capitalize">
                       {job.employer.employer_type}
                     </p>
@@ -314,7 +317,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                   <div className="pt-2">
                     <MessageButton
                       recipientId={job.employer.id}
-                      recipientName={job.employer.name}
+                      recipientName={getFullName(job.employer)}
                       variant="primary"
                       fullWidth
                     />
@@ -353,7 +356,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             <CardTitle>Job Analytics</CardTitle>
           </CardHeader>
           <CardContent>
-            <JobAnalyticsDashboard jobId={job.id} jobTitle={job.title} />
+            <LazyJobAnalyticsDashboard jobId={job.id} jobTitle={job.title} />
           </CardContent>
         </Card>
       )}

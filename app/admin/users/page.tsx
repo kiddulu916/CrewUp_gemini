@@ -10,6 +10,7 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { useToast } from '@/components/providers/toast-provider';
+import { getFullName } from '@/lib/utils';
 import {
   suspendUser,
   banUser,
@@ -22,7 +23,8 @@ import {
 
 type Profile = {
   id: string;
-  name: string;
+  first_name: string;
+  last_name: string;
   email: string;
   role: string;
   subscription_status: string;
@@ -42,7 +44,7 @@ type ModerationAction = {
   duration_days: number | null;
   expires_at: string | null;
   created_at: string;
-  actioned_by_profile: { name: string } | null;
+  actioned_by_profile: { first_name: string; last_name: string } | null;
 };
 
 export default function UsersPage() {
@@ -129,7 +131,7 @@ export default function UsersPage() {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
         (user) =>
-          user.name.toLowerCase().includes(query) ||
+          getFullName(user).toLowerCase().includes(query) ||
           user.email.toLowerCase().includes(query)
       );
     }
@@ -374,7 +376,7 @@ export default function UsersPage() {
                       <div className="flex items-start justify-between">
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-gray-900 truncate">
-                            {user.name}
+                            {getFullName(user)}
                           </p>
                           <p className="text-sm text-gray-600 truncate">
                             {user.email}
@@ -423,7 +425,7 @@ export default function UsersPage() {
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div>
-                      <CardTitle>{selectedUser.name}</CardTitle>
+                      <CardTitle>{getFullName(selectedUser)}</CardTitle>
                       <p className="text-sm text-gray-600 mt-1">
                         {selectedUser.email}
                       </p>
@@ -737,7 +739,7 @@ export default function UsersPage() {
                               )}
                               {action.actioned_by_profile && (
                                 <p className="text-sm text-gray-600">
-                                  By: {action.actioned_by_profile.name}
+                                  By: {getFullName(action.actioned_by_profile)}
                                 </p>
                               )}
                             </div>
@@ -759,7 +761,7 @@ export default function UsersPage() {
         onClose={() => setShowUnbanConfirm(false)}
         onConfirm={handleUnbanUser}
         title="Unban User"
-        message={`Are you sure you want to unban ${selectedUser?.name}? This will restore full account access.`}
+        message={`Are you sure you want to unban ${selectedUser ? getFullName(selectedUser) : ''}? This will restore full account access.`}
         confirmText="Unban"
         isLoading={actionLoading}
       />

@@ -1,10 +1,9 @@
 import { createClient } from '@/lib/supabase/server';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from '@/components/ui';
+import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Avatar } from '@/components/ui';
 import { CertificationItem } from '@/features/profiles/components/certification-item';
 import { ExperienceItem } from '@/features/profiles/components/experience-item';
 import { EducationItem } from '@/features/profiles/components/education-item';
 import { ProfileViewsList } from '@/features/subscriptions/components/profile-views-list';
-import { InitialsAvatar } from '@/lib/utils/initials-avatar';
 import { CollapsibleSection, LicensePreviewCard } from '@/components/common';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
@@ -104,15 +103,13 @@ export default async function ProfilePage() {
       >
         <div className="flex items-start gap-6">
           {/* Profile Picture */}
-          {profileWithMeta?.profile_image_url ? (
-            <img
-              src={profileWithMeta.profile_image_url}
-              alt={profileWithMeta.name}
-              className="w-24 h-24 rounded-full object-cover border-4 border-gray-200 shrink-0"
-            />
-          ) : (
-            <InitialsAvatar name={profileWithMeta?.name || ''} userId={profileWithMeta?.id || ''} size="lg" />
-          )}
+          <Avatar
+            src={profileWithMeta?.profile_image_url}
+            name={profileWithMeta?.name || ''}
+            userId={profileWithMeta?.id || ''}
+            size="xl"
+            className="border-4 border-gray-200"
+          />
 
           {/* Info Grid */}
           <div className="flex-1 grid grid-cols-2 gap-4">

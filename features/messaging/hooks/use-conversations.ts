@@ -1,119 +1,135 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
+import { useSmartPolling, POLLING_CONFIGS } from '@/lib/hooks/use-smart-polling';
 import type { ConversationWithDetails } from '../types';
 
+/**
+ * Hook for fetching conversations with smart polling
+ * 
+ * * Features:
+ * - Adaptive polling (faster when active, slower when idle)
+ * - Exponential backoff on errors
+ * - Tab visibility handling (pauses when hidden)
+ * - Stale-while-revalidate pattern
+ * - Status indicators for UI
+ */
 export function useConversations() {
   const supabase = createClient();
 
-  return useQuery({
-    queryKey: ['conversations'],
-    queryFn: async (): Promise<ConversationWithDetails[]> => {
-      console.log('[useConversations] Starting to fetch conversations...');
+  const fetchConversations = async (): Promise<ConversationWithDetails[]> => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
 
-      if (!user) {
-        console.error('[useConversations] No user found');
-        throw new Error('Not authenticated');
+    // * Optimized query: Fetch conversations WITH participant profiles in a single query
+    // * Uses JOIN to get both participant_1 and participant_2 profiles
+    const { data, error } = await supabase
+      .from('conversations')
+      .select(`
+        *,
+        participant_1:users!participant_1_id (
+          id,
+          first_name,
+          last_name,
+          profile_image_url
+        ),
+        participant_2:users!participant_2_id (
+          id,
+          first_name,
+          last_name,
+          profile_image_url
+        )
+      `)
+      .or(`participant_1_id.eq.${user.id},participant_2_id.eq.${user.id}`)
+      .order('last_message_at', { ascending: false, nullsFirst: false })
+      .limit(50); // Limit conversations for performance
+
+    if (error) {
+      console.error('[useConversations] Error fetching conversations:', error);
+      throw error;
+    }
+
+    // * Get all conversation IDs to batch fetch last messages and unread counts
+    const conversationIds = (data || []).map((c: any) => c.id);
+    
+    // * Batch fetch last messages for all conversations (single query instead of N)
+    const { data: lastMessages } = await supabase
+      .from('messages')
+      .select('id, content, sender_id, created_at, conversation_id')
+      .in('conversation_id', conversationIds)
+      .order('created_at', { ascending: false });
+
+    // * Group last messages by conversation_id (get only the latest per conversation)
+    const lastMessagesByConv = new Map<string, any>();
+    (lastMessages || []).forEach((msg: any) => {
+      if (!lastMessagesByConv.has(msg.conversation_id)) {
+        lastMessagesByConv.set(msg.conversation_id, msg);
       }
+    });
 
-      console.log('[useConversations] User ID:', user.id);
+    // * Batch fetch unread counts for all conversations (single query with RPC would be ideal)
+    // * For now, we'll calculate from the messages we already have + a count query
+    const { data: unreadData } = await supabase
+      .from('messages')
+      .select('conversation_id')
+      .in('conversation_id', conversationIds)
+      .neq('sender_id', user.id)
+      .is('read_at', null);
 
-      // Get all conversations where user is a participant
-      const { data, error } = await supabase
-        .from('conversations')
-        .select('*')
-        .or(`participant_1_id.eq.${user.id},participant_2_id.eq.${user.id}`)
-        .order('last_message_at', { ascending: false, nullsFirst: false });
+    // * Count unread messages per conversation
+    const unreadCountsByConv = new Map<string, number>();
+    (unreadData || []).forEach((msg: any) => {
+      const current = unreadCountsByConv.get(msg.conversation_id) || 0;
+      unreadCountsByConv.set(msg.conversation_id, current + 1);
+    });
 
-      if (error) {
-        console.error('[useConversations] Error fetching conversations:', error);
-        throw error;
-      }
+    // * Transform conversations with pre-fetched data (no more N+1 queries!)
+    const conversationsWithDetails = (data || []).map((conv: any) => {
+      // Determine which participant is the other user
+      const isParticipant1 = conv.participant_1_id === user.id;
+      const otherParticipant = isParticipant1 ? conv.participant_2 : conv.participant_1;
 
-      console.log('[useConversations] Found conversations:', data?.length || 0);
-
-      // Transform data to show other participant and calculate unread count
-      const conversationsWithDetails = await Promise.all(
-        (data || []).map(async (conv: any) => {
-          // Determine which participant is the other user
-          const otherParticipantId =
-            conv.participant_1_id === user.id ? conv.participant_2_id : conv.participant_1_id;
-
-          // Fetch the other participant's profile
-          const { data: otherParticipant, error: profileError } = await supabase
-            .from('users')
-            .select('id, first_name, last_name, profile_image_url')
-            .eq('id', otherParticipantId)
-            .single();
-
-          if (profileError) {
-            console.error('Error fetching participant profile:', profileError);
-            // Return a fallback if profile fetch fails
-            return {
-              id: conv.id,
-              otherParticipant: { id: otherParticipantId, name: 'Unknown User', profile_image_url: undefined },
-              lastMessage: undefined,
-              lastMessageAt: conv.last_message_at,
-              unreadCount: 0,
-            };
-          }
-
-          // Transform otherParticipant to include name field
-          const participantWithLegacyName = {
+      // Transform otherParticipant to include computed name field
+      const participantWithLegacyName = otherParticipant
+        ? {
             id: otherParticipant.id,
-            name: `${otherParticipant.first_name} ${otherParticipant.last_name}`.trim(),
+            name: `${otherParticipant.first_name || ''} ${otherParticipant.last_name || ''}`.trim() || 'Unknown User',
             profile_image_url: otherParticipant.profile_image_url,
-          };
-
-          // Get last message (use maybeSingle to handle case with no messages)
-          const { data: lastMessageData } = await supabase
-            .from('messages')
-            .select('id, content, sender_id, created_at')
-            .eq('conversation_id', conv.id)
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .maybeSingle();
-
-          // Get unread count - only messages from other user that haven't been read
-          const { count: unreadCount, error: countError } = await supabase
-            .from('messages')
-            .select('*', { count: 'exact', head: true })
-            .eq('conversation_id', conv.id)
-            .neq('sender_id', user.id)
-            .is('read_at', null);
-
-          if (countError) {
-            console.error('[useConversations] Error counting unread messages:', countError);
           }
-
-          // Also get total message count for debugging
-          const { count: totalCount } = await supabase
-            .from('messages')
-            .select('*', { count: 'exact', head: true })
-            .eq('conversation_id', conv.id)
-            .neq('sender_id', user.id);
-
-          console.log(`[useConversations] Conversation ${conv.id.substring(0, 8)}: ${unreadCount || 0} unread (${totalCount || 0} total from other user)`);
-
-          return {
-            id: conv.id,
-            otherParticipant: participantWithLegacyName,
-            lastMessage: lastMessageData || undefined,
-            lastMessageAt: conv.last_message_at,
-            unreadCount: unreadCount || 0,
+        : {
+            id: isParticipant1 ? conv.participant_2_id : conv.participant_1_id,
+            name: 'Unknown User',
+            profile_image_url: undefined,
           };
-        })
-      );
 
-      console.log('[useConversations] Successfully transformed conversations:', conversationsWithDetails.length);
-      return conversationsWithDetails;
-    },
-    refetchInterval: 5000, // Poll every 5 seconds
-    staleTime: 0, // Always consider data stale to ensure fresh data
-  });
+      return {
+        id: conv.id,
+        otherParticipant: participantWithLegacyName,
+        lastMessage: lastMessagesByConv.get(conv.id) || undefined,
+        lastMessageAt: conv.last_message_at,
+        unreadCount: unreadCountsByConv.get(conv.id) || 0,
+      };
+    });
+
+    return conversationsWithDetails;
+  };
+
+  const result = useSmartPolling<ConversationWithDetails[], Error>(
+    ['conversations'],
+    fetchConversations,
+    POLLING_CONFIGS.conversations
+  );
+
+  return {
+    ...result,
+    // * Convenience alias for React Query compatibility
+    conversations: result.data || [],
+    isLoading: result.isLoading,
+    isFetching: result.isFetching,
+  };
 }

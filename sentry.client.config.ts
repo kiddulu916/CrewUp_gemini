@@ -27,22 +27,28 @@ Sentry.init({
   ],
 
   beforeSend(event, hint) {
-    // Add user context from Supabase auth
+    // * Add user context from Supabase auth
     if (typeof window !== 'undefined') {
       try {
-        // Get user from localStorage (Supabase stores auth data there)
-        const authData = localStorage.getItem('sb-vfjcpxaplapnuwtzvord-auth-token');
-        if (authData) {
-          const parsed = JSON.parse(authData);
-          if (parsed?.user) {
-            event.user = {
-              id: parsed.user.id,
-              email: parsed.user.email,
-            };
+        // * Dynamically find the Supabase auth token key (format: sb-{projectId}-auth-token)
+        const supabaseAuthKey = Object.keys(localStorage).find((key) =>
+          key.match(/^sb-[a-z0-9]+-auth-token$/)
+        );
+
+        if (supabaseAuthKey) {
+          const authData = localStorage.getItem(supabaseAuthKey);
+          if (authData) {
+            const parsed = JSON.parse(authData);
+            if (parsed?.user) {
+              event.user = {
+                id: parsed.user.id,
+                email: parsed.user.email,
+              };
+            }
           }
         }
       } catch (error) {
-        // Silently fail if we can't get user context
+        // ! Silently fail if we can't get user context
         console.warn('Failed to add user context to Sentry event:', error);
       }
     }

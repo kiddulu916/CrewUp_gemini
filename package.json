@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "analyze": "ANALYZE=true next build",
     "start": "./node_modules/.bin/dotenvx run -- next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
@@ -72,6 +73,7 @@
     "@capacitor/cli": "^8.0.0",
     "@capacitor/core": "^8.0.0",
     "@lhci/cli": "^0.15.1",
+    "@next/bundle-analyzer": "^16.1.1",
     "@playwright/experimental-ct-react": "^1.57.0",
     "@playwright/test": "^1.57.0",
     "@tailwindcss/postcss": "^4.1.18",

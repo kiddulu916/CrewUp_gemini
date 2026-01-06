@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { QueryProvider } from "@/providers/query-provider";
 import { ToastProvider } from "@/components/providers/toast-provider";
-import { Analytics } from "@vercel/analytics/next"
-
-      
+import { Analytics } from "@vercel/analytics/next";
+import { ConsentBanner, AdScripts } from "@/components/ads";
 
 export const metadata: Metadata = {
   title: "KrewUp - Connecting Skilled Trade Workers with Employers",
@@ -23,6 +22,9 @@ export default function RootLayout({
           <ToastProvider>
             {children}
             <Analytics />
+            {/* Ad monetization - consent banner and scripts */}
+            <ConsentBanner />
+            <AdScripts />
           </ToastProvider>
         </QueryProvider>
       </body>

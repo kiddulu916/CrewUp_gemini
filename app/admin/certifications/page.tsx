@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 import { CertificationQueue } from '@/features/admin/components/certification-queue';
+import { getFullName } from '@/lib/utils';
 
 // Force dynamic rendering - always fetch fresh data
 export const dynamic = 'force-dynamic';
@@ -16,32 +17,34 @@ export default async function CertificationsPage({
   const supabase = await createClient(await cookies());
 
   // Fetch certifications based on status
+  // ! Note: certifications.worker_id references workers.user_id, not users.id directly
   let query = supabase
     .from('certifications')
     .select(
       `
       id,
-      user_id,
-      credential_category,
-      certification_type,
-      certification_number,
-      issued_by,
-      issuing_state,
+      worker_id,
+      name,
+      issuing_organization,
+      credential_id,
       issue_date,
-      expires_at,
+      expiration_date,
       image_url,
       verification_status,
-      verified_at,
-      verified_by,
       rejection_reason,
-      verification_notes,
       created_at,
-      profiles:user_id (
-        id,
-        name,
-        email,
-        role,
-        employer_type
+      updated_at,
+      worker:workers!worker_id (
+        user_id,
+        trade,
+        users!user_id (
+          id,
+          first_name,
+          last_name,
+          email,
+          role,
+          employer_type
+        )
       )
     `
     )
@@ -64,24 +67,28 @@ export default async function CertificationsPage({
     console.error('[admin/certifications] Error fetching certifications:', error);
   }
 
-  // Debug logging
-  console.log('[admin/certifications] Query results:', {
-    status,
-    count: rawCertifications?.length || 0,
-    certifications: rawCertifications?.map((c: any) => ({
-      id: c.id,
-      type: c.certification_type,
-      category: c.credential_category,
-      verification_status: c.verification_status,
-      user: (Array.isArray(c.profiles) ? c.profiles[0]?.name : c.profiles?.name) || 'Unknown'
-    }))
-  });
+  // Transform the data to flatten the nested structure and compute full names
+  const certifications = rawCertifications?.map((cert: any) => {
+    const worker = Array.isArray(cert.worker) ? cert.worker[0] : cert.worker;
+    const user = worker?.users ? (Array.isArray(worker.users) ? worker.users[0] : worker.users) : null;
 
-  // Transform the data to flatten the profiles array into a single object
-  const certifications = rawCertifications?.map((cert: any) => ({
-    ...cert,
-    profiles: Array.isArray(cert.profiles) ? cert.profiles[0] : cert.profiles,
-  }));
+    return {
+      ...cert,
+      // * Map old column names to what the component expects
+      user_id: worker?.user_id,
+      certification_type: cert.name,
+      credential_category: 'certification', // Default since column doesn't exist
+      issued_by: cert.issuing_organization,
+      expires_at: cert.expiration_date,
+      profiles: user ? {
+        id: user.id,
+        name: getFullName(user),
+        email: user.email,
+        role: user.role,
+        employer_type: user.employer_type,
+      } : null,
+    };
+  });
 
   // Get counts for tabs
   const [
