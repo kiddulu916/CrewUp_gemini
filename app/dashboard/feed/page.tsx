@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { InitialLocationCapture } from '@/features/dashboard/components/initial-location-capture';
 import { cookies } from 'next/headers';
 import { FeedAdBanner } from '@/components/ads/feed-ad-banner';
+import { getFullName } from '@/lib/utils';
 
       
 
@@ -66,6 +67,9 @@ export default async function FeedPage() {
     .select('*', { count: 'exact', head: true })
     .eq('viewed_profile_id', user.id);
 
+  // Get full name for display
+  const fullName = profile ? getFullName(profile) : '';
+
   return (
     <div className="space-y-6">
       {/* Capture initial location on first visit */}
@@ -74,7 +78,7 @@ export default async function FeedPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
-            Welcome back, {profile?.name}! 👋
+            Welcome back, {fullName}! 👋
           </h1>
           <p className="mt-2 text-gray-600">
             Here's what's happening in your network

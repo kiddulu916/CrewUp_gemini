@@ -5,19 +5,88 @@ import { TestUser } from './test-db';
  * Login helper for E2E tests
  *
  * Waits for proper redirect to /dashboard/** after login
+ * Handles rate limiting by waiting and retrying
  */
-export async function loginAsUser(page: Page, user: TestUser) {
-  await page.goto('/login');
+export async function loginAsUser(page: Page, user: TestUser, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    await page.goto('/login');
 
-  // Wait for page to load
-  await page.waitForLoadState('networkidle');
+    // Wait for page to load
+    await page.waitForLoadState('networkidle');
 
-  await page.fill('input[type="email"]', user.email);
-  await page.fill('input[type="password"]', user.password);
-  await page.click('button[type="submit"]');
+    // Set consent in localStorage to prevent banner from blocking interactions
+    await page.evaluate(() => {
+      localStorage.setItem('krewup_ad_consent', JSON.stringify({
+        personalized: false,
+        analytics: false,
+        timestamp: new Date().toISOString(),
+        region: 'other',
+      }));
+    });
 
-  // Wait for redirect to dashboard
-  await page.waitForURL('/dashboard/**', { timeout: 10000 });
+    // If consent banner is showing, dismiss it by clicking Necessary Only
+    const consentButton = page.locator('button:has-text("Necessary Only")');
+    if (await consentButton.isVisible({ timeout: 1000 }).catch(() => false)) {
+      await consentButton.click();
+      await page.waitForTimeout(300); // Brief wait for banner to close
+    }
+
+    // Check for rate limit message and wait if present
+    const rateLimitMessage = page.locator('text=/too many attempts/i');
+    if (await rateLimitMessage.isVisible({ timeout: 500 }).catch(() => false)) {
+      // Extract wait time from message or use default 10 seconds
+      const messageText = await rateLimitMessage.textContent() || '';
+      const waitMatch = messageText.match(/(\d+)\s*seconds?/i);
+      const waitTime = waitMatch ? parseInt(waitMatch[1]) * 1000 + 1000 : 10000;
+      await page.waitForTimeout(waitTime);
+      continue; // Retry after waiting
+    }
+
+    await page.fill('input[type="email"]', user.email);
+    await page.fill('input[type="password"]', user.password);
+    await page.click('button[type="submit"]');
+
+    // Check for error messages after login attempt
+    const errorMessage = page.locator('text=/invalid|error|too many/i');
+    if (await errorMessage.isVisible({ timeout: 2000 }).catch(() => false)) {
+      const errorText = await errorMessage.textContent() || '';
+      if (errorText.toLowerCase().includes('too many')) {
+        // Rate limited, wait and retry
+        const waitMatch = errorText.match(/(\d+)\s*seconds?/i);
+        const waitTime = waitMatch ? parseInt(waitMatch[1]) * 1000 + 1000 : 10000;
+        await page.waitForTimeout(waitTime);
+        continue;
+      }
+    }
+
+    // Wait for redirect to dashboard or onboarding
+    try {
+      // Wait for either dashboard or onboarding redirect
+      await Promise.race([
+        page.waitForURL('/dashboard/**', { timeout: 15000 }),
+        page.waitForURL('/onboarding', { timeout: 15000 }),
+      ]);
+      
+      // Wait for network to settle and any redirects to complete
+      await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+      
+      // If redirected to onboarding, throw error since test users should have complete profiles
+      if (page.url().includes('/onboarding')) {
+        throw new Error('User was redirected to onboarding - profile incomplete');
+      }
+      
+      // Verify we're actually on dashboard (not just passing through)
+      await page.waitForURL('/dashboard/**', { timeout: 3000 });
+      
+      return; // Success!
+    } catch (e) {
+      if (attempt === maxRetries) {
+        throw new Error(`Login failed after ${maxRetries} attempts: ${e}`);
+      }
+      // Wait before retry
+      await page.waitForTimeout(5000);
+    }
+  }
 }
 
 /**

@@ -215,8 +215,8 @@ test.describe('Authentication Flows', () => {
   test('should protect dashboard routes when not logged in', async ({ page }) => {
     await page.goto('/dashboard/profile');
 
-    // Should redirect to login
-    await expect(page).toHaveURL('/login', { timeout: 5000 });
+    // Should redirect to login (may include redirect query param)
+    await expect(page).toHaveURL(/\/login/, { timeout: 5000 });
   });
 
   test('should persist session after page reload', async ({ page }) => {

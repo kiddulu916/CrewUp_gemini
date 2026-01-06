@@ -43,15 +43,21 @@ export async function GET(request: Request) {
 
       const profile = userData as any;
       const worker = profile?.workers?.[0];
-      const fullName = `${profile?.first_name} ${profile?.last_name}`.trim();
+      const fullName = `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim();
 
       // If profile is incomplete (default values from trigger), redirect to onboarding
-      if (
-        profile &&
-        (fullName.startsWith('User-') ||
-          profile.location === 'Update your location' ||
-          worker?.trade === 'General Laborer')
-      ) {
+      // Check:
+      // 1. Name starts with 'User-' (default from trigger)
+      // 2. Location is default
+      // 3. For workers: no worker record OR trade is default 'General Laborer'
+      const hasIncompleteProfile = 
+        !fullName || 
+        fullName.startsWith('User-') ||
+        !profile?.location ||
+        profile.location === 'Update your location' ||
+        (profile?.role === 'worker' && (!worker || worker.trade === 'General Laborer'));
+
+      if (profile && hasIncompleteProfile) {
         return NextResponse.redirect(`${origin}/onboarding`);
       }
     }

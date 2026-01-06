@@ -200,7 +200,7 @@ export default async function PricingPage() {
 
             {/* Pro Plan */}
             <div className="bg-gradient-to-br from-blue-600 to-blue-500 rounded-2xl p-8 shadow-xl text-white relative overflow-hidden">
-              <div className="absolute top-4 right-4 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+              <div className="absolute top-4 right-4 bg-amber-400 text-amber-900 text-xs font-bold px-3 py-1 rounded-full">
                 POPULAR
               </div>
               <div className="mb-6">

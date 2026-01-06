@@ -25,23 +25,34 @@ export default async function OnboardingPage() {
   // Get user's profile to check if onboarding is needed
   const { data: profile } = await supabase
     .from('users')
-    .select('*')
+    .select(`
+      *,
+      workers(trade)
+    `)
     .eq('id', user.id)
     .single();
 
+  // Build full name from first_name and last_name
+  const fullName = profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() : '';
+  const worker = (profile as any)?.workers?.[0];
+
   // If profile is already complete, redirect to dashboard
-  if (
-    profile &&
-    !profile.name.startsWith('User-') &&
-    profile.location !== 'Update your location' &&
-    profile.trade !== 'General Laborer'
-  ) {
+  // Profile is complete if:
+  // 1. Has proper name (not starting with 'User-')
+  // 2. Has proper location (not default)
+  // 3. For workers: has trade record
+  // 4. For employers: role is set
+  const hasCompleteName = fullName && !fullName.startsWith('User-');
+  const hasProperLocation = profile?.location && profile.location !== 'Update your location';
+  const hasRoleData = profile?.role === 'worker' ? !!worker : profile?.role === 'employer';
+  
+  if (profile && hasCompleteName && hasProperLocation && hasRoleData) {
     redirect('/dashboard/feed');
   }
 
   // Extract name and email from Google OAuth or profile
   const initialName =
-    user.user_metadata?.full_name || (profile?.name?.startsWith('User-') ? '' : profile?.name) || '';
+    user.user_metadata?.full_name || (fullName.startsWith('User-') ? '' : fullName) || '';
   const initialEmail = user.email || profile?.email || '';
 
   return (

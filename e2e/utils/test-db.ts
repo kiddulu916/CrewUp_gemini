@@ -54,33 +54,34 @@ export async function createTestUser(data: {
     throw new Error(`Failed to create test user: ${authError?.message}`);
   }
 
-  // Default Chicago coordinates
-  const coords = data.coords || { lat: 41.8781, lng: -87.6298 };
+  // Default Chicago coordinates - skipping coordinate setting since the RPC
+  // function may not be in the schema cache. Coordinates are not critical for most tests.
+  // If needed, the database trigger will set default coords on user creation.
 
-  // Use RPC function to properly set PostGIS coords
-  const { error: coordsError } = await testDb.rpc('update_user_coords', {
-    p_user_id: authData.user.id,
-    p_lat: coords.lat,
-    p_lng: coords.lng,
-  });
-
-  if (coordsError) {
-    // If RPC doesn't exist, fall back to direct SQL with ST_SetSRID
-    const { error: fallbackError } = await testDb
-      .from('users')
-      .update({
-        geo_coords: `SRID=4326;POINT(${coords.lng} ${coords.lat})`,
-      })
-      .eq('id', authData.user.id);
-
-    if (fallbackError) {
-      console.warn(`Failed to set coords: ${fallbackError.message}`);
-    }
-  }
-
-  // Update user fields (created by trigger)
+  // Wait for database trigger to create public.users record
+  // The trigger runs asynchronously after auth.users is created
   const [firstName, ...lastNameParts] = name.split(' ');
   const lastName = lastNameParts.join(' ') || 'User';
+
+  // Wait for the users record to be created by the trigger (retry up to 10 times)
+  let userExists = false;
+  for (let i = 0; i < 10; i++) {
+    const { data: existingUser } = await testDb
+      .from('users')
+      .select('id')
+      .eq('id', authData.user.id)
+      .single();
+    
+    if (existingUser) {
+      userExists = true;
+      break;
+    }
+    await new Promise(resolve => setTimeout(resolve, 300));
+  }
+
+  if (!userExists) {
+    throw new Error('Database trigger did not create users record in time');
+  }
 
   const userUpdate: Record<string, any> = {
     first_name: firstName,
@@ -101,6 +102,124 @@ export async function createTestUser(data: {
 
   if (userError) {
     throw new Error(`Failed to update test user: ${userError.message}`);
+  }
+
+  // Verify the update was successful
+  const { data: verifiedUser, error: verifyError } = await testDb
+    .from('users')
+    .select('first_name, last_name, role, location')
+    .eq('id', authData.user.id)
+    .single();
+
+  if (verifyError) {
+    throw new Error(`Failed to verify user update: ${verifyError.message}`);
+  }
+
+  if (verifiedUser.first_name !== firstName || verifiedUser.last_name !== lastName) {
+    throw new Error(`User update failed! Expected: ${firstName} ${lastName}, Got: ${verifiedUser.first_name} ${verifiedUser.last_name}`);
+  }
+
+  // Create/update role-specific data to complete onboarding
+  if (data.role === 'worker') {
+    // Check if worker record already exists (trigger creates one with defaults)
+    const { data: existingWorker } = await testDb
+      .from('workers')
+      .select('user_id, trade')
+      .eq('user_id', authData.user.id)
+      .single();
+    
+    const desiredTrade = data.trade || 'Electrical';
+    
+    if (existingWorker) {
+      // Update existing worker record with proper values (trigger creates with 'General Laborer')
+      const { error: updateError } = await testDb
+        .from('workers')
+        .update({
+          trade: desiredTrade,
+          years_of_experience: 5,
+          authorized_to_work: true,
+          reliable_transportation: true,
+        })
+        .eq('user_id', authData.user.id);
+
+      if (updateError) {
+        throw new Error(`Failed to update worker record: ${updateError.message}`);
+      }
+    } else {
+      // Insert new worker record
+      const { error: workerError } = await testDb
+        .from('workers')
+        .insert({
+          user_id: authData.user.id,
+          trade: desiredTrade,
+          years_of_experience: 5,
+          authorized_to_work: true,
+          reliable_transportation: true,
+        });
+
+      if (workerError) {
+        throw new Error(`Failed to create worker record: ${workerError.message}`);
+      }
+    }
+      
+    // Verify worker was created/updated properly
+    const { data: verifyWorker } = await testDb
+      .from('workers')
+      .select('user_id, trade')
+      .eq('user_id', authData.user.id)
+      .single();
+    
+    if (!verifyWorker) {
+      throw new Error('Worker record was not created successfully');
+    }
+    
+    if (verifyWorker.trade === 'General Laborer') {
+      throw new Error('Worker record still has default trade "General Laborer" - update failed');
+    }
+  } else if (data.role === 'employer') {
+    const employerType = data.employerType || 'contractor';
+    
+    if (employerType === 'contractor') {
+      // Check if contractor record already exists
+      const { data: existingContractor } = await testDb
+        .from('contractors')
+        .select('user_id')
+        .eq('user_id', authData.user.id)
+        .single();
+      
+      if (!existingContractor) {
+        const { error: contractorError } = await testDb
+          .from('contractors')
+          .insert({
+            user_id: authData.user.id,
+            company_name: data.companyName || 'Test Company LLC',
+          });
+          
+        if (contractorError) {
+          console.warn(`Failed to create contractor record: ${contractorError.message}`);
+        }
+      }
+    } else if (employerType === 'recruiter') {
+      // Check if recruiter record already exists
+      const { data: existingRecruiter } = await testDb
+        .from('recruiters')
+        .select('user_id')
+        .eq('user_id', authData.user.id)
+        .single();
+      
+      if (!existingRecruiter) {
+        const { error: recruiterError } = await testDb
+          .from('recruiters')
+          .insert({
+            user_id: authData.user.id,
+            company_name: data.companyName || 'Test Recruiting Agency',
+          });
+          
+        if (recruiterError) {
+          console.warn(`Failed to create recruiter record: ${recruiterError.message}`);
+        }
+      }
+    }
   }
 
   return {

@@ -430,7 +430,7 @@ export default async function Home() {
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-white mb-4">Platform</h4>
+              <h3 className="font-semibold text-white mb-4">Platform</h3>
               <ul className="space-y-2 text-sm">
                 <li>
                   <Link href="/pricing" className="hover:text-white transition-colors">
@@ -450,7 +450,7 @@ export default async function Home() {
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-white mb-4">Legal</h4>
+              <h3 className="font-semibold text-white mb-4">Legal</h3>
               <ul className="space-y-2 text-sm">
                 <li>
                   <Link href="/legal/privacy" className="hover:text-white transition-colors">
@@ -465,7 +465,7 @@ export default async function Home() {
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-white mb-4">Contact</h4>
+              <h3 className="font-semibold text-white mb-4">Contact</h3>
               <ul className="space-y-2 text-sm">
                 <li>support@krewup.net</li>
               </ul>

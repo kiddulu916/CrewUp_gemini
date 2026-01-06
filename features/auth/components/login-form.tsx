@@ -117,9 +117,11 @@ export function LoginForm() {
         />
 
         <div className="flex items-center justify-between">
-          <label className="flex items-center">
+          <label htmlFor="remember-me" className="flex items-center">
             <input
+              id="remember-me"
               type="checkbox"
+              aria-label="Remember me"
               className="h-4 w-4 rounded border-gray-300 text-krewup-blue focus:ring-krewup-blue"
             />
             <span className="ml-2 text-sm text-gray-600">Remember me</span>
