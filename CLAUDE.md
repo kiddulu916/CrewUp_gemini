@@ -440,9 +440,11 @@ if (profile?.subscription_status !== 'pro') {
 **Gated by `profiles.subscription_status === 'pro'`:**
 
 **For Workers:**
-- Profile boost (7 days, renews monthly)
+- Profile boost (continuous for entire Pro subscription)
   - Boosted profiles shown first to employers
-  - `is_profile_boosted` flag, `boost_expires_at` timestamp
+  - `is_profile_boosted` flag, `boost_expires_at` is null (no expiration)
+  - Activated on subscription start, lasts entire Pro duration
+  - Removed automatically when subscription cancels/expires
   - Managed by cron job at `/api/cron/reset-expired-boosts`
 - Proximity alerts for new jobs within radius
   - Configurable radius and trade filters

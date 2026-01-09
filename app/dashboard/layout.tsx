@@ -118,6 +118,11 @@ export default async function DashboardLayout({
                 <NavLink href="/dashboard/workers" icon="🔍" color="blue">
                   Find Workers
                 </NavLink>
+                {isPro && (
+                  <NavLink href="/dashboard/analytics/pipeline" icon="📊" color="purple">
+                    Pipeline Analytics
+                  </NavLink>
+                )}
               </>
             )}
 

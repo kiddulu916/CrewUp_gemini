@@ -119,7 +119,7 @@ export async function GET(request: Request) {
             .from('notifications')
             .insert({
               user_id: alert.user_id,
-              type: 'new_job',
+              type: 'proximity_alert',
               title: 'New Job Nearby',
               message: `${job.title} posted ${Math.round(distanceKm * 10) / 10} km away by ${employerName}`,
               data: {
@@ -128,6 +128,7 @@ export async function GET(request: Request) {
                 trades: job.trades,
                 location: job.location,
                 distance_km: Math.round(distanceKm * 10) / 10,
+                link: `/dashboard/jobs/${job.id}`,
               },
             });
 

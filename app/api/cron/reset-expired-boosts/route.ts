@@ -10,14 +10,14 @@ const supabaseAdmin = createClient(
 
 /**
  * Cron job to sync profile boosts with subscription status
- * 
+ *
  * * Profile boost is continuous for the entire Pro subscription duration
  * * This cron job ensures boosts are removed when subscriptions become inactive
- * 
+ *
  * Runs daily to:
  * 1. Remove boosts from workers whose subscription is no longer active
  * 2. Ensure boosted workers have active Pro subscriptions
- * 
+ *
  * Protected by Vercel Cron Secret
  * Note: This route is not functional in static export builds (mobile).
  */
@@ -38,8 +38,8 @@ export async function GET(request: Request) {
         user_id,
         is_profile_boosted,
         users!user_id(
-          first_name, 
-          last_name, 
+          first_name,
+          last_name,
           subscription_status,
           is_lifetime_pro
         )

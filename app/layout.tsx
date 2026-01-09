@@ -4,6 +4,7 @@ import { QueryProvider } from "@/providers/query-provider";
 import { ToastProvider } from "@/components/providers/toast-provider";
 import { Analytics } from "@vercel/analytics/next";
 import { ConsentBanner, AdScripts } from "@/components/ads";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "KrewUp - Connecting Skilled Trade Workers with Employers",
@@ -22,7 +23,13 @@ export default function RootLayout({
           <ToastProvider>
             {children}
             <Analytics />
-            {/* Ad monetization - consent banner and scripts */}
+            <Script
+              id="google-adsense"
+              async
+              strategy="afterInteractive"
+              src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4807961095325796"
+              crossOrigin="anonymous"
+            />
             <ConsentBanner />
             <AdScripts />
           </ToastProvider>

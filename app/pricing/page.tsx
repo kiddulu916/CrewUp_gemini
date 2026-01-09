@@ -211,10 +211,10 @@ export default async function PricingPage() {
               </div>
               <div className="mb-6">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-5xl font-extrabold">$9.99</span>
+                  <span className="text-5xl font-extrabold">$15</span>
                   <span className="text-blue-100">/month</span>
                 </div>
-                <p className="text-sm text-blue-200 mt-1">or $99/year (save 17%)</p>
+                <p className="text-sm text-blue-200 mt-1">or $150/year (save 17%)</p>
               </div>
               <ul className="space-y-3 mb-8">
                 {[

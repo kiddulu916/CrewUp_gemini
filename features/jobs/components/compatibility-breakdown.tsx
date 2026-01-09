@@ -45,10 +45,10 @@ export function CompatibilityBreakdown({ score }: CompatibilityBreakdownProps) {
           color="blue"
         />
         <ScoreBar
-          label="Certifications"
-          score={score.breakdown.certMatch}
+          label="Experience"
+          score={score.breakdown.experienceMatch}
           maxScore={30}
-          color="green"
+          color="orange"
         />
         <ScoreBar
           label="Distance"
@@ -57,10 +57,10 @@ export function CompatibilityBreakdown({ score }: CompatibilityBreakdownProps) {
           color="purple"
         />
         <ScoreBar
-          label="Experience"
-          score={score.breakdown.experienceMatch}
+          label="Certifications"
+          score={score.breakdown.certMatch}
           maxScore={20}
-          color="orange"
+          color="green"
         />
       </div>
 

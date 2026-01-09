@@ -1,6 +1,16 @@
 import type { CompatibilityScore, CompatibilityInput } from '../types/compatibility';
 
 /**
+ * Job Compatibility Scoring Algorithm
+ *
+ * Total Score: 100 points
+ * - Trade Match: 30 points (30%)
+ * - Experience Match: 30 points (30%)
+ * - Distance Match: 20 points (20%)
+ * - Certifications Match: 20 points (20%)
+ */
+
+/**
  * Calculate Trade/Sub-trade Match Score (0-30 points)
  */
 function calculateTradeScore(
@@ -48,7 +58,7 @@ function calculateTradeScore(
 }
 
 /**
- * Calculate Certifications Match Score (0-30 points)
+ * Calculate Certifications Match Score (0-20 points)
  */
 function calculateCertScore(
   requiredCerts: string[],
@@ -56,7 +66,7 @@ function calculateCertScore(
 ): { score: number; gaps: string[] } {
   if (requiredCerts.length === 0) {
     // No certifications required - full score
-    return { score: 30, gaps: [] };
+    return { score: 20, gaps: [] };
   }
 
   const requiredSet = new Set(requiredCerts.map(c => c.toLowerCase().trim()));
@@ -66,7 +76,7 @@ function calculateCertScore(
   const gaps = [...requiredSet].filter(cert => !workerSet.has(cert));
 
   const matchPercentage = matches.length / requiredCerts.length;
-  const score = Math.round(matchPercentage * 30);
+  const score = Math.round(matchPercentage * 20);
 
   return { score, gaps };
 }
@@ -83,7 +93,7 @@ function calculateDistanceScore(distanceMiles: number): number {
 }
 
 /**
- * Calculate Experience Match Score (0-20 points)
+ * Calculate Experience Match Score (0-30 points)
  */
 function calculateExperienceScore(
   requiredYears: number | null,
@@ -91,15 +101,15 @@ function calculateExperienceScore(
 ): number {
   if (!requiredYears || requiredYears === 0) {
     // No experience requirement - full score
-    return 20;
+    return 30;
   }
 
   const percentage = workerYears / requiredYears;
 
-  if (percentage >= 1.0) return 20;
-  if (percentage >= 0.75) return 15;
-  if (percentage >= 0.5) return 10;
-  if (percentage > 0) return 5;
+  if (percentage >= 1.0) return 30;
+  if (percentage >= 0.75) return 23;
+  if (percentage >= 0.5) return 15;
+  if (percentage > 0) return 8;
   return 0;
 }
 
