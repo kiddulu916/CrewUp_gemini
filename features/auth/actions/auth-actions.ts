@@ -112,12 +112,18 @@ export async function signUp(
       error: 'An account with this email already exists. Please sign in instead.'
     };
   }
+  
+  const nameParts = name.trim().split(' ');
+  const firstName = nameParts[0] || 'New';
+  const lastName = nameParts.slice(1).join(' ') || 'User';
 
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: {
+        first_name: firstName,
+        last_name: lastName,
         full_name: name,
       },
       emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback`,

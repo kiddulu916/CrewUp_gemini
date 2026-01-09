@@ -160,6 +160,23 @@ export default async function FeedPage() {
         subscriptionStatus={profile?.subscription_status} 
         isLifetimePro={profile?.is_lifetime_pro}
       />
+      <script
+        async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4807961095325796"
+        crossOrigin="anonymous">
+      </script>
+      <ins
+        className="adsbygoogle"
+        style={{display:'block'}}
+        data-ad-format="fluid"
+        data-ad-layout-key="-h1+23+61-3n-6i"
+        data-ad-client="ca-pub-4807961095325796"
+        data-ad-slot="2812287511">
+      </ins>
+      <script
+        dangerouslySetInnerHTML={{
+          __html: '(adsbygoogle = window.adsbygoogle || []).push({});'
+        }}
+      />
     </div>
   );
 }

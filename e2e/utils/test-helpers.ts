@@ -7,7 +7,7 @@ import { TestUser } from './test-db';
  * Waits for proper redirect to /dashboard/** after login
  * Handles rate limiting by waiting and retrying
  */
-export async function loginAsUser(page: Page, user: TestUser, maxRetries = 3) {
+export async function loginAsUser(page: Page, user: TestUser, maxRetries = 5) {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     await page.goto('/login');
 
@@ -31,13 +31,15 @@ export async function loginAsUser(page: Page, user: TestUser, maxRetries = 3) {
       await page.waitForTimeout(300); // Brief wait for banner to close
     }
 
-    // Check for rate limit message and wait if present
-    const rateLimitMessage = page.locator('text=/too many attempts/i');
-    if (await rateLimitMessage.isVisible({ timeout: 500 }).catch(() => false)) {
-      // Extract wait time from message or use default 10 seconds
-      const messageText = await rateLimitMessage.textContent() || '';
-      const waitMatch = messageText.match(/(\d+)\s*seconds?/i);
-      const waitTime = waitMatch ? parseInt(waitMatch[1]) * 1000 + 1000 : 10000;
+    // Check for rate limit message BEFORE attempting login
+    const rateLimitMessage = page.locator('text=/too many attempts.*?(\d+)\s*seconds?/i, text=/please try again in.*?(\d+)/i');
+    const rateLimitText = await page.locator('text=/too many/i').textContent({ timeout: 500 }).catch(() => '');
+    
+    if (rateLimitText) {
+      // Extract wait time from message
+      const waitMatch = rateLimitText.match(/(\d+)\s*seconds?/i);
+      const waitTime = waitMatch ? parseInt(waitMatch[1]) * 1000 + 2000 : 20000;
+      console.log(`Rate limited, waiting ${waitTime/1000} seconds before retry`);
       await page.waitForTimeout(waitTime);
       continue; // Retry after waiting
     }
@@ -47,15 +49,21 @@ export async function loginAsUser(page: Page, user: TestUser, maxRetries = 3) {
     await page.click('button[type="submit"]');
 
     // Check for error messages after login attempt
-    const errorMessage = page.locator('text=/invalid|error|too many/i');
-    if (await errorMessage.isVisible({ timeout: 2000 }).catch(() => false)) {
-      const errorText = await errorMessage.textContent() || '';
+    await page.waitForTimeout(500); // Brief pause for any error to appear
+    const errorText = await page.locator('text=/invalid|error|too many/i').textContent({ timeout: 2000 }).catch(() => '');
+    
+    if (errorText) {
       if (errorText.toLowerCase().includes('too many')) {
-        // Rate limited, wait and retry
+        // Rate limited, extract wait time and retry
         const waitMatch = errorText.match(/(\d+)\s*seconds?/i);
-        const waitTime = waitMatch ? parseInt(waitMatch[1]) * 1000 + 1000 : 10000;
+        const waitTime = waitMatch ? parseInt(waitMatch[1]) * 1000 + 2000 : 20000;
+        console.log(`Rate limited after login attempt, waiting ${waitTime/1000} seconds`);
         await page.waitForTimeout(waitTime);
         continue;
+      }
+      // Other error (like invalid credentials) - fail immediately
+      if (errorText.toLowerCase().includes('invalid')) {
+        throw new Error(`Invalid credentials for ${user.email}`);
       }
     }
 
@@ -80,11 +88,13 @@ export async function loginAsUser(page: Page, user: TestUser, maxRetries = 3) {
       
       return; // Success!
     } catch (e) {
+      const errorStr = String(e);
       if (attempt === maxRetries) {
-        throw new Error(`Login failed after ${maxRetries} attempts: ${e}`);
+        throw new Error(`Login failed after ${maxRetries} attempts: ${errorStr}`);
       }
+      console.log(`Login attempt ${attempt} failed: ${errorStr}, retrying...`);
       // Wait before retry
-      await page.waitForTimeout(5000);
+      await page.waitForTimeout(3000);
     }
   }
 }

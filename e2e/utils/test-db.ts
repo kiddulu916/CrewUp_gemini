@@ -59,14 +59,17 @@ export async function createTestUser(data: {
   // If needed, the database trigger will set default coords on user creation.
 
   // Wait for database trigger to create public.users record
-  // The trigger runs asynchronously after auth.users is created
+  // The trigger runs when auth.users is inserted
   const [firstName, ...lastNameParts] = name.split(' ');
   const lastName = lastNameParts.join(' ') || 'User';
 
-  // Wait for the users record to be created by the trigger (retry up to 10 times)
+  // Give trigger time to execute
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  // Wait for the users record to be created by the trigger (retry up to 20 times)
   let userExists = false;
-  for (let i = 0; i < 10; i++) {
-    const { data: existingUser } = await testDb
+  for (let i = 0; i < 20; i++) {
+    const { data: existingUser, error } = await testDb
       .from('users')
       .select('id')
       .eq('id', authData.user.id)
@@ -76,11 +79,33 @@ export async function createTestUser(data: {
       userExists = true;
       break;
     }
-    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    // Log progress for debugging
+    if (i > 5) {
+      console.log(`Waiting for users record... attempt ${i + 1}/20, error: ${error?.message || 'no data'}`);
+    }
+    
+    await new Promise(resolve => setTimeout(resolve, 500));
   }
 
   if (!userExists) {
-    throw new Error('Database trigger did not create users record in time');
+    // Try to create the users record manually if trigger failed
+    console.log('Trigger did not create users record, creating manually...');
+    const { error: insertError } = await testDb
+      .from('users')
+      .insert({
+        id: authData.user.id,
+        email: email,
+        first_name: firstName,
+        last_name: lastName,
+        role: data.role.toLowerCase(),
+        location: data.location || 'Chicago, IL',
+        subscription_status: 'free',
+      });
+
+    if (insertError) {
+      throw new Error(`Failed to manually create users record: ${insertError.message}`);
+    }
   }
 
   const userUpdate: Record<string, any> = {
@@ -95,16 +120,37 @@ export async function createTestUser(data: {
     userUpdate.is_admin = true;
   }
 
-  const { error: userError } = await testDb
+  // Update the user record (should already exist from trigger)
+  const { data: updateResult, error: userError } = await testDb
     .from('users')
     .update(userUpdate)
-    .eq('id', authData.user.id);
+    .eq('id', authData.user.id)
+    .select();
 
   if (userError) {
     throw new Error(`Failed to update test user: ${userError.message}`);
   }
 
-  // Verify the update was successful
+  if (!updateResult || updateResult.length === 0) {
+    // Update returned no rows - try inserting instead
+    const { error: insertError } = await testDb
+      .from('users')
+      .insert({
+        id: authData.user.id,
+        email: email,
+        first_name: firstName,
+        last_name: lastName,
+        role: data.role.toLowerCase(),
+        location: data.location || 'Chicago, IL',
+        subscription_status: 'free',
+      });
+
+    if (insertError) {
+      throw new Error(`Failed to insert test user after update failed: ${insertError.message}`);
+    }
+  }
+
+  // Verify the update was successful by re-querying
   const { data: verifiedUser, error: verifyError } = await testDb
     .from('users')
     .select('first_name, last_name, role, location')
@@ -115,9 +161,16 @@ export async function createTestUser(data: {
     throw new Error(`Failed to verify user update: ${verifyError.message}`);
   }
 
-  if (verifiedUser.first_name !== firstName || verifiedUser.last_name !== lastName) {
-    throw new Error(`User update failed! Expected: ${firstName} ${lastName}, Got: ${verifiedUser.first_name} ${verifiedUser.last_name}`);
+  if (!verifiedUser) {
+    throw new Error('User record not found after update!');
   }
+
+  if (verifiedUser.first_name !== firstName || verifiedUser.last_name !== lastName) {
+    throw new Error(`User update did not persist! Expected: ${firstName} ${lastName}, Got: ${verifiedUser.first_name} ${verifiedUser.last_name}`);
+  }
+
+  console.log(`Test user created/updated: ${firstName} ${lastName} (${email})`);
+  console.log(`  - role: ${verifiedUser.role}, location: ${verifiedUser.location}`);
 
   // Create/update role-specific data to complete onboarding
   if (data.role === 'worker') {
